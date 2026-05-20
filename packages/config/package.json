@@ -1,0 +1,13 @@
+{
+  "name": "@mvh/config",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "tsconfig.base.json",
+    "tsconfig.node.json"
+  ],
+  "scripts": {
+    "lint": "echo 'no lint for config'",
+    "clean": "rm -rf .turbo"
+  }
+}

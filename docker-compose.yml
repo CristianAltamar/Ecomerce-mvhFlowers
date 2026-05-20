@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mvh-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mvh}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mvh_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-mvh_store}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-mvh}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mvh-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: mvh-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-mvh_redis_dev} --appendonly yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mvh-net
+
+  # API y Web se ejecutan localmente con pnpm dev durante desarrollo.
+  # Los Dockerfiles en docker/ se usan solo para producción.
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  mvh-net:
+    driver: bridge

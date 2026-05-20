@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === Variables CSS y reset elegante === */
+
+:root {
+  --color-burgundy: #5a1028;
+  --color-burgundy-light: #831b3e;
+  --color-gold: #d49328;
+  --color-gold-light: #ecc774;
+  --color-cream: #f7f1e3;
+  --color-ink: #1a0a10;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-feature-settings: 'ss01', 'cv11';
+}
+
+/* Scrollbar refinada */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: theme('colors.cream.100');
+}
+::-webkit-scrollbar-thumb {
+  background: theme('colors.burgundy.700');
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.burgundy.900');
+}
+
+/* Selección de texto */
+::selection {
+  background: theme('colors.gold.300');
+  color: theme('colors.burgundy.950');
+}
+
+/* === Componentes reutilizables === */
+
+@layer components {
+  /* Separador decorativo dorado */
+  .gold-divider {
+    @apply relative flex items-center justify-center gap-3;
+  }
+  .gold-divider::before,
+  .gold-divider::after {
+    content: '';
+    @apply h-px flex-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent;
+  }
+
+  /* Texto con kerning premium */
+  .eyebrow {
+    @apply text-xs uppercase tracking-widest text-gold-700 font-serif font-medium;
+  }
+
+  /* Botón primario burdeos */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
+           bg-burgundy-900 text-cream-50 font-medium tracking-wide
+           border border-burgundy-900 hover:bg-burgundy-950
+           transition-all duration-300 hover:gap-3
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream;
+  }
+
+  /* Botón secundario outline dorado */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
+           bg-transparent text-burgundy-900 font-medium tracking-wide
+           border border-burgundy-900/30 hover:border-burgundy-900 hover:bg-burgundy-900/5
+           transition-all duration-300 hover:gap-3;
+  }
+
+  /* Botón sobre fondo oscuro */
+  .btn-on-dark {
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
+           bg-gold-500 text-burgundy-950 font-medium tracking-wide
+           hover:bg-gold-400 transition-all duration-300 hover:gap-3
+           shadow-lg shadow-burgundy-950/40;
+  }
+
+  /* Card de producto con micro-interacción */
+  .product-card {
+    @apply group block relative overflow-hidden bg-cream-50 border border-burgundy-900/10
+           transition-all duration-500 hover:border-gold-500/60 hover:-translate-y-0.5;
+  }
+
+  /* Marquee text en footer / banners */
+  .ornament-line {
+    @apply font-display italic text-gold-600;
+  }
+}
+
+/* === Utilities personalizadas === */
+
+@layer utilities {
+  .container-mvh {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Sombra suave premium */
+  .shadow-premium {
+    box-shadow:
+      0 1px 2px rgba(90, 16, 40, 0.08),
+      0 8px 24px rgba(90, 16, 40, 0.06);
+  }
+  .shadow-premium-lg {
+    box-shadow:
+      0 1px 2px rgba(90, 16, 40, 0.1),
+      0 24px 48px rgba(90, 16, 40, 0.12);
+  }
+}

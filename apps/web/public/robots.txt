@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /cuenta
+Disallow: /carrito
+Disallow: /checkout
+
+Sitemap: https://mvhflores.com/sitemap.xml

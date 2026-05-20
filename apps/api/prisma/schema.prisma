@@ -1,0 +1,473 @@
+// Schema Prisma de MVH Flores
+// Cubre todas las entidades del PDF: usuarios, productos, categorías, variantes,
+// pedidos, pagos, cupones, direcciones, inventario, historial de estados.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =========================================================
+// USUARIOS Y AUTENTICACIÓN
+// =========================================================
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  STAFF
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  role         Role     @default(CUSTOMER)
+  isActive     Boolean  @default(true)
+  emailVerifiedAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  addresses     Address[]
+  orders        Order[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  userAgent String?
+  ipAddress String?
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+// =========================================================
+// CATÁLOGO: CATEGORÍAS, PRODUCTOS, VARIANTES, IMÁGENES
+// =========================================================
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  imageUrl    String?
+  position    Int      @default(0)
+  isActive    Boolean  @default(true)
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Product {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  name                String
+  description         String?
+  shortDescription    String?
+  priceCents          Int      // precio en centavos (COP)
+  compareAtPriceCents Int?     // precio "antes" para mostrar descuento
+  currency            String   @default("COP")
+  isFeatured          Boolean  @default(false)
+  isActive            Boolean  @default(true)
+  stock               Int      @default(0)
+  categoryId          String?
+  category            Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  images     ProductImage[]
+  variants   ProductVariant[]
+  orderItems OrderItem[]
+  inventoryMovements InventoryMovement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isActive, isFeatured])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  position  Int     @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku        String   @unique
+  name       String   // ej: "Mediano", "Grande con jarrón"
+  priceCents Int
+  stock      Int      @default(0)
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+// =========================================================
+// DIRECCIONES Y ZONAS DE ENTREGA
+// =========================================================
+
+model Address {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label        String?  // "Casa", "Oficina"
+  recipientName String
+  phone        String
+  line1        String
+  line2        String?
+  neighborhood String?  // barrio (importante para zonas en Barranquilla)
+  city         String   @default("Barranquilla")
+  state        String   @default("Atlántico")
+  country      String   @default("CO")
+  postalCode   String?
+  notes        String?  // referencias, "casa con portón verde"
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+// Zona de entrega (para tarifas por zona en Barranquilla)
+model DeliveryZone {
+  id          String   @id @default(cuid())
+  name        String   // "Norte", "Centro", "Sur"
+  feeCents    Int      // tarifa de envío en centavos
+  description String?
+  isActive    Boolean  @default(true)
+  // Barrios o sectores que pertenecen a esta zona (uno por línea)
+  neighborhoods String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("delivery_zones")
+}
+
+// Franja horaria de entrega
+model DeliverySlot {
+  id        String   @id @default(cuid())
+  label     String   // "8:00 AM - 11:00 AM"
+  startTime String   // "08:00"
+  endTime   String   // "11:00"
+  isActive  Boolean  @default(true)
+  position  Int      @default(0)
+
+  @@map("delivery_slots")
+}
+
+// Fechas bloqueadas (festivos, mantenimientos)
+model BlockedDate {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@map("blocked_dates")
+}
+
+// =========================================================
+// PEDIDOS, ITEMS, ESTADOS
+// =========================================================
+
+enum OrderStatus {
+  PENDING            // creado, esperando pago
+  PAID               // pagado
+  PROCESSING         // en preparación
+  OUT_FOR_DELIVERY   // en camino
+  DELIVERED          // entregado
+  CANCELLED          // cancelado
+  REFUNDED           // reembolsado
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique // "MVH-2025-00001"
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // Datos del comprador (snapshot, sirve también para guest checkout)
+  guestEmail      String?
+  guestPhone      String?
+  guestFirstName  String?
+  guestLastName   String?
+
+  // Dirección de entrega (snapshot)
+  addressId       String?
+  address         Address? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+  shippingLine1   String
+  shippingLine2   String?
+  shippingNeighborhood String?
+  shippingCity    String
+  shippingState   String
+  shippingCountry String
+  shippingNotes   String?
+
+  // Programación de entrega
+  deliveryDate    DateTime? @db.Date
+  deliverySlotId  String?
+  deliverySlotLabel String?
+  deliveryZoneId  String?
+  deliveryZoneName String?
+  shippingFeeCents Int      @default(0)
+
+  // Totales
+  subtotalCents   Int
+  discountCents   Int       @default(0)
+  taxCents        Int       @default(0)
+  totalCents      Int
+  currency        String    @default("COP")
+
+  // Cupón aplicado
+  couponId        String?
+  coupon          Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponCode      String?
+
+  // Estado y notas
+  status          OrderStatus @default(PENDING)
+  customerNote    String?
+  internalNote    String?
+
+  items           OrderItem[]
+  payments        Payment[]
+  statusHistory   OrderStatusHistory[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  // Snapshot del producto al momento de la compra
+  productName String
+  variantName String?
+  imageUrl    String?
+  unitPriceCents Int
+  quantity    Int
+  subtotalCents Int
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus OrderStatus?
+  toStatus  OrderStatus
+  note      String?
+  changedBy String?     // userId del staff que cambió
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+  @@map("order_status_history")
+}
+
+// =========================================================
+// PAGOS
+// =========================================================
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  APPROVED
+  REJECTED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BOLD_CARD
+  BOLD_PSE
+  BOLD_NEQUI
+  CASH_ON_DELIVERY
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider        String        // "bold", "cash"
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  amountCents     Int
+  currency        String        @default("COP")
+  // IDs externos del proveedor
+  providerPaymentId String?
+  providerReference String?
+  // Datos brutos del proveedor (webhook payload, respuesta de creación)
+  rawRequest      Json?
+  rawResponse     Json?
+  errorCode       String?
+  errorMessage    String?
+  paidAt          DateTime?
+  refundedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([providerPaymentId])
+  @@index([status])
+  @@map("payments")
+}
+
+// =========================================================
+// CUPONES
+// =========================================================
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+model Coupon {
+  id              String     @id @default(cuid())
+  code            String     @unique
+  description     String?
+  type            CouponType
+  value           Int        // porcentaje (1-100) o centavos
+  minPurchaseCents Int       @default(0)
+  maxDiscountCents Int?      // tope para tipo PERCENT
+  usageLimit      Int?       // null = ilimitado
+  usageCount      Int        @default(0)
+  perUserLimit    Int?
+  startsAt        DateTime?
+  expiresAt       DateTime?
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  orders          Order[]
+
+  @@index([code])
+  @@index([isActive])
+  @@map("coupons")
+}
+
+// =========================================================
+// INVENTARIO (movimientos)
+// =========================================================
+
+enum InventoryReason {
+  PURCHASE
+  SALE
+  ADJUSTMENT
+  RETURN
+  LOSS
+}
+
+model InventoryMovement {
+  id        String          @id @default(cuid())
+  productId String
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId String?
+  delta     Int             // positivo = entrada, negativo = salida
+  reason    InventoryReason
+  note      String?
+  createdBy String?         // userId
+  createdAt DateTime        @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
+  @@map("inventory_movements")
+}
+
+// =========================================================
+// CARRUSEL DE BANNERS (HOME)
+// =========================================================
+
+model Banner {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String?
+  imageUrl    String
+  linkUrl     String?
+  ctaLabel    String?
+  position    Int      @default(0)
+  isActive    Boolean  @default(true)
+  startsAt    DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("banners")
+}
+
+// =========================================================
+// LOGS DE AUDITORÍA
+// =========================================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String   // "USER_LOGIN", "ORDER_STATUS_CHANGED", etc
+  entity    String?  // "Order", "Product"
+  entityId  String?
+  metadata  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
