@@ -4,11 +4,6 @@ import Link from 'next/link';
 import { useCartStore, selectCartCount, selectCartSubtotalCents } from '@/store/cart-store';
 import { formatCOP } from '@mvh/utils';
 import { cn } from '@/lib/cn';
-
-/**
- * Drawer del carrito. Funcional para visualizar items y manejar cantidades.
- * El checkout completo + integración Bold se implementa en Entrega 2.
- */
 export function CartDrawer() {
   const isOpen = useCartStore((s) => s.isOpen);
   const closeCart = useCartStore((s) => s.closeCart);
@@ -148,13 +143,13 @@ export function CartDrawer() {
             <p className="text-xs text-burgundy-900/60 text-center">
               El costo de envío se calcula en el checkout según tu zona.
             </p>
-            <button
-              disabled
-              className="btn-primary w-full opacity-50 cursor-not-allowed"
-              title="Checkout disponible en Entrega 2"
+            <Link
+              href="/checkout"
+              onClick={closeCart}
+              className="btn-primary w-full text-center block"
             >
-              Finalizar compra (próximamente)
-            </button>
+              Finalizar compra
+            </Link>
             <button onClick={closeCart} className="btn-outline w-full">
               Seguir comprando
             </button>

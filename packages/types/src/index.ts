@@ -40,6 +40,7 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
   children?: Category[];
+  parent?: Pick<Category, 'id' | 'slug' | 'name'> | null;
 }
 
 export interface ProductImage {
@@ -97,6 +98,110 @@ export interface AuthTokens {
 export interface AuthResponse {
   user: PublicUser;
   tokens: AuthTokens;
+}
+
+export interface Address {
+  id: string;
+  userId: string;
+  label: string | null;
+  recipientName: string;
+  phone: string;
+  line1: string;
+  line2: string | null;
+  neighborhood: string | null;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string | null;
+  notes: string | null;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DeliveryZone {
+  id: string;
+  name: string;
+  feeCents: number;
+  description: string | null;
+  neighborhoods: string[];
+  isActive: boolean;
+}
+
+export interface DeliverySlot {
+  id: string;
+  label: string;
+  startTime: string;
+  endTime: string;
+  isActive: boolean;
+  position: number;
+}
+
+export interface BlockedDate {
+  id: string;
+  date: string;
+  reason: string | null;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description: string | null;
+  type: CouponType;
+  value: number;
+  minPurchaseCents: number;
+  maxDiscountCents: number | null;
+}
+
+export interface ValidateCouponResult {
+  coupon: Coupon;
+  discountCents: number;
+}
+
+export interface OrderItem {
+  id: string;
+  productId: string | null;
+  variantId: string | null;
+  productName: string;
+  variantName: string | null;
+  imageUrl: string | null;
+  unitPriceCents: number;
+  quantity: number;
+  subtotalCents: number;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string | null;
+  status: OrderStatus;
+  subtotalCents: number;
+  discountCents: number;
+  shippingFeeCents: number;
+  taxCents: number;
+  totalCents: number;
+  currency: string;
+  couponCode: string | null;
+  deliveryDate: string | null;
+  deliverySlotLabel: string | null;
+  deliveryZoneName: string | null;
+  shippingLine1: string;
+  shippingLine2: string | null;
+  shippingNeighborhood: string | null;
+  shippingCity: string;
+  shippingState: string;
+  shippingCountry: string;
+  shippingNotes: string | null;
+  customerNote: string | null;
+  items: OrderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InitiatePaymentResult {
+  paymentId: string;
+  redirectUrl: string | null;
+  provider: string;
 }
 
 // === PAGINACIÓN ===

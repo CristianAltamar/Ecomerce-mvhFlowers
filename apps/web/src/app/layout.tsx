@@ -4,6 +4,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
 import { QueryProvider } from '@/providers/query-provider';
+import { AuthProvider } from '@/providers/auth-provider';
 import '@/styles/globals.css';
 
 // Display: Playfair Display — elegancia editorial
@@ -81,10 +82,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="font-serif min-h-screen flex flex-col bg-cream">
         <QueryProvider>
+          <AuthProvider>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <CartDrawer />
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

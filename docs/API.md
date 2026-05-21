@@ -188,6 +188,114 @@ Si el token expira (401), el cliente debe llamar `/auth/refresh` con el refresh 
 
 Cuando se excede, respuesta 429 con `code: RATE_LIMITED`.
 
+---
+
+## 📍 Addresses *(requiere auth)*
+
+### `GET /addresses`
+Lista las direcciones del usuario autenticado.
+
+### `POST /addresses`
+**Body:** `{ recipientName, phone, line1, line2?, neighborhood?, city?, notes?, isDefault? }`
+
+### `PUT /addresses/:id`
+Actualiza una dirección. Acepta campos parciales del mismo body.
+
+### `DELETE /addresses/:id`
+Elimina una dirección. Responde 204.
+
+---
+
+## 🚚 Delivery *(público)*
+
+### `GET /delivery/zones`
+Lista zonas de entrega activas con `feeCents` y barrios.
+
+### `GET /delivery/slots`
+Lista franjas horarias activas, ordenadas por posición.
+
+### `GET /delivery/blocked-dates`
+Fechas bloqueadas a partir de hoy (festivos, mantenimiento).
+
+---
+
+## 🏷️ Coupons
+
+### `POST /coupons/validate`
+**Body:** `{ "code": "BIENVENIDA10", "subtotalCents": 5000000 }`
+
+**Respuesta:**
+```json
+{
+  "ok": true,
+  "data": {
+    "coupon": { "id": "...", "code": "BIENVENIDA10", "type": "PERCENT", "value": 10, ... },
+    "discountCents": 500000
+  }
+}
+```
+
+---
+
+## 📦 Orders
+
+### `POST /orders` *(auth opcional — soporta guest checkout)*
+**Body:**
+```json
+{
+  "items": [{ "productId": "...", "variantId": "...", "quantity": 1 }],
+  "addressId": "...",
+  "deliveryDate": "2026-06-01",
+  "deliverySlotId": "...",
+  "deliveryZoneId": "...",
+  "couponCode": "BIENVENIDA10",
+  "customerNote": "Dejar con el portero",
+  "guestEmail": "guest@example.com"
+}
+```
+Responde 201 con el pedido completo (número `MVH-YYYY-NNNNN`, items, totales).
+
+### `GET /orders` *(auth requerida)*
+Lista pedidos del usuario. Soporta `?page=1&perPage=10`.
+
+### `GET /orders/:id` *(auth opcional)*
+Detalle de un pedido. Si hay auth, valida que sea el propietario.
+
+---
+
+## 💳 Payments
+
+### `POST /orders/:id/pay` *(auth opcional)*
+Inicia el pago de un pedido PENDING.
+
+**Body:**
+```json
+{
+  "method": "BOLD_CARD",
+  "returnUrl": "https://mvhflores.com/pedido/XXX?status=success",
+  "cancelUrl": "https://mvhflores.com/pedido/XXX?status=cancelled"
+}
+```
+
+**Respuesta:**
+```json
+{
+  "ok": true,
+  "data": {
+    "paymentId": "bold_order_xxx",
+    "redirectUrl": "https://checkout.bold.co/payment/link/...",
+    "provider": "bold"
+  }
+}
+```
+→ Frontend redirige al usuario a `redirectUrl`.
+
+### `POST /payments/webhooks/bold`
+Endpoint para notificaciones de Bold (HMAC-SHA256 verificado).
+No requiere auth. Bold llama aquí cuando el pago cambia de estado.
+
+---
+
 ## 🧪 Probar rápido con curl
 
 ```bash
