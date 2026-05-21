@@ -14,7 +14,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
     product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
 
   return (
-    <Link href={`/producto/${product.slug}`} className="product-card">
+    <Link href={`/producto/${product.slug}`} className="product-card group">
       {/* Imagen */}
       <div className="aspect-[4/5] overflow-hidden bg-cream-100 relative">
         {image ? (

@@ -93,7 +93,7 @@ body {
 
   /* Card de producto con micro-interacción */
   .product-card {
-    @apply group block relative overflow-hidden bg-cream-50 border border-burgundy-900/10
+    @apply block relative overflow-hidden bg-cream-50 border border-burgundy-900/10
            transition-all duration-500 hover:border-gold-500/60 hover:-translate-y-0.5;
   }
 

@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "description": "Ecommerce headless para MVH Flores (Barranquilla, Colombia)",
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@11.0.0",
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
   },
   "scripts": {
     "dev": "turbo run dev",

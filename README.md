@@ -31,7 +31,7 @@ mvh-store/
 | Capa            | Tecnologías                                                                 |
 | --------------- | --------------------------------------------------------------------------- |
 | **Frontend**    | Next.js 14, React 18, TypeScript, TailwindCSS, Zustand, TanStack Query, Zod |
-| **Backend**     | Node.js 20, Express, TypeScript, Prisma ORM, JWT, Zod, Pino                 |
+| **Backend**     | Node.js 24, Express, TypeScript, Prisma ORM, JWT, Zod, Pino                 |
 | **Base datos**  | PostgreSQL 16                                                               |
 | **Cache/Queue** | Redis 7 + BullMQ (configurado, integración en Entrega 2)                    |
 | **Infra**       | Docker, Docker Compose, pnpm workspaces, Turborepo                          |
@@ -44,8 +44,8 @@ mvh-store/
 
 ### Requisitos previos
 
-- **Node.js** ≥ 20.x
-- **pnpm** ≥ 9.x → `npm install -g pnpm`
+- **Node.js** ≥ 24.x
+- **pnpm** ≥ 11.x → `npm install -g pnpm@11`
 - **Docker** y **Docker Compose**
 
 ### Instalación
