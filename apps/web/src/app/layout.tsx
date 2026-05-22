@@ -74,6 +74,29 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': 'https://mvhflores.co',
+  name: 'MVH Flowers',
+  description: 'Floristería premium con entrega el mismo día en Barranquilla, Colombia.',
+  url: 'https://mvhflores.co',
+  telephone: '+573224513906',
+  image: 'https://mvhflores.co/opengraph-image',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Barranquilla',
+    addressRegion: 'Atlántico',
+    addressCountry: 'CO',
+  },
+  openingHoursSpecification: {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    opens: '08:00',
+    closes: '17:00',
+  },
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -81,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${playfair.variable} ${cormorant.variable} ${inter.variable}`}
     >
       <body className="font-serif min-h-screen flex flex-col bg-cream">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
         <QueryProvider>
           <AuthProvider>
           <Header />

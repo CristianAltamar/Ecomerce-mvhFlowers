@@ -14,19 +14,29 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const product = await api.getProductBySlug(params.slug);
+    const description = product.shortDescription ?? product.description ?? undefined;
     return {
       title: product.name,
-      description: product.shortDescription ?? product.description ?? undefined,
+      description,
+      alternates: { canonical: `/producto/${params.slug}` },
       openGraph: {
         title: product.name,
-        description: product.shortDescription ?? undefined,
-        images: product.images[0] ? [{ url: product.images[0].url }] : undefined,
+        description: description ?? undefined,
+        images: product.images[0] ? [{ url: product.images[0].url, alt: product.name }] : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: product.name,
+        description: description ?? undefined,
+        images: product.images[0] ? [product.images[0].url] : undefined,
       },
     };
   } catch {
     return { title: 'Producto no encontrado' };
   }
 }
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mvhflores.co';
 
 export default async function ProductPage({ params }: PageProps) {
   let product;
@@ -37,12 +47,41 @@ export default async function ProductPage({ params }: PageProps) {
     throw err;
   }
 
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.shortDescription ?? product.description ?? undefined,
+    image: product.images[0]?.url,
+    brand: { '@type': 'Brand', name: 'MVH Flowers' },
+    offers: {
+      '@type': 'Offer',
+      price: (product.priceCents / 100).toFixed(0),
+      priceCurrency: 'COP',
+      availability:
+        product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: `${SITE_URL}/producto/${product.slug}`,
+    },
+  };
+
+  const breadcrumbItems = [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE_URL },
+    ...(product.category
+      ? [{ '@type': 'ListItem', position: 2, name: product.category.name, item: `${SITE_URL}/categoria/${product.category.slug}` }]
+      : []),
+    { '@type': 'ListItem', position: product.category ? 3 : 2, name: product.name, item: `${SITE_URL}/producto/${product.slug}` },
+  ];
+  const breadcrumbJsonLd = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbItems };
+
   const mainImage = product.images[0];
   const galleryImages = product.images.slice(1);
   const hasDiscount =
     product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
 
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
     <div className="container-mvh py-12 lg:py-16">
       {/* Breadcrumb */}
       <nav className="text-xs uppercase tracking-widest text-burgundy-900/60 mb-8">
@@ -191,5 +230,6 @@ export default async function ProductPage({ params }: PageProps) {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -14,14 +14,29 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const cat = await api.getCategoryBySlug(params.slug);
+    const description = cat.description ?? `Arreglos florales de ${cat.name} con entrega el mismo día en Barranquilla.`;
     return {
       title: cat.name,
-      description: cat.description ?? `Arreglos florales en categoría ${cat.name}`,
+      description,
+      alternates: { canonical: `/categoria/${params.slug}` },
+      openGraph: {
+        title: `${cat.name} | MVH Flowers`,
+        description,
+        images: cat.imageUrl ? [{ url: cat.imageUrl, alt: cat.name }] : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${cat.name} | MVH Flowers`,
+        description,
+        images: cat.imageUrl ? [cat.imageUrl] : undefined,
+      },
     };
   } catch {
     return { title: 'Categoría no encontrada' };
   }
 }
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mvhflores.co';
 
 export default async function CategoryPage({ params, searchParams }: PageProps) {
   let category;
@@ -39,7 +54,18 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     .getProducts({ category: params.slug, page, perPage: 12, sort })
     .catch(() => ({ data: [], meta: { page: 1, perPage: 12, total: 0, totalPages: 1 } }));
 
+  const breadcrumbItems = [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE_URL },
+    ...(category.parent
+      ? [{ '@type': 'ListItem', position: 2, name: category.parent.name, item: `${SITE_URL}/categoria/${category.parent.slug}` }]
+      : []),
+    { '@type': 'ListItem', position: category.parent ? 3 : 2, name: category.name, item: `${SITE_URL}/categoria/${category.slug}` },
+  ];
+  const breadcrumbJsonLd = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: breadcrumbItems };
+
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
     <div className="container-mvh py-12 lg:py-16">
       {/* Breadcrumb */}
       <nav className="text-xs uppercase tracking-widest text-burgundy-900/60 mb-6">
@@ -135,5 +161,6 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         </nav>
       )}
     </div>
+    </>
   );
 }
