@@ -3,6 +3,7 @@ import { BadRequestError, NotFoundError, ForbiddenError } from '../../lib/errors
 import { buildPaginated, getSkipTake } from '../../lib/pagination';
 import { couponService } from '../coupons/coupon.service';
 import { deliveryService } from '../delivery/delivery.service';
+import { enqueueOrderConfirmation } from '../../queues/email.queue';
 import type { CreateOrderInput, ListOrdersQuery } from './order.schemas';
 
 const orderInclude = {
@@ -258,7 +259,29 @@ export const orderService = {
       return created;
     });
 
-    return { ...toOrderResponse(order), items: order.items };
+    const result = { ...toOrderResponse(order), items: order.items };
+
+    // Fire-and-forget: enqueue confirmation email
+    const customerEmail = userId
+      ? (await prisma.user.findUnique({ where: { id: userId }, select: { email: true } }))?.email
+      : input.guestEmail;
+    if (customerEmail) {
+      enqueueOrderConfirmation({
+        orderId: order.id,
+        orderNumber,
+        customerEmail,
+        customerName: input.guestFirstName ?? 'Cliente',
+        totalCents,
+        deliveryDate: result.deliveryDate ?? '',
+        items: orderItemsData.map((i) => ({
+          productName: i.productName,
+          quantity: i.quantity,
+          unitPriceCents: i.unitPriceCents,
+        })),
+      }).catch(() => { /* non-critical */ });
+    }
+
+    return result;
   },
 
   async list(userId: string, query: ListOrdersQuery) {

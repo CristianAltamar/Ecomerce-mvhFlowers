@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/prisma';
 import { NotFoundError } from '../../lib/errors';
 import { buildPaginated, getSkipTake } from '../../lib/pagination';
+import { cache } from '../../lib/cache';
 import type { ListProductsQuery } from './product.schemas';
 
 const productInclude = {
@@ -12,6 +13,10 @@ const productInclude = {
 
 export const productService = {
   async list(query: ListProductsQuery) {
+    const cacheKey = `products:list:${Buffer.from(JSON.stringify(query)).toString('base64')}`;
+    const cached = await cache.get(cacheKey);
+    if (cached) return cached;
+
     const where: Prisma.ProductWhereInput = { isActive: true };
 
     if (query.featured !== undefined) where.isFeatured = query.featured;
@@ -23,7 +28,6 @@ export const productService = {
       ];
     }
     if (query.category) {
-      // Permitir categoría directa o sus hijas (ej: filtrar "estilo" trae también bouquets, sembrados...)
       const cat = await prisma.category.findUnique({
         where: { slug: query.category },
         include: { children: { select: { id: true } } },
@@ -32,7 +36,6 @@ export const productService = {
         const ids = [cat.id, ...cat.children.map((c) => c.id)];
         where.categoryId = { in: ids };
       } else {
-        // categoría inexistente → resultado vacío
         return buildPaginated([], 0, query);
       }
     }
@@ -45,46 +48,52 @@ export const productService = {
 
     const orderBy: Prisma.ProductOrderByWithRelationInput = (() => {
       switch (query.sort) {
-        case 'price_asc':
-          return { priceCents: 'asc' };
-        case 'price_desc':
-          return { priceCents: 'desc' };
-        case 'name_asc':
-          return { name: 'asc' };
+        case 'price_asc': return { priceCents: 'asc' };
+        case 'price_desc': return { priceCents: 'desc' };
+        case 'name_asc': return { name: 'asc' };
         case 'newest':
-        default:
-          return { createdAt: 'desc' };
+        default: return { createdAt: 'desc' };
       }
     })();
 
     const [items, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        include: productInclude,
-        orderBy,
-        ...getSkipTake(query),
-      }),
+      prisma.product.findMany({ where, include: productInclude, orderBy, ...getSkipTake(query) }),
       prisma.product.count({ where }),
     ]);
 
-    return buildPaginated(items, total, query);
+    const result = buildPaginated(items, total, query);
+    await cache.set(cacheKey, result, 300);
+    return result;
   },
 
   async getBySlug(slug: string) {
+    const cacheKey = `products:slug:${slug}`;
+    const cached = await cache.get(cacheKey);
+    if (cached) return cached;
+
     const product = await prisma.product.findFirst({
       where: { slug, isActive: true },
       include: productInclude,
     });
     if (!product) throw new NotFoundError(`Producto "${slug}" no encontrado`);
+
+    await cache.set(cacheKey, product, 600);
     return product;
   },
 
   async getFeatured(limit = 8) {
-    return prisma.product.findMany({
+    const cacheKey = `products:featured:${limit}`;
+    const cached = await cache.get(cacheKey);
+    if (cached) return cached;
+
+    const products = await prisma.product.findMany({
       where: { isActive: true, isFeatured: true },
       include: productInclude,
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
+
+    await cache.set(cacheKey, products, 600);
+    return products;
   },
 };

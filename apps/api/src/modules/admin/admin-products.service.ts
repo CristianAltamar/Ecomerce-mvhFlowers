@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { NotFoundError, ConflictError } from '../../lib/errors';
+import { cache } from '../../lib/cache';
 import type {
   CreateProductInput,
   UpdateProductInput,
@@ -61,7 +62,7 @@ export const adminProductsService = {
     const existing = await prisma.product.findUnique({ where: { slug: data.slug } });
     if (existing) throw new ConflictError(`El slug "${data.slug}" ya existe`);
 
-    return prisma.product.create({
+    const product = await prisma.product.create({
       data: {
         name: data.name,
         slug: data.slug,
@@ -78,10 +79,12 @@ export const adminProductsService = {
       },
       include: PRODUCT_INCLUDE,
     });
+    await cache.delPattern('products:*');
+    return product;
   },
 
   async update(id: string, data: UpdateProductInput) {
-    await this.getById(id);
+    const existing = await this.getById(id);
 
     if (data.slug) {
       const conflict = await prisma.product.findFirst({
@@ -90,20 +93,26 @@ export const adminProductsService = {
       if (conflict) throw new ConflictError(`El slug "${data.slug}" ya está en uso`);
     }
 
-    return prisma.product.update({
+    const product = await prisma.product.update({
       where: { id },
       data,
       include: PRODUCT_INCLUDE,
     });
+    await cache.del(`products:slug:${existing.slug}`, 'products:featured:8');
+    await cache.delPattern('products:list:*');
+    return product;
   },
 
   async toggleActive(id: string) {
-    const product = await this.getById(id);
-    return prisma.product.update({
+    const existing = await this.getById(id);
+    const product = await prisma.product.update({
       where: { id },
-      data: { isActive: !product.isActive },
+      data: { isActive: !existing.isActive },
       include: PRODUCT_INCLUDE,
     });
+    await cache.del(`products:slug:${existing.slug}`, 'products:featured:8');
+    await cache.delPattern('products:list:*');
+    return product;
   },
 
   // ─── Images ────────────────────────────────────────────────────────────────

@@ -11,6 +11,8 @@ const NAV = [
   { href: '/admin/productos', label: 'Productos', icon: '✦' },
   { href: '/admin/categorias', label: 'Categorías', icon: '❋' },
   { href: '/admin/pedidos', label: 'Pedidos', icon: '◎' },
+  { href: '/admin/cupones', label: 'Cupones', icon: '⊛' },
+  { href: '/admin/entregas', label: 'Entregas', icon: '◉' },
 ];
 
 function AdminSidebar() {

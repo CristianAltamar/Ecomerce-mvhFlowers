@@ -87,6 +87,61 @@ export const idParamsSchema = z.object({ id: z.string().min(1) });
 export const productImageParamsSchema = z.object({ id: z.string(), imageId: z.string() });
 export const variantParamsSchema = z.object({ id: z.string(), variantId: z.string() });
 
+// ─── Coupons ─────────────────────────────────────────────────────────────────
+
+export const createCouponSchema = z.object({
+  code: z.string().min(3).max(30).toUpperCase(),
+  description: z.string().max(300).optional(),
+  type: z.enum(['PERCENT', 'FIXED']),
+  value: z.number().int().positive(),
+  minPurchaseCents: z.number().int().min(0).default(0),
+  maxDiscountCents: z.number().int().positive().nullable().optional(),
+  usageLimit: z.number().int().positive().nullable().optional(),
+  perUserLimit: z.number().int().positive().nullable().optional(),
+  startsAt: z.string().datetime({ offset: true }).nullable().optional(),
+  expiresAt: z.string().datetime({ offset: true }).nullable().optional(),
+  isActive: z.boolean().default(true),
+});
+
+export const updateCouponSchema = createCouponSchema.partial();
+
+export const adminCouponsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  perPage: z.coerce.number().int().min(1).max(100).default(20),
+  search: z.string().optional(),
+  isActive: z.enum(['true', 'false']).optional(),
+});
+
+// ─── Delivery config ──────────────────────────────────────────────────────────
+
+export const createZoneSchema = z.object({
+  name: z.string().min(2).max(100),
+  feeCents: z.number().int().min(0),
+  description: z.string().max(300).optional(),
+  neighborhoods: z.array(z.string().min(1)).min(1),
+  isActive: z.boolean().default(true),
+});
+
+export const updateZoneSchema = createZoneSchema.partial();
+
+export const createSlotSchema = z.object({
+  label: z.string().min(2).max(100),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato HH:MM'),
+  position: z.number().int().min(0).default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const updateSlotSchema = createSlotSchema.partial();
+
+export const createBlockedDateSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato YYYY-MM-DD'),
+  reason: z.string().max(200).optional(),
+});
+
+export const slotParamsSchema = z.object({ id: z.string().min(1) });
+export const blockedDateParamsSchema = z.object({ id: z.string().min(1) });
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
@@ -99,3 +154,11 @@ export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
 export type AdminOrdersQuery = z.infer<typeof adminOrdersQuerySchema>;
 export type AdminProductsQuery = z.infer<typeof adminProductsQuerySchema>;
+export type CreateCouponInput = z.infer<typeof createCouponSchema>;
+export type UpdateCouponInput = z.infer<typeof updateCouponSchema>;
+export type AdminCouponsQuery = z.infer<typeof adminCouponsQuerySchema>;
+export type CreateZoneInput = z.infer<typeof createZoneSchema>;
+export type UpdateZoneInput = z.infer<typeof updateZoneSchema>;
+export type CreateSlotInput = z.infer<typeof createSlotSchema>;
+export type UpdateSlotInput = z.infer<typeof updateSlotSchema>;
+export type CreateBlockedDateInput = z.infer<typeof createBlockedDateSchema>;

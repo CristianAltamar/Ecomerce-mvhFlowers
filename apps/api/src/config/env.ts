@@ -36,6 +36,14 @@ const envSchema = z.object({
   BOLD_WEBHOOK_SECRET: z.string().optional(),
   BOLD_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
 
+  // Email (SMTP) — opcional; sin config no se envían emails
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_SECURE: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().default('MVH Flores <hola@mvhflores.co>'),
+
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
 

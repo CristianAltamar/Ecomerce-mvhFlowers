@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { api } from '@/lib/api';
 import { ProductCard } from '@/components/product-card';
 import { ApiClientError } from '@/lib/api-client';
+import { SortSelect } from './sort-select';
 
 interface PageProps {
   params: { slug: string };
@@ -88,28 +89,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         <p className="text-sm text-burgundy-900/70">
           {products.meta.total} {products.meta.total === 1 ? 'producto' : 'productos'}
         </p>
-        <form className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <label htmlFor="sort" className="text-xs uppercase tracking-widest text-burgundy-900/60">
             Ordenar
           </label>
-          <select
-            id="sort"
-            name="sort"
-            defaultValue={sort}
-            className="bg-transparent border border-burgundy-900/20 px-3 py-2 text-sm text-burgundy-900 focus:outline-none focus:border-gold-500"
-            onChange={(e) => {
-              const url = new URL(window.location.href);
-              url.searchParams.set('sort', e.target.value);
-              url.searchParams.delete('page');
-              window.location.href = url.toString();
-            }}
-          >
-            <option value="newest">Más recientes</option>
-            <option value="price_asc">Precio: menor a mayor</option>
-            <option value="price_desc">Precio: mayor a menor</option>
-            <option value="name_asc">Nombre A–Z</option>
-          </select>
-        </form>
+          <SortSelect slug={params.slug} value={sort} />
+        </div>
       </div>
 
       {/* Grid */}

@@ -3,8 +3,10 @@ import { env } from './config/env';
 import { logger } from './config/logger';
 import { prisma } from './config/prisma';
 import { disconnectRedis } from './config/redis';
+import { startEmailWorker } from './queues/email.worker';
 
 const app = createApp();
+const emailWorker = startEmailWorker();
 
 const server = app.listen(env.PORT, () => {
   logger.info(
@@ -28,6 +30,7 @@ async function shutdown(signal: string) {
   });
 
   try {
+    if (emailWorker) await emailWorker.close();
     await prisma.$disconnect();
     await disconnectRedis();
     logger.info('👋 Recursos liberados. Bye.');
