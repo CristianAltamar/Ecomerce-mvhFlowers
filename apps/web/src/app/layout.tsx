@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Inter, Playfair_Display } from 'next/font/google';
-import { Header } from '@/components/header';
+import { HeaderServer } from '@/components/header-server';
 import { Footer } from '@/components/footer';
 import { CartDrawer } from '@/components/cart-drawer';
+import { SearchModal } from '@/components/search-modal';
 import { QueryProvider } from '@/providers/query-provider';
 import { AuthProvider } from '@/providers/auth-provider';
 import '@/styles/globals.css';
@@ -107,10 +108,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
         <QueryProvider>
           <AuthProvider>
-          <Header />
+          <HeaderServer />
           <main className="flex-1">{children}</main>
           <Footer />
           <CartDrawer />
+          <SearchModal />
           </AuthProvider>
         </QueryProvider>
       </body>

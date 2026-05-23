@@ -49,24 +49,22 @@ const config: Config = {
       letterSpacing: {
         widest: '0.25em',
       },
+      // Animaciones — keyframes en globals.css (de @midudev/tailwind-animations)
       animation: {
-        'fade-in': 'fadeIn 0.6s ease-out forwards',
-        'fade-up': 'fadeUp 0.7s ease-out forwards',
-        'shimmer': 'shimmer 2s linear infinite',
-      },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        fadeUp: {
-          '0%': { opacity: '0', transform: 'translateY(12px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        shimmer: {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
+        'fade-in':         'fade-in 0.6s ease-in both',
+        'fade-out':        'fade-out 0.6s ease-out both',
+        'fade-up':         'fade-in-up 0.7s ease-in-out both',
+        'fade-in-up':      'fade-in-up 0.7s ease-in-out both',
+        'fade-in-down':    'fade-in-down 0.6s ease-in-out both',
+        'fade-in-left':    'fade-in-left 0.6s ease-in-out both',
+        'fade-in-right':   'fade-in-right 0.6s ease-in-out both',
+        'slide-in-bottom': 'slide-in-bottom 0.6s ease-out both',
+        'zoom-in':         'zoom-in 0.6s ease-out both',
+        'blurred-fade-in': 'blurred-fade-in 0.9s ease-in-out both',
+        // search-in: fade-in-up más rápido para el panel de búsqueda
+        'search-in':       'fade-in-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) both',
+        // shimmer no está en la librería, se mantiene custom
+        'shimmer':         'shimmer 2s linear infinite',
       },
       backgroundImage: {
         'gold-gradient': 'linear-gradient(135deg, #d49328 0%, #ecc774 50%, #d49328 100%)',

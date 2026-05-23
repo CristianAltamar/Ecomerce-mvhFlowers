@@ -4,51 +4,109 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Logo } from './logo';
 import { useCartStore, selectCartCount } from '@/store/cart-store';
+import { useSearchStore } from '@/store/search-store';
 import { cn } from '@/lib/cn';
 
-const NAV_ITEMS = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Arreglos premium', href: '/categoria/arreglos-premium' },
-  { label: 'Estilo', href: '/categoria/estilo' },
-  { label: 'Ocasión', href: '/categoria/ocasion' },
-  { label: 'Contacto', href: '/contacto' },
-];
+// ── Tipos (exportados para el Server Component wrapper) ───────────────────
 
-export function Header() {
+export type NavGrandchild = { label: string; href: string };
+
+export type NavChild = {
+  label: string;
+  href: string;
+  children?: NavGrandchild[];
+};
+
+export type NavItem = {
+  label: string;
+  href: string;
+  children?: NavChild[];
+};
+
+// ── Iconos inline ──────────────────────────────────────────────────────────
+
+function ChevronDown({ className }: { className?: string }) {
+  return (
+    <svg
+      width="10" height="10"
+      viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2.5"
+      className={className}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg
+      width="10" height="10"
+      viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2.5"
+    >
+      <polyline points="9 6 15 12 9 18" />
+    </svg>
+  );
+}
+
+// ── Componente principal ───────────────────────────────────────────────────
+
+export function Header({ navItems }: { navItems: NavItem[] }) {
   const cartCount = useCartStore(selectCartCount);
-  const openCart = useCartStore((s) => s.openCart);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const openCart  = useCartStore((s) => s.openCart);
+
+  const { isOpen: isSearchOpen, openSearch, closeSearch } = useSearchStore();
+
+  const [mobileOpen, setMobileOpen]       = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+
+  const toggleMobile = (href: string) =>
+    setMobileExpanded((v) => (v === href ? null : href));
 
   return (
     <>
-      {/* Banner superior */}
-      <div className="bg-burgundy-950 text-cream-100 text-[11px] tracking-wider">
-        <div className="container-mvh py-2 flex items-center justify-center gap-2 text-center">
-          <span className="text-gold-400">✦</span>
-          <span>
-            Entrega el mismo día en Barranquilla
-            <span className="opacity-60 mx-2">·</span>
-            <span className="font-semibold">Pide antes de las 5:00 PM</span>
-          </span>
-          <span className="text-gold-400">✦</span>
-        </div>
-      </div>
+      {/* ── Header + Banner en un solo bloque sticky ─────────────────────
+          Ambos son sticky juntos, así el panel de búsqueda (top:117px)
+          siempre queda alineado debajo sin importar el scroll.           */}
+      <header className="sticky top-0 z-40">
 
-      {/* Header principal */}
-      <header className="sticky top-0 z-40 bg-cream-50/95 backdrop-blur-md border-b border-burgundy-900/10">
+        {/* Banner superior */}
+        <div className="bg-burgundy-950 text-cream-100 text-[11px] tracking-wider">
+          <div className="container-mvh py-2 flex items-center justify-center gap-2 text-center">
+            <span className="text-gold-400">✦</span>
+            <span>
+              Entrega el mismo día en Barranquilla
+              <span className="opacity-60 mx-2">·</span>
+              <span className="font-semibold">Pide antes de las 5:00 PM</span>
+            </span>
+            <span className="text-gold-400">✦</span>
+          </div>
+        </div>
+
+        {/* Nav principal */}
+        <div className="bg-cream-50/95 backdrop-blur-md border-b border-burgundy-900/10">
         <div className="container-mvh">
           <div className="flex items-center justify-between h-20">
-            {/* Mobile menu trigger */}
+
+            {/* Hamburger mobile */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
               className="lg:hidden p-2 text-burgundy-900"
               aria-label="Abrir menú"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
+              {mobileOpen ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+              )}
             </button>
 
             {/* Logo */}
@@ -56,32 +114,87 @@ export function Header() {
               <Logo />
             </div>
 
-            {/* Nav desktop */}
-            <nav className="hidden lg:flex items-center gap-8 mx-8 flex-1 justify-center">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm uppercase tracking-widest text-burgundy-900 hover:text-gold-700 transition-colors duration-300 relative group"
-                >
-                  {item.label}
-                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-gold-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-                </Link>
+            {/* ── Nav desktop ─────────────────────────────────────────── */}
+            <nav className="hidden lg:flex items-center gap-6 mx-6 flex-1 justify-center">
+              {navItems.map((item) => (
+                <div key={item.href} className="group/nav relative">
+
+                  {/* Item principal */}
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-1 text-[11px] uppercase tracking-widest text-burgundy-900 hover:text-gold-700 transition-colors duration-200 py-8 whitespace-nowrap relative"
+                  >
+                    {item.label}
+                    {item.children && (
+                      <ChevronDown className="transition-transform duration-200 group-hover/nav:rotate-180" />
+                    )}
+                    {/* Underline animado */}
+                    <span className="absolute bottom-5 left-0 right-0 h-px bg-gold-500 scale-x-0 group-hover/nav:scale-x-100 transition-transform duration-300 origin-left" />
+                  </Link>
+
+                  {/* ── Dropdown nivel 1 ── */}
+                  {item.children && (
+                    <div className="absolute top-full left-0 z-50 invisible opacity-0 group-hover/nav:visible group-hover/nav:opacity-100 transition-all duration-150">
+                      <div className="mt-0 bg-cream-50 border border-burgundy-900/10 shadow-premium-lg min-w-[210px]">
+                        {item.children.map((child) => (
+                          <div key={child.href} className="group/sub relative">
+
+                            <Link
+                              href={child.href}
+                              className="flex items-center justify-between px-5 py-3 text-[12px] text-burgundy-900 hover:bg-cream-100 hover:text-gold-700 transition-colors whitespace-nowrap"
+                            >
+                              {child.label}
+                              {child.children && <ChevronRight />}
+                            </Link>
+
+                            {/* ── Dropdown nivel 2 (flyout) ── */}
+                            {child.children && (
+                              <div className="absolute left-full top-0 invisible opacity-0 group-hover/sub:visible group-hover/sub:opacity-100 transition-all duration-150 ml-px">
+                                <div className="bg-cream-50 border border-burgundy-900/10 shadow-premium-lg min-w-[190px]">
+                                  {child.children.map((grand) => (
+                                    <Link
+                                      key={grand.href}
+                                      href={grand.href}
+                                      className="block px-5 py-3 text-[12px] text-burgundy-900 hover:bg-cream-100 hover:text-gold-700 transition-colors whitespace-nowrap"
+                                    >
+                                      {grand.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
 
-            {/* Acciones */}
+            {/* ── Acciones ─────────────────────────────────────────────── */}
             <div className="flex items-center gap-1 sm:gap-2">
-              <Link
-                href="/buscar"
+
+              {/* Buscar */}
+              <button
+                onClick={isSearchOpen ? closeSearch : openSearch}
                 className="p-2 text-burgundy-900 hover:text-gold-700 transition-colors"
-                aria-label="Buscar"
+                aria-label={isSearchOpen ? 'Cerrar búsqueda' : 'Buscar'}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </Link>
+                {isSearchOpen ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Cuenta */}
               <Link
                 href="/cuenta"
                 className="hidden sm:block p-2 text-burgundy-900 hover:text-gold-700 transition-colors"
@@ -92,6 +205,8 @@ export function Header() {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </Link>
+
+              {/* Carrito */}
               <button
                 onClick={openCart}
                 className="relative p-2 text-burgundy-900 hover:text-gold-700 transition-colors"
@@ -112,26 +227,77 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mobile nav */}
+        {/* ── Nav mobile ────────────────────────────────────────────────── */}
         <div
           className={cn(
             'lg:hidden border-t border-burgundy-900/10 bg-cream-50 overflow-hidden transition-all duration-300',
-            mobileOpen ? 'max-h-96' : 'max-h-0',
+            mobileOpen ? 'max-h-[600px]' : 'max-h-0',
           )}
         >
-          <nav className="container-mvh py-4 flex flex-col gap-1">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className="py-3 px-2 text-sm uppercase tracking-widest text-burgundy-900 border-b border-burgundy-900/10 last:border-0"
-              >
-                {item.label}
-              </Link>
+          <nav className="container-mvh py-4 flex flex-col">
+            {navItems.map((item) => (
+              <div key={item.href}>
+                {/* Fila del item */}
+                <div className="flex items-center border-b border-burgundy-900/8">
+                  <Link
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex-1 py-3 px-2 text-xs uppercase tracking-widest text-burgundy-900"
+                  >
+                    {item.label}
+                  </Link>
+                  {item.children && (
+                    <button
+                      onClick={() => toggleMobile(item.href)}
+                      className="px-3 py-3 text-burgundy-900"
+                      aria-label="Expandir"
+                    >
+                      <ChevronDown
+                        className={cn(
+                          'transition-transform duration-200',
+                          mobileExpanded === item.href && 'rotate-180',
+                        )}
+                      />
+                    </button>
+                  )}
+                </div>
+
+                {/* Sub-items expandidos */}
+                {item.children && mobileExpanded === item.href && (
+                  <div className="pl-4 pb-1 bg-cream-100/60">
+                    {item.children.map((child) => (
+                      <div key={child.href}>
+                        <Link
+                          href={child.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex items-center justify-between py-2.5 px-2 text-[11px] uppercase tracking-widest text-burgundy-900/70 hover:text-gold-700 transition-colors border-b border-burgundy-900/6 last:border-0"
+                        >
+                          {child.label}
+                          {child.children && <ChevronRight />}
+                        </Link>
+                        {child.children && (
+                          <div className="pl-4">
+                            {child.children.map((grand) => (
+                              <Link
+                                key={grand.href}
+                                href={grand.href}
+                                onClick={() => setMobileOpen(false)}
+                                className="block py-2 px-2 text-[11px] text-burgundy-900/50 hover:text-gold-700 transition-colors"
+                              >
+                                — {grand.label}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
         </div>
+        </div> {/* cierra bg-cream-50/95 nav wrapper */}
       </header>
     </>
   );

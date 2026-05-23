@@ -12,6 +12,7 @@
     "clean": "rm -rf .next .turbo node_modules/.cache"
   },
   "dependencies": {
+    "@midudev/tailwind-animations": "^1.0.1",
     "@mvh/types": "workspace:*",
     "@mvh/utils": "workspace:*",
     "@tanstack/react-query": "^5.59.0",
