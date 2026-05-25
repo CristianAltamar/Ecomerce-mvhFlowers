@@ -130,7 +130,7 @@ importers:
   apps/web:
     dependencies:
       '@midudev/tailwind-animations':
-        specifier: ^1.0.1
+        specifier: 1.0.1
         version: 1.0.1(tailwindcss@3.4.19(tsx@4.22.3))
       '@mvh/types':
         specifier: workspace:*
@@ -139,31 +139,31 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       '@tanstack/react-query':
-        specifier: ^5.59.0
+        specifier: 5.59.0
         version: 5.100.11(react@18.3.1)
       clsx:
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1
       framer-motion:
-        specifier: ^11.5.6
+        specifier: 11.5.6
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next:
-        specifier: ^14.2.13
+        specifier: 14.2.13
         version: 14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
-        specifier: ^18.3.1
+        specifier: 18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18.3.1
+        specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       tailwind-merge:
-        specifier: ^2.5.2
+        specifier: 2.5.2
         version: 2.6.1
       zod:
-        specifier: ^3.23.8
+        specifier: 3.23.8
         version: 3.25.76
       zustand:
-        specifier: ^4.5.5
+        specifier: 4.5.5
         version: 4.5.7(@types/react@18.3.29)(react@18.3.1)
     devDependencies:
       '@mvh/config':
