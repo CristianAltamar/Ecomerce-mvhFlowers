@@ -5,7 +5,7 @@
   "description": "Ecommerce headless para MVH Flores (Barranquilla, Colombia)",
   "packageManager": "pnpm@11.0.0",
   "engines": {
-    "node": ">=22.0.0",
+    "node": "22",
     "pnpm": ">=11.0.0"
   },
   "scripts": {
