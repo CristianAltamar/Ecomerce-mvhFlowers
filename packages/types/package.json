@@ -13,9 +13,9 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "typescript": "^5.5.4"
+    "typescript": "5.5.4"
   }
 }
