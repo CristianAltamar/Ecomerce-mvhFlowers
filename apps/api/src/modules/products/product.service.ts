@@ -20,6 +20,11 @@ export const productService = {
     const where: Prisma.ProductWhereInput = { isActive: true };
 
     if (query.featured !== undefined) where.isFeatured = query.featured;
+    if (query.onSale === true) {
+      where.compareAtPriceCents = { not: null };
+      // Filtramos en JS porque Prisma no soporta comparar dos columnas directamente
+      // El service devuelve todos con compareAt != null y los filtramos abajo
+    }
     if (query.search) {
       where.OR = [
         { name: { contains: query.search, mode: 'insensitive' } },
@@ -56,10 +61,18 @@ export const productService = {
       }
     })();
 
-    const [items, total] = await Promise.all([
+    let [items, total] = await Promise.all([
       prisma.product.findMany({ where, include: productInclude, orderBy, ...getSkipTake(query) }),
       prisma.product.count({ where }),
     ]);
+
+    // Filtra en memoria productos realmente en oferta (compareAt > price)
+    if (query.onSale === true) {
+      items = items.filter(
+        (p) => p.compareAtPriceCents !== null && p.compareAtPriceCents > p.priceCents,
+      );
+      total = items.length;
+    }
 
     const result = buildPaginated(items, total, query);
     await cache.set(cacheKey, result, 300);

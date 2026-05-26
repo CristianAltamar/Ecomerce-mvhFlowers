@@ -4,8 +4,9 @@
   "private": true,
   "main": "dist/server.js",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit",

@@ -451,6 +451,18 @@ model Banner {
 }
 
 // =========================================================
+// CONTENIDO DE SITIO (políticas, FAQ, privacidad)
+// =========================================================
+
+model SiteContent {
+  key       String   @id            // "politicas" | "faq" | "privacidad"
+  content   String                  // HTML editable desde admin
+  updatedAt DateTime @updatedAt
+
+  @@map("site_content")
+}
+
+// =========================================================
 // LOGS DE AUDITORÍA
 // =========================================================
 

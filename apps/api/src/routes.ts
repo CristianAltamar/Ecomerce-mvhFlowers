@@ -9,6 +9,8 @@ import { couponRouter } from './modules/coupons/coupon.routes';
 import { orderRouter } from './modules/orders/order.routes';
 import { paymentRouter } from './modules/payments/payment.routes';
 import { adminRouter } from './modules/admin/admin.routes';
+import { contactRouter } from './modules/contact/contact.routes';
+import { siteContentRouter } from './modules/site-content/site-content.routes';
 
 const router: Router = Router();
 
@@ -22,5 +24,7 @@ router.use('/coupons', couponRouter);
 router.use('/orders', orderRouter);
 router.use('/', paymentRouter); // monta /orders/:id/pay y /payments/webhooks/bold
 router.use('/admin', adminRouter);
+router.use('/contact', contactRouter);
+router.use('/site-content', siteContentRouter);
 
 export const apiRouter = router;

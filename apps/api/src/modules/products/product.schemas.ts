@@ -7,6 +7,10 @@ export const listProductsQuerySchema = paginationSchema.extend({
     .union([z.literal('true'), z.literal('false')])
     .optional()
     .transform((v) => (v === 'true' ? true : v === 'false' ? false : undefined)),
+  onSale: z
+    .union([z.literal('true'), z.literal('false')])
+    .optional()
+    .transform((v) => (v === 'true' ? true : v === 'false' ? false : undefined)),
   search: z.string().min(1).max(100).optional(),
   minPrice: z.coerce.number().int().nonnegative().optional(), // en centavos
   maxPrice: z.coerce.number().int().nonnegative().optional(),

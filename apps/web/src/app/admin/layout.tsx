@@ -13,6 +13,7 @@ const NAV = [
   { href: '/admin/pedidos', label: 'Pedidos', icon: '◎' },
   { href: '/admin/cupones', label: 'Cupones', icon: '⊛' },
   { href: '/admin/entregas', label: 'Entregas', icon: '◉' },
+  { href: '/admin/contenido', label: 'Contenido', icon: '✎' },
 ];
 
 function AdminSidebar() {

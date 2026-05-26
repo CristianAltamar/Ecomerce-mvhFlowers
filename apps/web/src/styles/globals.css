@@ -167,6 +167,70 @@ body {
   }
 }
 
+/* === Prose para páginas de contenido (políticas, privacidad) === */
+
+.prose-mvh h2 {
+  @apply font-display text-3xl text-burgundy-900 mt-10 mb-4;
+}
+.prose-mvh h3 {
+  @apply font-serif font-semibold text-xl text-burgundy-900 mt-8 mb-3;
+}
+.prose-mvh p {
+  @apply text-burgundy-900/75 leading-relaxed mb-4 text-[15px];
+}
+.prose-mvh ul {
+  @apply list-disc pl-6 mb-4 space-y-1.5;
+}
+.prose-mvh li {
+  @apply text-burgundy-900/75 text-[15px] leading-relaxed;
+}
+.prose-mvh a {
+  @apply text-gold-700 hover:text-gold-600 underline transition-colors;
+}
+.prose-mvh strong {
+  @apply text-burgundy-900 font-semibold;
+}
+.prose-mvh em {
+  @apply text-burgundy-900/50 text-sm;
+}
+
+/* === Dual range slider (PriceFilter) === */
+
+.range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: none;
+  background: transparent;
+  outline: none;
+}
+.range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: all;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-burgundy);
+  cursor: pointer;
+  border: 2px solid var(--color-cream);
+  box-shadow: 0 1px 4px rgba(90, 16, 40, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.range-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(90, 16, 40, 0.5);
+}
+.range-thumb::-moz-range-thumb {
+  pointer-events: all;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-burgundy);
+  cursor: pointer;
+  border: 2px solid var(--color-cream);
+  box-shadow: 0 1px 4px rgba(90, 16, 40, 0.35);
+}
+
 /* === Utilities personalizadas === */
 
 @layer utilities {

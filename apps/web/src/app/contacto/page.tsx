@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { ContactForm } from './contact-form';
 
 const WHATSAPP_LINK = process.env.NEXT_PUBLIC_WHATSAPP_LINK ?? 'https://wa.me/573224513906';
 
@@ -50,17 +51,8 @@ export default function ContactoPage() {
           </a>
         </div>
 
-        {/* Email */}
-        <div className="text-center p-8 border border-burgundy-900/10 bg-cream-50">
-          <div className="text-gold-500 text-3xl mb-4">✦</div>
-          <h2 className="font-display text-xl text-burgundy-900 mb-3">Email</h2>
-          <a
-            href="mailto:mvhflowersshop@gmail.com"
-            className="text-sm text-burgundy-900/70 hover:text-gold-700 transition-colors break-all"
-          >
-            mvhflowersshop@gmail.com
-          </a>
-        </div>
+        {/* Email — formulario expandible */}
+        <ContactForm />
       </div>
 
       <div className="mt-16 text-center text-sm text-burgundy-900/60">

@@ -1,6 +1,10 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import { requireAuth, requireRole } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
+import { z } from 'zod';
+import { prisma } from '../../config/prisma';
+import { sendSuccess } from '../../lib/http';
+import { asyncHandler } from '../../lib/async-handler';
 import { adminProductsController } from './admin-products.controller';
 import { adminCategoriesController } from './admin-categories.controller';
 import { adminOrdersController } from './admin-orders.controller';
@@ -94,3 +98,23 @@ adminRouter.delete('/delivery/slots/:id', validate(idParamsSchema, 'params'), ad
 adminRouter.get('/delivery/blocked-dates', adminDeliveryController.listBlockedDates);
 adminRouter.post('/delivery/blocked-dates', validate(createBlockedDateSchema), adminDeliveryController.blockDate);
 adminRouter.delete('/delivery/blocked-dates/:id', validate(idParamsSchema, 'params'), adminDeliveryController.unblockDate);
+
+// ─── Site content (políticas, FAQ, privacidad) ────────────────────────────────
+const siteContentSchema = z.object({ content: z.string().max(50_000) });
+const CONTENT_KEYS = ['politicas', 'faq', 'privacidad'] as const;
+
+adminRouter.put(
+  '/site-content/:key',
+  validate(z.object({ key: z.enum(CONTENT_KEYS) }), 'params'),
+  validate(siteContentSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { key } = req.params as { key: typeof CONTENT_KEYS[number] };
+    const { content } = req.body as { content: string };
+    const row = await prisma.siteContent.upsert({
+      where: { key },
+      update: { content },
+      create: { key, content },
+    });
+    sendSuccess(res, row);
+  }),
+);

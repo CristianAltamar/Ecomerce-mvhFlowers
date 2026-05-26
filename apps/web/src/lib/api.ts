@@ -31,6 +31,15 @@ export const api = {
     });
   },
 
+  async getOnSaleProducts(limit = 8): Promise<Product[]> {
+    const result = await apiFetch<{ data: Product[]; meta: unknown }>('/products', {
+      searchParams: { onSale: 'true', perPage: limit, sort: 'newest' },
+      tags: ['products:on-sale'],
+      revalidate: 300,
+    });
+    return result.data;
+  },
+
   async getProducts(params: {
     category?: string;
     featured?: boolean;

@@ -68,6 +68,11 @@ export function Footer() {
                   Preguntas frecuentes
                 </Link>
               </li>
+              <li>
+                <Link href="/privacidad" className="hover:text-gold-300 transition-colors">
+                  Política de privacidad
+                </Link>
+              </li>
             </ul>
           </div>
 

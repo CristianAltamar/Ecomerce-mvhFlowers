@@ -47,12 +47,14 @@ export async function HeaderServer() {
   let categories: Category[] = [];
 
   try {
+    console.time('Fetch categorías');
     categories = await apiFetch<Category[]>('/categories', {
       // Revalidar cada hora; on-demand con revalidateTag('categories')
       revalidate: 3600,
     });
   } catch {
     // API no disponible (ej. dev sin backend): nav con sólo ítems estáticos
+    console.warn('No se pudieron cargar las categorías para el header');
   }
 
   return <Header navItems={mapCategories(categories)} />;

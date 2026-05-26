@@ -16,7 +16,10 @@ const OCCASION_TILES = [
 ];
 
 export default async function HomePage() {
-  const featured = await api.getFeaturedProducts(8).catch(() => []);
+  const [featured, onSale] = await Promise.all([
+    api.getFeaturedProducts(8).catch(() => []),
+    api.getOnSaleProducts(8).catch(() => []),
+  ]);
 
   return (
     <>
@@ -197,6 +200,28 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+
+      {/* ============ PROMOCIONES ============ */}
+      {onSale.length > 0 && (
+        <section className="container-mvh py-24">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+              <p className="eyebrow mb-3">Ofertas especiales</p>
+              <h2 className="font-display text-4xl lg:text-5xl text-burgundy-900">
+                Arreglos en promoción
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {onSale.map((p, i) => (
+              <div key={p.id} className="animate-fade-up" style={{ animationDelay: `${i * 60}ms` }}>
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ============ CTA FINAL ============ */}
       <section className="relative bg-burgundy-950 text-cream-50 overflow-hidden">
