@@ -1,6 +1,3 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && npx turbo run build --filter=@mvh/web",
-  "outputDirectory": ".next",
-  "installCommand": "echo 'skip - handled by buildCommand'"
+  "framework": "nextjs"
 }
