@@ -7,6 +7,7 @@ import { authFetch } from '@/lib/auth-fetch';
 import { ApiClientError } from '@/lib/api-client';
 import { formatCOP } from '@mvh/utils';
 import type { Category } from '@mvh/types';
+import { MediaLibrary } from './media-library';
 
 const INPUT =
   'w-full border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-burgundy-900/50 transition-colors';
@@ -68,9 +69,8 @@ export function ProductForm({ product }: ProductFormProps) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Image modal
-  const [imageUrl, setImageUrl] = useState('');
-  const [imageAlt, setImageAlt] = useState('');
+  // Image / media library
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
 
   // Variant form
   const [variantForm, setVariantForm] = useState({
@@ -88,8 +88,6 @@ export function ProductForm({ product }: ProductFormProps) {
       authFetch(`/admin/products/${product!.id}/images`, { method: 'POST', body: data }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin-product', product!.id] });
-      setImageUrl('');
-      setImageAlt('');
     },
   });
 
@@ -290,48 +288,57 @@ export function ProductForm({ product }: ProductFormProps) {
 
       {/* Images — only shown for existing products */}
       {isEdit && (
-        <section className="mt-6 bg-white border border-burgundy-900/10 p-5">
-          <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest mb-4">
-            Imágenes
-          </h2>
-          <div className="flex flex-wrap gap-3 mb-4">
-            {product.images.map((img) => (
-              <div key={img.id} className="relative group">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.url} alt={img.alt ?? ''} className="w-20 h-20 object-cover border border-burgundy-900/10" />
-                <button
-                  onClick={() => deleteImageMutation.mutate(img.id)}
-                  className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs"
-                >
-                  Eliminar
-                </button>
+        <>
+          <section className="mt-6 bg-white border border-burgundy-900/10 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest">
+                Imágenes
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowMediaLibrary(true)}
+                className="bg-burgundy-900 text-cream-50 px-4 py-2 text-xs hover:bg-burgundy-800 transition-colors"
+              >
+                + Agregar imagen
+              </button>
+            </div>
+            {product.images.length === 0 ? (
+              <button
+                type="button"
+                onClick={() => setShowMediaLibrary(true)}
+                className="w-full border-2 border-dashed border-burgundy-900/20 py-8 text-sm text-burgundy-900/40 hover:border-burgundy-900/40 hover:text-burgundy-900/60 transition-colors"
+              >
+                Clic para agregar imágenes
+              </button>
+            ) : (
+              <div className="flex flex-wrap gap-3">
+                {product.images.map((img) => (
+                  <div key={img.id} className="relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.url} alt={img.alt ?? ''} className="w-24 h-24 object-cover border border-burgundy-900/10" />
+                    <button
+                      type="button"
+                      onClick={() => deleteImageMutation.mutate(img.id)}
+                      className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://… URL de la imagen"
-              className={`${INPUT} flex-1`}
+            )}
+          </section>
+
+          {showMediaLibrary && (
+            <MediaLibrary
+              onSelect={(item) => {
+                addImageMutation.mutate({ url: item.url, alt: item.alt ?? item.filename });
+                setShowMediaLibrary(false);
+              }}
+              onClose={() => setShowMediaLibrary(false)}
             />
-            <input
-              type="text"
-              value={imageAlt}
-              onChange={(e) => setImageAlt(e.target.value)}
-              placeholder="Alt text"
-              className={`${INPUT} w-32`}
-            />
-            <button
-              onClick={() => imageUrl && addImageMutation.mutate({ url: imageUrl, alt: imageAlt || undefined })}
-              disabled={!imageUrl || addImageMutation.isPending}
-              className="bg-burgundy-900 text-cream-50 px-4 py-2 text-sm hover:bg-burgundy-800 disabled:opacity-50"
-            >
-              Agregar
-            </button>
-          </div>
-        </section>
+          )}
+        </>
       )}
 
       {/* Variants — only shown for existing products */}

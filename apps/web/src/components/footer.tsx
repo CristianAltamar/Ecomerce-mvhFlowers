@@ -7,7 +7,7 @@ const WHATSAPP_LINK =
 
 export function Footer() {
   return (
-    <footer className="bg-burgundy-950 text-cream-100 mt-24">
+    <footer className="bg-burgundy-950 text-cream-100">
       {/* Borde dorado superior */}
       <div className="h-px bg-gold-gradient" />
 

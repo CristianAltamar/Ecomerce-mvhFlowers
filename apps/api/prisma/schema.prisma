@@ -129,6 +129,21 @@ model ProductImage {
   @@map("product_images")
 }
 
+model Media {
+  id        String   @id @default(cuid())
+  url       String
+  publicId  String?
+  alt       String?
+  filename  String
+  mimeType  String?
+  sizeBytes Int?
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  @@map("media")
+}
+
 model ProductVariant {
   id         String   @id @default(cuid())
   productId  String

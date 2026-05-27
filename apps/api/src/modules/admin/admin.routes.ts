@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import multer from 'multer';
 import { requireAuth, requireRole } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
 import { z } from 'zod';
@@ -11,6 +12,16 @@ import { adminOrdersController } from './admin-orders.controller';
 import { adminMetricsController } from './admin-metrics.controller';
 import { adminCouponsController } from './admin-coupons.controller';
 import { adminDeliveryController } from './admin-delivery.controller';
+import { adminMediaController } from './admin-media.controller';
+
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Solo se permiten imágenes'));
+  },
+});
 import {
   createProductSchema,
   updateProductSchema,
@@ -39,6 +50,11 @@ export const adminRouter = Router();
 
 // All admin routes require auth + ADMIN or STAFF role
 adminRouter.use(requireAuth, requireRole('ADMIN', 'STAFF'));
+
+// ─── Media library ────────────────────────────────────────────────────────────
+adminRouter.get('/media', adminMediaController.list);
+adminRouter.post('/media/upload', imageUpload.single('file'), adminMediaController.upload);
+adminRouter.delete('/media/:id', validate(idParamsSchema, 'params'), adminMediaController.remove);
 
 // ─── Metrics ─────────────────────────────────────────────────────────────────
 adminRouter.get('/metrics', adminMetricsController.getDashboard);
