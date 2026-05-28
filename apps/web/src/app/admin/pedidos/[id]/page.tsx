@@ -98,7 +98,7 @@ export default function AdminOrderDetailPage() {
   if (isLoading || !order) {
     return (
       <div className="p-8">
-        <p className="text-burgundy-900/40 animate-pulse">Cargando pedido…</p>
+        <p className="text-primary/40 animate-pulse">Cargando pedido…</p>
       </div>
     );
   }
@@ -111,11 +111,11 @@ export default function AdminOrderDetailPage() {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => router.back()}
-          className="text-sm text-burgundy-900/50 hover:text-burgundy-900"
+          className="text-sm text-primary/50 hover:text-primary"
         >
           ← Volver
         </button>
-        <h1 className="font-display text-2xl text-burgundy-900">{order.orderNumber}</h1>
+        <h1 className="font-display text-2xl text-primary">{order.orderNumber}</h1>
         <span
           className={`text-xs px-2 py-0.5 ${STATUS_COLORS[order.status] ?? 'bg-gray-100 text-gray-700'}`}
         >
@@ -127,22 +127,22 @@ export default function AdminOrderDetailPage() {
         {/* Main */}
         <div className="lg:col-span-2 space-y-6">
           {/* Items */}
-          <section className="bg-white border border-burgundy-900/10 p-5">
-            <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest mb-4">
+          <section className="bg-white border border-primary/10 p-5">
+            <h2 className="font-semibold text-primary text-sm uppercase tracking-widest mb-4">
               Productos
             </h2>
             <table className="w-full text-sm">
-              <tbody className="divide-y divide-burgundy-900/5">
+              <tbody className="divide-y divide-primary/5">
                 {order.items.map((item) => (
                   <tr key={item.id}>
                     <td className="py-2">
-                      <span className="text-burgundy-900">{item.productName}</span>
+                      <span className="text-primary">{item.productName}</span>
                       {item.variantName && (
-                        <span className="text-burgundy-900/50 ml-1">· {item.variantName}</span>
+                        <span className="text-primary/50 ml-1">· {item.variantName}</span>
                       )}
                     </td>
-                    <td className="py-2 text-right text-burgundy-900/50">× {item.quantity}</td>
-                    <td className="py-2 text-right text-burgundy-900">
+                    <td className="py-2 text-right text-primary/50">× {item.quantity}</td>
+                    <td className="py-2 text-right text-primary">
                       {formatCOP(item.subtotalCents)}
                     </td>
                   </tr>
@@ -150,8 +150,8 @@ export default function AdminOrderDetailPage() {
               </tbody>
             </table>
 
-            <div className="border-t border-burgundy-900/10 mt-4 pt-4 space-y-1.5 text-sm">
-              <div className="flex justify-between text-burgundy-900/60">
+            <div className="border-t border-primary/10 mt-4 pt-4 space-y-1.5 text-sm">
+              <div className="flex justify-between text-primary/60">
                 <span>Subtotal</span>
                 <span>{formatCOP(order.subtotalCents)}</span>
               </div>
@@ -161,11 +161,11 @@ export default function AdminOrderDetailPage() {
                   <span>− {formatCOP(order.discountCents)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-burgundy-900/60">
+              <div className="flex justify-between text-primary/60">
                 <span>Envío</span>
                 <span>{formatCOP(order.shippingFeeCents)}</span>
               </div>
-              <div className="flex justify-between font-semibold text-burgundy-900 pt-1">
+              <div className="flex justify-between font-semibold text-primary pt-1">
                 <span>Total</span>
                 <span className="font-display text-base">{formatCOP(order.totalCents)}</span>
               </div>
@@ -173,8 +173,8 @@ export default function AdminOrderDetailPage() {
           </section>
 
           {/* Delivery info */}
-          <section className="bg-white border border-burgundy-900/10 p-5">
-            <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest mb-4">
+          <section className="bg-white border border-primary/10 p-5">
+            <h2 className="font-semibold text-primary text-sm uppercase tracking-widest mb-4">
               Entrega
             </h2>
             <div className="space-y-1.5 text-sm">
@@ -203,14 +203,14 @@ export default function AdminOrderDetailPage() {
 
           {/* Status history */}
           {order.statusHistory.length > 0 && (
-            <section className="bg-white border border-burgundy-900/10 p-5">
-              <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest mb-4">
+            <section className="bg-white border border-primary/10 p-5">
+              <h2 className="font-semibold text-primary text-sm uppercase tracking-widest mb-4">
                 Historial de estados
               </h2>
               <ol className="space-y-2">
                 {order.statusHistory.map((h) => (
                   <li key={h.id} className="flex gap-3 text-sm">
-                    <span className="text-burgundy-900/40 flex-shrink-0 w-28 text-xs">
+                    <span className="text-primary/40 flex-shrink-0 w-28 text-xs">
                       {new Date(h.createdAt).toLocaleString('es-CO', {
                         day: 'numeric',
                         month: 'short',
@@ -218,12 +218,12 @@ export default function AdminOrderDetailPage() {
                         minute: '2-digit',
                       })}
                     </span>
-                    <span className="text-burgundy-900">
+                    <span className="text-primary">
                       {h.fromStatus && (
-                        <span className="text-burgundy-900/50">{STATUS_OPTIONS.find((s) => s.value === h.fromStatus)?.label ?? h.fromStatus} → </span>
+                        <span className="text-primary/50">{STATUS_OPTIONS.find((s) => s.value === h.fromStatus)?.label ?? h.fromStatus} → </span>
                       )}
                       {STATUS_OPTIONS.find((s) => s.value === h.toStatus)?.label ?? h.toStatus}
-                      {h.note && <span className="text-burgundy-900/50 ml-2">· {h.note}</span>}
+                      {h.note && <span className="text-primary/50 ml-2">· {h.note}</span>}
                     </span>
                   </li>
                 ))}
@@ -234,15 +234,15 @@ export default function AdminOrderDetailPage() {
 
         {/* Sidebar: change status */}
         <div className="space-y-4">
-          <section className="bg-white border border-burgundy-900/10 p-5">
-            <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest mb-4">
+          <section className="bg-white border border-primary/10 p-5">
+            <h2 className="font-semibold text-primary text-sm uppercase tracking-widest mb-4">
               Cambiar estado
             </h2>
             {statusError && <p className="text-red-500 text-xs mb-2">{statusError}</p>}
             <select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
-              className="w-full border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none mb-2"
+              className="w-full border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none mb-2"
             >
               <option value="">Selecciona un estado…</option>
               {STATUS_OPTIONS.filter((s) => s.value !== order.status).map((s) => (
@@ -256,7 +256,7 @@ export default function AdminOrderDetailPage() {
               value={statusNote}
               onChange={(e) => setStatusNote(e.target.value)}
               placeholder="Nota interna (opcional)"
-              className="w-full border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none mb-3"
+              className="w-full border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none mb-3"
             />
             <button
               onClick={() =>
@@ -273,8 +273,8 @@ export default function AdminOrderDetailPage() {
             </button>
           </section>
 
-          <section className="bg-white border border-burgundy-900/10 p-5 text-sm space-y-1.5">
-            <h2 className="font-semibold text-burgundy-900 text-xs uppercase tracking-widest mb-3">
+          <section className="bg-white border border-primary/10 p-5 text-sm space-y-1.5">
+            <h2 className="font-semibold text-primary text-xs uppercase tracking-widest mb-3">
               Info del pedido
             </h2>
             <InfoRow
@@ -293,7 +293,7 @@ export default function AdminOrderDetailPage() {
           <Link
             href={`/pedido/${order.id}`}
             target="_blank"
-            className="block text-xs text-center text-gold-700 hover:underline"
+            className="block text-xs text-center text-accent hover:underline"
           >
             Ver en tienda →
           </Link>
@@ -306,8 +306,8 @@ export default function AdminOrderDetailPage() {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4 text-sm">
-      <span className="text-burgundy-900/50 flex-shrink-0">{label}</span>
-      <span className="text-burgundy-900 text-right">{value}</span>
+      <span className="text-primary/50 flex-shrink-0">{label}</span>
+      <span className="text-primary text-right">{value}</span>
     </div>
   );
 }

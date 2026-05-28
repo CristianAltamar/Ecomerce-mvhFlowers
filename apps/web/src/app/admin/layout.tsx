@@ -14,6 +14,7 @@ const NAV = [
   { href: '/admin/cupones', label: 'Cupones', icon: '⊛' },
   { href: '/admin/entregas', label: 'Entregas', icon: '◉' },
   { href: '/admin/contenido', label: 'Contenido', icon: '✎' },
+  { href: '/admin/configuracion/temas', label: 'Temas', icon: '◐' },
 ];
 
 function AdminSidebar() {
@@ -28,10 +29,10 @@ function AdminSidebar() {
   };
 
   return (
-    <aside className="w-56 min-h-screen bg-burgundy-950 flex flex-col">
+    <aside className="w-56 min-h-screen bg-ink flex flex-col">
       {/* Logo */}
       <div className="px-6 py-5 border-b border-white/10">
-        <span className="font-display text-lg text-cream-50">MVH Admin</span>
+        <span className="font-display text-lg text-surface">MVH Admin</span>
       </div>
 
       {/* Nav */}
@@ -46,8 +47,8 @@ function AdminSidebar() {
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 text-sm transition-colors',
                 isActive
-                  ? 'bg-gold-600/20 text-gold-400'
-                  : 'text-cream-50/60 hover:text-cream-50 hover:bg-white/5',
+                  ? 'bg-accent/20 text-accent-light'
+                  : 'text-surface/60 hover:text-surface hover:bg-white/5',
               )}
             >
               <span>{item.icon}</span>
@@ -60,13 +61,13 @@ function AdminSidebar() {
       {/* User + logout */}
       <div className="px-4 py-4 border-t border-white/10">
         {user && (
-          <p className="text-xs text-cream-50/40 mb-2 truncate">
+          <p className="text-xs text-surface/40 mb-2 truncate">
             {user.firstName} · {user.role}
           </p>
         )}
         <button
           onClick={handleLogout}
-          className="text-xs text-cream-50/50 hover:text-cream-50 transition-colors"
+          className="text-xs text-surface/50 hover:text-surface transition-colors"
         >
           Cerrar sesión →
         </button>
@@ -92,14 +93,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Show nothing while checking auth
   if (isLoading || !user || (user.role !== 'ADMIN' && user.role !== 'STAFF')) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-burgundy-950">
-        <p className="text-cream-50/40 animate-pulse text-sm">Verificando acceso…</p>
+      <div className="min-h-screen flex items-center justify-center bg-ink">
+        <p className="text-surface/40 animate-pulse text-sm">Verificando acceso…</p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-cream-50">
+    <div className="flex min-h-screen bg-surface">
       <AdminSidebar />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>

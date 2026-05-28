@@ -50,15 +50,15 @@ export function PriceFilter({ slug, sort, initialMin, initialMax }: PriceFilterP
 
   return (
     <div>
-      <p className="text-xs uppercase tracking-widest text-burgundy-900/60 font-medium mb-6">
+      <p className="text-xs uppercase tracking-widest text-primary/60 font-medium mb-6">
         Precio
       </p>
 
       {/* ── Dual range slider ── */}
-      <div className="relative h-[2px] bg-burgundy-900/15 rounded-full mx-1 my-7">
+      <div className="relative h-[2px] bg-primary/15 rounded-full mx-1 my-7">
         {/* Relleno entre los dos thumbs */}
         <div
-          className="absolute h-[2px] bg-burgundy-900 rounded-full"
+          className="absolute h-[2px] bg-primary rounded-full"
           style={{ left: `${leftPct}%`, right: `${rightPct}%` }}
         />
 
@@ -94,18 +94,18 @@ export function PriceFilter({ slug, sort, initialMin, initialMax }: PriceFilterP
       </div>
 
       {/* Etiqueta de rango */}
-      <p className="text-sm text-burgundy-900/70 mb-5">
+      <p className="text-sm text-primary/70 mb-5">
         Precio:{' '}
-        <span className="text-burgundy-900 font-medium">$ {formatPesos(minVal)}</span>
+        <span className="text-primary font-medium">$ {formatPesos(minVal)}</span>
         {' — '}
-        <span className="text-burgundy-900 font-medium">$ {formatPesos(maxVal)}</span>
+        <span className="text-primary font-medium">$ {formatPesos(maxVal)}</span>
       </p>
 
       {/* Botones */}
       <div className="flex items-center gap-2">
         <button
           onClick={handleFilter}
-          className="flex-1 border border-burgundy-900 text-burgundy-900 text-xs uppercase tracking-widest py-2.5 hover:bg-burgundy-900 hover:text-cream-50 transition-colors duration-200"
+          className="flex-1 border border-primary text-primary text-xs uppercase tracking-widest py-2.5 hover:bg-primary hover:text-surface transition-colors duration-200"
         >
           Filtrar
         </button>
@@ -113,7 +113,7 @@ export function PriceFilter({ slug, sort, initialMin, initialMax }: PriceFilterP
           <button
             onClick={handleReset}
             title="Limpiar filtro"
-            className="border border-burgundy-900/20 text-burgundy-900/50 text-xs py-2.5 px-3 hover:border-burgundy-900/50 hover:text-burgundy-900/70 transition-colors"
+            className="border border-primary/20 text-primary/50 text-xs py-2.5 px-3 hover:border-primary/50 hover:text-primary/70 transition-colors"
           >
             ✕
           </button>

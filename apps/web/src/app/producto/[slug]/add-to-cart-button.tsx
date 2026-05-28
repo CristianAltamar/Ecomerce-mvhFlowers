@@ -50,8 +50,8 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
                 className={cn(
                   'px-4 py-3 border text-sm transition-all',
                   selectedVariantId === variant.id
-                    ? 'border-burgundy-900 bg-burgundy-900 text-cream-50'
-                    : 'border-burgundy-900/20 text-burgundy-900 hover:border-burgundy-900',
+                    ? 'border-primary bg-primary text-surface'
+                    : 'border-primary/20 text-primary hover:border-primary',
                   variant.stock <= 0 && 'opacity-40 cursor-not-allowed line-through',
                 )}
               >
@@ -67,10 +67,10 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
 
       {/* Cantidad + Add */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex items-center border border-burgundy-900/20 h-14">
+        <div className="flex items-center border border-primary/20 h-14">
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="px-4 text-lg text-burgundy-900 hover:bg-burgundy-900/5 h-full"
+            className="px-4 text-lg text-primary hover:bg-primary/5 h-full"
             aria-label="Disminuir cantidad"
           >
             −
@@ -79,7 +79,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
           <button
             onClick={() => setQuantity((q) => Math.min(stock, q + 1))}
             disabled={quantity >= stock}
-            className="px-4 text-lg text-burgundy-900 hover:bg-burgundy-900/5 h-full disabled:opacity-30"
+            className="px-4 text-lg text-primary hover:bg-primary/5 h-full disabled:opacity-30"
             aria-label="Aumentar cantidad"
           >
             +
@@ -97,7 +97,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
       </div>
 
       {!isOutOfStock && stock <= 5 && (
-        <p className="text-sm text-gold-700 font-serif italic">
+        <p className="text-sm text-accent font-serif italic">
           ✦ Solo quedan {stock} disponibles
         </p>
       )}

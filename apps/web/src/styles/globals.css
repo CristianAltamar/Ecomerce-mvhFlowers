@@ -66,15 +66,35 @@
   100% { background-position: 200% 0; }
 }
 
-/* === Variables CSS y reset elegante === */
+/* === Sistema de tema centralizado ===
+   --th-* son los tokens editables desde admin/configuracion/temas.
+   ThemeCssVars (Server Component) los sobreescribe con los valores de DB.
+   Los alias --color-* mantienen compatibilidad con el código existente.
+   ======================================================= */
 
 :root {
-  --color-burgundy: #5a1028;
-  --color-burgundy-light: #831b3e;
-  --color-gold: #d49328;
-  --color-gold-light: #ecc774;
-  --color-cream: #f7f1e3;
-  --color-ink: #1a0a10;
+  /* Tokens semánticos del tema — valores por defecto (MVH Flores original).
+     Cada token tiene su gemelo en canales RGB para habilitar opacidad en
+     Tailwind (ej. bg-primary/50 → rgb(var(--th-primary-rgb) / 0.5)). */
+  --th-primary:       #5a1028;  --th-primary-rgb:       90 16 40;
+  --th-primary-light: #831b3e;  --th-primary-light-rgb: 131 27 62;
+  --th-accent:        #d49328;  --th-accent-rgb:        212 147 40;
+  --th-accent-light:  #ecc774;  --th-accent-light-rgb:  236 199 116;
+  --th-surface:       #f7f1e3;  --th-surface-rgb:       247 241 227;
+  --th-muted:         #faf5ea;  --th-muted-rgb:         250 245 234;
+  --th-ink:           #1a0a10;  --th-ink-rgb:           26 10 16;
+
+  --th-btn-radius:    0px;
+  --th-btn-transform: none;
+  --th-font-heading:  var(--font-display);
+  --th-font-body:     var(--font-serif);
+  --th-font-ui:       var(--font-sans);
+
+  /* Aliases de compatibilidad — usados por CSS plano (.range-thumb) */
+  --color-burgundy: var(--th-primary);
+  --color-gold:     var(--th-accent);
+  --color-cream:    var(--th-surface);
+  --color-ink:      var(--th-ink);
 }
 
 html {
@@ -103,12 +123,12 @@ body {
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: theme('colors.burgundy.900');
+  background: rgb(var(--th-primary-rgb));
 }
 
 /* Selección de texto */
 ::selection {
-  background: theme('colors.gold.300');
+  background: rgb(var(--th-accent-light-rgb));
   color: theme('colors.burgundy.950');
 }
 
@@ -122,76 +142,82 @@ body {
   .gold-divider::before,
   .gold-divider::after {
     content: '';
-    @apply h-px flex-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent;
+    @apply h-px flex-1 bg-gradient-to-r from-transparent via-accent to-transparent;
   }
 
   /* Texto con kerning premium */
   .eyebrow {
-    @apply text-xs uppercase tracking-widest text-gold-700 font-serif font-medium;
+    @apply text-xs uppercase tracking-widest text-accent font-serif font-medium;
   }
 
-  /* Botón primario burdeos */
+  /* Botón primario */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
-           bg-burgundy-900 text-cream-50 font-medium tracking-wide
-           border border-burgundy-900 hover:bg-burgundy-950
+           bg-primary text-surface font-medium tracking-wide
+           border border-primary hover:bg-ink
            transition-all duration-300 hover:gap-3
-           focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2 focus-visible:ring-offset-cream;
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+    border-radius: var(--th-btn-radius, 0px);
+    text-transform: var(--th-btn-transform, none);
   }
 
-  /* Botón secundario outline dorado */
+  /* Botón secundario outline */
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
-           bg-transparent text-burgundy-900 font-medium tracking-wide
-           border border-burgundy-900/30 hover:border-burgundy-900 hover:bg-burgundy-900/5
+           bg-transparent text-primary font-medium tracking-wide
+           border border-primary/30 hover:border-primary hover:bg-primary/5
            transition-all duration-300 hover:gap-3;
+    border-radius: var(--th-btn-radius, 0px);
+    text-transform: var(--th-btn-transform, none);
   }
 
   /* Botón sobre fondo oscuro */
   .btn-on-dark {
     @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
-           bg-gold-500 text-burgundy-950 font-medium tracking-wide
-           hover:bg-gold-400 transition-all duration-300 hover:gap-3
-           shadow-lg shadow-burgundy-950/40;
+           bg-accent text-ink font-medium tracking-wide
+           hover:bg-accent-light transition-all duration-300 hover:gap-3
+           shadow-lg shadow-ink/40;
+    border-radius: var(--th-btn-radius, 0px);
+    text-transform: var(--th-btn-transform, none);
   }
 
   /* Card de producto con micro-interacción */
   .product-card {
-    @apply block relative overflow-hidden bg-cream-50 border border-burgundy-900/10
-           transition-all duration-500 hover:border-gold-500/60 hover:-translate-y-0.5;
+    @apply block relative overflow-hidden bg-surface border border-primary/10
+           transition-all duration-500 hover:border-accent/60 hover:-translate-y-0.5;
   }
 
   /* Marquee text en footer / banners */
   .ornament-line {
-    @apply font-display italic text-gold-600;
+    @apply font-display italic text-accent;
   }
 }
 
 /* === Prose para páginas de contenido (políticas, privacidad) === */
 
 .prose-mvh h2 {
-  @apply font-display text-3xl text-burgundy-900 mt-10 mb-4;
+  @apply font-display text-3xl text-primary mt-10 mb-4;
 }
 .prose-mvh h3 {
-  @apply font-serif font-semibold text-xl text-burgundy-900 mt-8 mb-3;
+  @apply font-serif font-semibold text-xl text-primary mt-8 mb-3;
 }
 .prose-mvh p {
-  @apply text-burgundy-900/75 leading-relaxed mb-4 text-[15px];
+  @apply text-primary/75 leading-relaxed mb-4 text-[15px];
 }
 .prose-mvh ul {
   @apply list-disc pl-6 mb-4 space-y-1.5;
 }
 .prose-mvh li {
-  @apply text-burgundy-900/75 text-[15px] leading-relaxed;
+  @apply text-primary/75 text-[15px] leading-relaxed;
 }
 .prose-mvh a {
-  @apply text-gold-700 hover:text-gold-600 underline transition-colors;
+  @apply text-accent hover:text-accent/70 underline transition-colors;
 }
 .prose-mvh strong {
-  @apply text-burgundy-900 font-semibold;
+  @apply text-primary font-semibold;
 }
 .prose-mvh em {
-  @apply text-burgundy-900/50 text-sm;
+  @apply text-primary/50 text-sm;
 }
 
 /* === Dual range slider (PriceFilter) === */
@@ -213,12 +239,12 @@ body {
   background: var(--color-burgundy);
   cursor: pointer;
   border: 2px solid var(--color-cream);
-  box-shadow: 0 1px 4px rgba(90, 16, 40, 0.35);
+  box-shadow: 0 1px 4px rgb(var(--th-primary-rgb) / 0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .range-thumb::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 0 2px 8px rgba(90, 16, 40, 0.5);
+  box-shadow: 0 2px 8px rgb(var(--th-primary-rgb) / 0.5);
 }
 .range-thumb::-moz-range-thumb {
   pointer-events: all;
@@ -228,7 +254,7 @@ body {
   background: var(--color-burgundy);
   cursor: pointer;
   border: 2px solid var(--color-cream);
-  box-shadow: 0 1px 4px rgba(90, 16, 40, 0.35);
+  box-shadow: 0 1px 4px rgb(var(--th-primary-rgb) / 0.35);
 }
 
 /* === Utilities personalizadas === */
@@ -245,12 +271,12 @@ body {
   /* Sombra suave premium */
   .shadow-premium {
     box-shadow:
-      0 1px 2px rgba(90, 16, 40, 0.08),
-      0 8px 24px rgba(90, 16, 40, 0.06);
+      0 1px 2px rgb(var(--th-primary-rgb) / 0.08),
+      0 8px 24px rgb(var(--th-primary-rgb) / 0.06);
   }
   .shadow-premium-lg {
     box-shadow:
-      0 1px 2px rgba(90, 16, 40, 0.1),
-      0 24px 48px rgba(90, 16, 40, 0.12);
+      0 1px 2px rgb(var(--th-primary-rgb) / 0.1),
+      0 24px 48px rgb(var(--th-primary-rgb) / 0.12);
   }
 }

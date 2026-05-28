@@ -77,7 +77,7 @@ function OrdersContent() {
 
   return (
     <div className="p-8 max-w-6xl">
-      <h1 className="font-display text-2xl text-burgundy-900 mb-6">Pedidos</h1>
+      <h1 className="font-display text-2xl text-primary mb-6">Pedidos</h1>
 
       {/* Status tabs */}
       <div className="flex gap-1 mb-5 flex-wrap">
@@ -87,8 +87,8 @@ function OrdersContent() {
             onClick={() => setParam('status', opt.value)}
             className={`px-3 py-1.5 text-xs transition-colors ${
               status === opt.value
-                ? 'bg-burgundy-900 text-cream-50'
-                : 'bg-white border border-burgundy-900/20 text-burgundy-900/60 hover:text-burgundy-900'
+                ? 'bg-primary text-surface'
+                : 'bg-white border border-primary/20 text-primary/60 hover:text-primary'
             }`}
           >
             {opt.label}
@@ -107,33 +107,33 @@ function OrdersContent() {
             }
           }}
           placeholder="Buscar por número de pedido o email…"
-          className="flex-1 max-w-sm border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-burgundy-900/50"
+          className="flex-1 max-w-sm border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50"
         />
       </div>
 
       {/* Table */}
       {isLoading ? (
-        <p className="text-burgundy-900/40 animate-pulse py-10">Cargando…</p>
+        <p className="text-primary/40 animate-pulse py-10">Cargando…</p>
       ) : (
         <>
-          <div className="bg-white border border-burgundy-900/10 overflow-hidden">
+          <div className="bg-white border border-primary/10 overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-cream-100/50 border-b border-burgundy-900/10">
+              <thead className="bg-muted/50 border-b border-primary/10">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Pedido</th>
-                  <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Cliente</th>
-                  <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Entrega</th>
-                  <th className="text-right px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Total</th>
-                  <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Estado</th>
+                  <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Pedido</th>
+                  <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Cliente</th>
+                  <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Entrega</th>
+                  <th className="text-right px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Total</th>
+                  <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Estado</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-burgundy-900/5">
+              <tbody className="divide-y divide-primary/5">
                 {data?.data.map((order) => (
-                  <tr key={order.id} className="hover:bg-cream-50/50 transition-colors">
+                  <tr key={order.id} className="hover:bg-surface/50 transition-colors">
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-burgundy-900">{order.orderNumber}</p>
-                      <p className="text-xs text-burgundy-900/40">
+                      <p className="font-semibold text-primary">{order.orderNumber}</p>
+                      <p className="text-xs text-primary/40">
                         {new Date(order.createdAt).toLocaleString('es-CO', {
                           month: 'short',
                           day: 'numeric',
@@ -143,12 +143,12 @@ function OrdersContent() {
                       </p>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="text-burgundy-900/80">
+                      <p className="text-primary/80">
                         {order.guestEmail ?? (order.userId ? 'Registrado' : '—')}
                       </p>
-                      <p className="text-xs text-burgundy-900/40">{order.shippingCity}</p>
+                      <p className="text-xs text-primary/40">{order.shippingCity}</p>
                     </td>
-                    <td className="px-4 py-3 text-burgundy-900/60">
+                    <td className="px-4 py-3 text-primary/60">
                       {order.deliveryDate
                         ? new Date(order.deliveryDate).toLocaleDateString('es-CO', {
                             day: 'numeric',
@@ -156,7 +156,7 @@ function OrdersContent() {
                           })
                         : '—'}
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-burgundy-900">
+                    <td className="px-4 py-3 text-right font-semibold text-primary">
                       {formatCOP(order.totalCents)}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -169,7 +169,7 @@ function OrdersContent() {
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/admin/pedidos/${order.id}`}
-                        className="text-xs text-gold-700 hover:underline"
+                        className="text-xs text-accent hover:underline"
                       >
                         Ver →
                       </Link>
@@ -178,7 +178,7 @@ function OrdersContent() {
                 ))}
                 {data?.data.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-sm text-burgundy-900/40">
+                    <td colSpan={6} className="px-4 py-10 text-center text-sm text-primary/40">
                       No hay pedidos con esos filtros.
                     </td>
                   </tr>
@@ -190,14 +190,14 @@ function OrdersContent() {
           {/* Pagination */}
           {data && data.meta.totalPages > 1 && (
             <div className="flex items-center justify-between mt-4 text-sm">
-              <span className="text-burgundy-900/50">
+              <span className="text-primary/50">
                 {data.meta.total} pedidos · página {data.meta.page} de {data.meta.totalPages}
               </span>
               <div className="flex gap-2">
                 {data.meta.page > 1 && (
                   <button
                     onClick={() => setParam('page', String(page - 1))}
-                    className="px-3 py-1 border border-burgundy-900/20 hover:border-burgundy-900/50"
+                    className="px-3 py-1 border border-primary/20 hover:border-primary/50"
                   >
                     ← Anterior
                   </button>
@@ -205,7 +205,7 @@ function OrdersContent() {
                 {data.meta.page < data.meta.totalPages && (
                   <button
                     onClick={() => setParam('page', String(page + 1))}
-                    className="px-3 py-1 border border-burgundy-900/20 hover:border-burgundy-900/50"
+                    className="px-3 py-1 border border-primary/20 hover:border-primary/50"
                   >
                     Siguiente →
                   </button>

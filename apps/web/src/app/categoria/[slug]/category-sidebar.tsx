@@ -36,7 +36,7 @@ export function CategorySidebar({
     <aside className="w-full lg:sticky lg:top-28 lg:self-start">
       {/* ── CATEGORÍAS ──────────────────────────────── */}
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-widest text-burgundy-900/55 font-semibold mb-4">
+        <p className="text-xs uppercase tracking-widest text-primary/55 font-semibold mb-4">
           Categorías
         </p>
 
@@ -55,8 +55,8 @@ export function CategorySidebar({
                     href={`/categoria/${cat.slug}`}
                     className={`text-sm py-2 flex-1 transition-colors duration-150 ${
                       isCurrent && !parentSlug
-                        ? 'text-burgundy-900 font-semibold'
-                        : 'text-burgundy-900/65 hover:text-burgundy-900'
+                        ? 'text-primary font-semibold'
+                        : 'text-primary/65 hover:text-primary'
                     }`}
                   >
                     {cat.name}
@@ -64,7 +64,7 @@ export function CategorySidebar({
                   {hasChildren && (
                     <span
                       aria-hidden="true"
-                      className="text-[9px] text-burgundy-900/35 pl-2 select-none"
+                      className="text-[9px] text-primary/35 pl-2 select-none"
                     >
                       {isExpanded ? '▲' : '▼'}
                     </span>
@@ -73,7 +73,7 @@ export function CategorySidebar({
 
                 {/* ── Subcategorías (expandidas si activo) ── */}
                 {hasChildren && isExpanded && (
-                  <ul className="mb-1 border-l border-burgundy-900/10 ml-0">
+                  <ul className="mb-1 border-l border-primary/10 ml-0">
                     {cat.children!.map((child) => {
                       const isChildActive = child.slug === currentSlug;
                       return (
@@ -82,8 +82,8 @@ export function CategorySidebar({
                             href={`/categoria/${child.slug}`}
                             className={`block text-sm py-1.5 pl-4 transition-colors duration-150 ${
                               isChildActive
-                                ? 'text-burgundy-900 font-semibold border-l-2 border-burgundy-900 -ml-px'
-                                : 'text-burgundy-900/55 hover:text-burgundy-900'
+                                ? 'text-primary font-semibold border-l-2 border-primary -ml-px'
+                                : 'text-primary/55 hover:text-primary'
                             }`}
                           >
                             {child.name}
@@ -100,7 +100,7 @@ export function CategorySidebar({
       </div>
 
       {/* ── Separador ── */}
-      <div className="h-px bg-burgundy-900/10 mb-8" />
+      <div className="h-px bg-primary/10 mb-8" />
 
       {/* ── FILTRO DE PRECIO ── */}
       <PriceFilter

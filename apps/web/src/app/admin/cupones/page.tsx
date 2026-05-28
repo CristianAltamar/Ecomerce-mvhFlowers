@@ -28,8 +28,8 @@ interface CouponsResponse {
   totalPages: number;
 }
 
-const INPUT = 'w-full border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-burgundy-900/50';
-const LABEL = 'block text-xs uppercase tracking-widest text-burgundy-900/50 mb-1.5';
+const INPUT = 'w-full border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50';
+const LABEL = 'block text-xs uppercase tracking-widest text-primary/50 mb-1.5';
 
 const EMPTY: {
   code: string; description: string; type: 'PERCENT' | 'FIXED';
@@ -155,7 +155,7 @@ export default function CuponesPage() {
   return (
     <div className="p-8 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl text-burgundy-900">Cupones</h1>
+        <h1 className="font-display text-2xl text-primary">Cupones</h1>
         <button onClick={openCreate} className="btn-primary text-sm px-4 py-2">+ Nuevo cupón</button>
       </div>
 
@@ -166,14 +166,14 @@ export default function CuponesPage() {
           placeholder="Buscar por código…"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none w-64"
+          className="border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none w-64"
         />
       </div>
 
       {/* Form */}
       {showForm && (
-        <div className="bg-white border border-burgundy-900/20 p-5 mb-6 space-y-4">
-          <h2 className="font-semibold text-burgundy-900 text-sm">{editingId ? 'Editar cupón' : 'Nuevo cupón'}</h2>
+        <div className="bg-white border border-primary/20 p-5 mb-6 space-y-4">
+          <h2 className="font-semibold text-primary text-sm">{editingId ? 'Editar cupón' : 'Nuevo cupón'}</h2>
           {formError && <p className="text-red-500 text-sm">{formError}</p>}
 
           <div className="grid grid-cols-3 gap-4">
@@ -246,41 +246,41 @@ export default function CuponesPage() {
 
       {/* Table */}
       {isLoading ? (
-        <p className="text-burgundy-900/40 animate-pulse">Cargando…</p>
+        <p className="text-primary/40 animate-pulse">Cargando…</p>
       ) : (
-        <div className="bg-white border border-burgundy-900/10 overflow-hidden">
+        <div className="bg-white border border-primary/10 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-cream-100/50 border-b border-burgundy-900/10">
+            <thead className="bg-muted/50 border-b border-primary/10">
               <tr>
-                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Código</th>
-                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Tipo / Valor</th>
-                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Vigencia</th>
-                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Usos</th>
-                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Estado</th>
+                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Código</th>
+                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Tipo / Valor</th>
+                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Vigencia</th>
+                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Usos</th>
+                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Estado</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-burgundy-900/5">
+            <tbody className="divide-y divide-primary/5">
               {coupons.map((c) => (
-                <tr key={c.id} className="hover:bg-cream-50/50 transition-colors">
+                <tr key={c.id} className="hover:bg-surface/50 transition-colors">
                   <td className="px-4 py-3">
-                    <p className="font-mono font-semibold text-burgundy-900">{c.code}</p>
-                    {c.description && <p className="text-xs text-burgundy-900/40 mt-0.5">{c.description}</p>}
+                    <p className="font-mono font-semibold text-primary">{c.code}</p>
+                    {c.description && <p className="text-xs text-primary/40 mt-0.5">{c.description}</p>}
                   </td>
-                  <td className="px-4 py-3 text-burgundy-900/70">
+                  <td className="px-4 py-3 text-primary/70">
                     {c.type === 'PERCENT'
                       ? `${c.value}%${c.maxDiscountCents ? ` (máx ${formatCOP(c.maxDiscountCents)})` : ''}`
                       : formatCOP(c.value)}
                     {c.minPurchaseCents > 0 && (
-                      <p className="text-xs text-burgundy-900/40">Mín. {formatCOP(c.minPurchaseCents)}</p>
+                      <p className="text-xs text-primary/40">Mín. {formatCOP(c.minPurchaseCents)}</p>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-xs text-burgundy-900/60">
+                  <td className="px-4 py-3 text-xs text-primary/60">
                     {c.startsAt ? new Date(c.startsAt).toLocaleDateString('es-CO') : '—'}
                     {' → '}
                     {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('es-CO') : '∞'}
                   </td>
-                  <td className="px-4 py-3 text-center text-burgundy-900/60">
+                  <td className="px-4 py-3 text-center text-primary/60">
                     {c.usageCount}{c.usageLimit != null ? ` / ${c.usageLimit}` : ''}
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -293,21 +293,21 @@ export default function CuponesPage() {
                     </button>
                   </td>
                   <td className="px-4 py-3 text-right space-x-3">
-                    <button onClick={() => openEdit(c)} className="text-xs text-gold-700 hover:underline">Editar</button>
+                    <button onClick={() => openEdit(c)} className="text-xs text-accent hover:underline">Editar</button>
                     {confirmDelete === c.id ? (
                       <>
                         <button onClick={() => deleteMutation.mutate(c.id)} className="text-xs text-red-600 hover:underline">Confirmar</button>
-                        <button onClick={() => setConfirmDelete(null)} className="text-xs text-burgundy-900/40 hover:underline">Cancelar</button>
+                        <button onClick={() => setConfirmDelete(null)} className="text-xs text-primary/40 hover:underline">Cancelar</button>
                       </>
                     ) : (
-                      <button onClick={() => setConfirmDelete(c.id)} className="text-xs text-burgundy-900/30 hover:text-red-500">Eliminar</button>
+                      <button onClick={() => setConfirmDelete(c.id)} className="text-xs text-primary/30 hover:text-red-500">Eliminar</button>
                     )}
                   </td>
                 </tr>
               ))}
               {coupons.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-burgundy-900/40">No hay cupones.</td>
+                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-primary/40">No hay cupones.</td>
                 </tr>
               )}
             </tbody>
@@ -322,7 +322,7 @@ export default function CuponesPage() {
             <button
               key={p}
               onClick={() => setPage(p)}
-              className={`w-8 h-8 text-sm border transition-colors ${p === page ? 'bg-burgundy-900 text-white border-burgundy-900' : 'border-burgundy-900/20 hover:border-burgundy-900/50'}`}
+              className={`w-8 h-8 text-sm border transition-colors ${p === page ? 'bg-primary text-white border-primary' : 'border-primary/20 hover:border-primary/50'}`}
             >
               {p}
             </button>

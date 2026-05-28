@@ -119,10 +119,10 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <div className="container-mvh py-12 lg:py-16">
+      <div data-th-section="tienda" className="container-mvh py-12 lg:py-16">
         {/* ── Breadcrumb ─────────────────────────────────────────────────── */}
-        <nav className="text-xs uppercase tracking-widest text-burgundy-900/55 mb-6">
-          <Link href="/" className="hover:text-gold-700 transition-colors">
+        <nav className="text-xs uppercase tracking-widest text-primary/55 mb-6">
+          <Link href="/" className="hover:text-accent transition-colors">
             Inicio
           </Link>
           {category.parent && (
@@ -130,28 +130,28 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               <span className="mx-2">/</span>
               <Link
                 href={`/categoria/${category.parent.slug}`}
-                className="hover:text-gold-700 transition-colors"
+                className="hover:text-accent transition-colors"
               >
                 {category.parent.name}
               </Link>
             </>
           )}
           <span className="mx-2">/</span>
-          <span className="text-burgundy-900">{category.name}</span>
+          <span className="text-primary">{category.name}</span>
         </nav>
 
         {/* ── Título de categoría (ancho completo) ──────────────────────── */}
         <header className="mb-10 text-center max-w-2xl mx-auto">
-          <h1 className="font-display text-5xl lg:text-6xl text-burgundy-900">
+          <h1 className="font-display text-5xl lg:text-6xl text-primary">
             {category.name}
           </h1>
           {category.description && (
-            <p className="mt-4 text-burgundy-900/70 text-lg leading-relaxed">
+            <p className="mt-4 text-primary/70 text-lg leading-relaxed">
               {category.description}
             </p>
           )}
           <div className="gold-divider mt-8 max-w-xs mx-auto">
-            <span className="text-gold-500">✦</span>
+            <span className="text-accent">✦</span>
           </div>
         </header>
 
@@ -171,18 +171,18 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           {/* Contenido principal */}
           <div>
             {/* Toolbar: total + sort */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-4 border-b border-burgundy-900/10">
-              <p className="text-sm text-burgundy-900/65">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-4 border-b border-primary/10">
+              <p className="text-sm text-primary/65">
                 {products.meta.total}{' '}
                 {products.meta.total === 1 ? 'producto' : 'productos'}
                 {(minPriceCents || maxPriceCents) && (
-                  <span className="ml-2 text-xs text-gold-700">· Filtrado por precio</span>
+                  <span className="ml-2 text-xs text-accent">· Filtrado por precio</span>
                 )}
               </p>
               <div className="flex items-center gap-2">
                 <label
                   htmlFor="sort"
-                  className="text-xs uppercase tracking-widest text-burgundy-900/55"
+                  className="text-xs uppercase tracking-widest text-primary/55"
                 >
                   Ordenar
                 </label>
@@ -193,8 +193,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
             {/* Grid de productos */}
             {products.data.length === 0 ? (
               <div className="text-center py-24">
-                <div className="text-gold-500 text-4xl mb-4">✦</div>
-                <p className="font-display text-2xl text-burgundy-900 mb-3">
+                <div className="text-accent text-4xl mb-4">✦</div>
+                <p className="font-display text-2xl text-primary mb-3">
                   No hay productos en esta categoría
                   {(minPriceCents || maxPriceCents) && ' con ese rango de precio'}
                 </p>
@@ -228,8 +228,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                       href={`/categoria/${params.slug}?${qp.toString()}`}
                       className={`w-10 h-10 flex items-center justify-center text-sm border transition-colors ${
                         p === products.meta.page
-                          ? 'border-burgundy-900 bg-burgundy-900 text-cream-50'
-                          : 'border-burgundy-900/20 text-burgundy-900 hover:border-gold-500'
+                          ? 'border-primary bg-primary text-surface'
+                          : 'border-primary/20 text-primary hover:border-accent'
                       }`}
                     >
                       {p}

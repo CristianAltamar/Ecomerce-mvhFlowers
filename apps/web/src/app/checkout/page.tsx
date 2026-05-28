@@ -33,7 +33,7 @@ function isBlocked(date: string, blocked: BlockedDate[]): boolean {
 }
 
 const INPUT =
-  'w-full border border-burgundy-900/20 bg-cream-50 px-4 py-2.5 text-sm focus:outline-none focus:border-burgundy-900/60 transition-colors';
+  'w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors';
 const SELECT = `${INPUT} appearance-none`;
 const LABEL = 'eyebrow block mb-1.5';
 const ERR = 'text-red-500 text-xs mt-1';
@@ -46,15 +46,15 @@ function StepBadge({ n, label, active, done }: { n: number; label: string; activ
       <div
         className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
           done
-            ? 'bg-gold-600 text-white'
+            ? 'bg-accent text-white'
             : active
-            ? 'bg-burgundy-900 text-cream-50'
-            : 'bg-burgundy-900/10 text-burgundy-900/40'
+            ? 'bg-primary text-surface'
+            : 'bg-primary/10 text-primary/40'
         }`}
       >
         {done ? '✓' : n}
       </div>
-      <span className={`text-sm ${active ? 'text-burgundy-900 font-semibold' : 'text-burgundy-900/40'}`}>
+      <span className={`text-sm ${active ? 'text-primary font-semibold' : 'text-primary/40'}`}>
         {label}
       </span>
     </div>
@@ -75,12 +75,12 @@ function OrderSidebar({
   totalCents: number;
 }) {
   return (
-    <div className="bg-cream-100/50 border border-burgundy-900/10 p-6 space-y-3 sticky top-4">
-      <h3 className="font-display text-xl text-burgundy-900 mb-4">Resumen</h3>
+    <div className="bg-muted/50 border border-primary/10 p-6 space-y-3 sticky top-4">
+      <h3 className="font-display text-xl text-primary mb-4">Resumen</h3>
       <Row label="Subtotal" value={formatCOP(subtotalCents)} />
       {discountCents > 0 && <Row label="Descuento" value={`− ${formatCOP(discountCents)}`} green />}
       <Row label="Envío" value={deliveryFeeCents > 0 ? formatCOP(deliveryFeeCents) : '—'} />
-      <div className="border-t border-burgundy-900/10 pt-3">
+      <div className="border-t border-primary/10 pt-3">
         <Row label="Total" value={formatCOP(totalCents)} bold />
       </div>
     </div>
@@ -100,9 +100,9 @@ function Row({
 }) {
   return (
     <div className="flex justify-between text-sm">
-      <span className={bold ? 'font-semibold text-burgundy-900' : 'text-burgundy-900/60'}>{label}</span>
+      <span className={bold ? 'font-semibold text-primary' : 'text-primary/60'}>{label}</span>
       <span
-        className={`${bold ? 'font-display text-lg text-burgundy-900' : ''} ${green ? 'text-green-700' : ''}`}
+        className={`${bold ? 'font-display text-lg text-primary' : ''} ${green ? 'text-green-700' : ''}`}
       >
         {value}
       </span>
@@ -165,7 +165,7 @@ function AddressFields({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={LABEL}>Barrio <span className="text-burgundy-900/40">(opcional)</span></label>
+          <label className={LABEL}>Barrio <span className="text-primary/40">(opcional)</span></label>
           <input type="text" value={value.neighborhood} onChange={f('neighborhood')} className={INPUT} placeholder="El Prado" />
         </div>
         <div>
@@ -174,7 +174,7 @@ function AddressFields({
         </div>
       </div>
       <div>
-        <label className={LABEL}>Notas de entrega <span className="text-burgundy-900/40">(opcional)</span></label>
+        <label className={LABEL}>Notas de entrega <span className="text-primary/40">(opcional)</span></label>
         <input type="text" value={value.notes} onChange={f('notes')} className={INPUT} placeholder="Dejar con portería, timbre 3…" />
       </div>
     </div>
@@ -226,7 +226,7 @@ function Step1({
       {/* Guest info */}
       {!user && (
         <section>
-          <h2 className="font-display text-xl text-burgundy-900 mb-4">Tus datos</h2>
+          <h2 className="font-display text-xl text-primary mb-4">Tus datos</h2>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -235,7 +235,7 @@ function Step1({
                 {errors.guestFirstName && <p className={ERR}>{errors.guestFirstName}</p>}
               </div>
               <div>
-                <label className={LABEL}>Apellido <span className="text-burgundy-900/40">(opcional)</span></label>
+                <label className={LABEL}>Apellido <span className="text-primary/40">(opcional)</span></label>
                 <input type="text" value={guestLastName} onChange={(e) => setGuestLastName(e.target.value)} className={INPUT} placeholder="García" />
               </div>
             </div>
@@ -246,13 +246,13 @@ function Step1({
                 {errors.guestEmail && <p className={ERR}>{errors.guestEmail}</p>}
               </div>
               <div>
-                <label className={LABEL}>Teléfono <span className="text-burgundy-900/40">(opcional)</span></label>
+                <label className={LABEL}>Teléfono <span className="text-primary/40">(opcional)</span></label>
                 <input type="tel" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} className={INPUT} placeholder="+57 300 123 4567" />
               </div>
             </div>
-            <p className="text-xs text-burgundy-900/50">
+            <p className="text-xs text-primary/50">
               ¿Tienes cuenta?{' '}
-              <Link href="/auth/login?callbackUrl=%2Fcheckout" className="text-gold-700 hover:underline">
+              <Link href="/auth/login?callbackUrl=%2Fcheckout" className="text-accent hover:underline">
                 Inicia sesión
               </Link>{' '}
               para autocompletar tus datos.
@@ -263,7 +263,7 @@ function Step1({
 
       {/* Address */}
       <section>
-        <h2 className="font-display text-xl text-burgundy-900 mb-4">Dirección de entrega</h2>
+        <h2 className="font-display text-xl text-primary mb-4">Dirección de entrega</h2>
 
         {user && hasSavedAddresses && (
           <div className="mb-4 space-y-2">
@@ -278,9 +278,9 @@ function Step1({
                   className="mt-0.5"
                 />
                 <div className="text-sm">
-                  <span className="font-semibold text-burgundy-900">{addr.recipientName}</span>
-                  {addr.label && <span className="text-burgundy-900/50 ml-2">({addr.label})</span>}
-                  <p className="text-burgundy-900/60">{addr.line1}{addr.neighborhood ? `, ${addr.neighborhood}` : ''}, {addr.city}</p>
+                  <span className="font-semibold text-primary">{addr.recipientName}</span>
+                  {addr.label && <span className="text-primary/50 ml-2">({addr.label})</span>}
+                  <p className="text-primary/60">{addr.line1}{addr.neighborhood ? `, ${addr.neighborhood}` : ''}, {addr.city}</p>
                 </div>
               </label>
             ))}
@@ -291,7 +291,7 @@ function Step1({
                 checked={addressMode === 'new'}
                 onChange={() => setAddressMode('new')}
               />
-              <span className="text-sm text-gold-700">+ Usar dirección diferente</span>
+              <span className="text-sm text-accent">+ Usar dirección diferente</span>
             </label>
           </div>
         )}
@@ -305,7 +305,7 @@ function Step1({
 
       {/* Delivery date & slot */}
       <section>
-        <h2 className="font-display text-xl text-burgundy-900 mb-4">Fecha y horario</h2>
+        <h2 className="font-display text-xl text-primary mb-4">Fecha y horario</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={LABEL}>Fecha de entrega</label>
@@ -343,11 +343,11 @@ function Step1({
 
       {/* Delivery zone */}
       <section>
-        <h2 className="font-display text-xl text-burgundy-900 mb-2">Zona de entrega</h2>
-        <p className="text-xs text-burgundy-900/50 mb-3">El costo de envío varía según tu zona.</p>
+        <h2 className="font-display text-xl text-primary mb-2">Zona de entrega</h2>
+        <p className="text-xs text-primary/50 mb-3">El costo de envío varía según tu zona.</p>
         <div className="space-y-2">
           {zones.map((z) => (
-            <label key={z.id} className="flex items-center justify-between gap-3 cursor-pointer border border-burgundy-900/10 px-4 py-3 hover:border-burgundy-900/30 transition-colors">
+            <label key={z.id} className="flex items-center justify-between gap-3 cursor-pointer border border-primary/10 px-4 py-3 hover:border-primary/30 transition-colors">
               <div className="flex items-center gap-3">
                 <input
                   type="radio"
@@ -357,11 +357,11 @@ function Step1({
                   onChange={() => setDeliveryZoneId(z.id)}
                 />
                 <div>
-                  <span className="text-sm font-semibold text-burgundy-900">{z.name}</span>
-                  {z.description && <p className="text-xs text-burgundy-900/50">{z.description}</p>}
+                  <span className="text-sm font-semibold text-primary">{z.name}</span>
+                  {z.description && <p className="text-xs text-primary/50">{z.description}</p>}
                 </div>
               </div>
-              <span className="text-sm font-semibold text-burgundy-900 flex-shrink-0">{formatCOP(z.feeCents)}</span>
+              <span className="text-sm font-semibold text-primary flex-shrink-0">{formatCOP(z.feeCents)}</span>
             </label>
           ))}
         </div>
@@ -414,8 +414,8 @@ function Step2({
     <div className="space-y-8">
       {/* Price summary */}
       <section>
-        <h2 className="font-display text-xl text-burgundy-900 mb-4">Resumen del pedido</h2>
-        <div className="border border-burgundy-900/10 divide-y divide-burgundy-900/10">
+        <h2 className="font-display text-xl text-primary mb-4">Resumen del pedido</h2>
+        <div className="border border-primary/10 divide-y divide-primary/10">
           <Row2 label="Subtotal" value={formatCOP(subtotalCents)} />
           {discountCents > 0 && <Row2 label={`Cupón (${appliedCoupon?.coupon.code})`} value={`− ${formatCOP(discountCents)}`} green />}
           <Row2 label="Envío" value={deliveryFeeCents > 0 ? formatCOP(deliveryFeeCents) : 'Gratis'} />
@@ -425,7 +425,7 @@ function Step2({
 
       {/* Coupon */}
       <section>
-        <h2 className="font-display text-xl text-burgundy-900 mb-3">Cupón de descuento</h2>
+        <h2 className="font-display text-xl text-primary mb-3">Cupón de descuento</h2>
         {appliedCoupon ? (
           <div className="flex items-center justify-between bg-green-50 border border-green-200 px-4 py-3">
             <div>
@@ -462,8 +462,8 @@ function Step2({
 
       {/* Customer note */}
       <section>
-        <label className="font-display text-xl text-burgundy-900 block mb-3">
-          Nota para el pedido <span className="text-sm text-burgundy-900/40 font-sans">(opcional)</span>
+        <label className="font-display text-xl text-primary block mb-3">
+          Nota para el pedido <span className="text-sm text-primary/40 font-sans">(opcional)</span>
         </label>
         <textarea
           value={customerNote}
@@ -471,7 +471,7 @@ function Step2({
           rows={3}
           maxLength={500}
           placeholder="Instrucciones especiales, dedicatoria, etc."
-          className="w-full border border-burgundy-900/20 bg-cream-50 px-4 py-2.5 text-sm focus:outline-none focus:border-burgundy-900/60 transition-colors resize-none"
+          className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors resize-none"
         />
       </section>
 
@@ -494,7 +494,7 @@ function Step2({
         </button>
       </div>
 
-      <p className="text-xs text-center text-burgundy-900/40">
+      <p className="text-xs text-center text-primary/40">
         Serás redirigido a Bold para completar el pago de forma segura.
       </p>
     </div>
@@ -506,8 +506,8 @@ function Row2({
 }: { label: string; value: string; bold?: boolean; green?: boolean }) {
   return (
     <div className="flex justify-between items-center px-4 py-3 text-sm">
-      <span className={bold ? 'font-semibold text-burgundy-900' : 'text-burgundy-900/60'}>{label}</span>
-      <span className={`${bold ? 'font-display text-lg text-burgundy-900' : ''} ${green ? 'text-green-700 font-semibold' : ''}`}>
+      <span className={bold ? 'font-semibold text-primary' : 'text-primary/60'}>{label}</span>
+      <span className={`${bold ? 'font-display text-lg text-primary' : ''} ${green ? 'text-green-700 font-semibold' : ''}`}>
         {value}
       </span>
     </div>
@@ -705,21 +705,21 @@ export default function CheckoutPage() {
   // Empty cart guard
   if (items.length === 0) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center py-20 px-4 text-center">
-        <div className="text-gold-500 text-4xl mb-4">✦</div>
-        <h1 className="font-display text-3xl text-burgundy-900 mb-3">Tu carrito está vacío</h1>
-        <p className="text-burgundy-900/60 mb-8">Agrega productos antes de proceder al pago.</p>
+      <div data-th-section="checkout" className="min-h-[60vh] flex flex-col items-center justify-center py-20 px-4 text-center">
+        <div className="text-accent text-4xl mb-4">✦</div>
+        <h1 className="font-display text-3xl text-primary mb-3">Tu carrito está vacío</h1>
+        <p className="text-primary/60 mb-8">Agrega productos antes de proceder al pago.</p>
         <Link href="/" className="btn-primary">Explorar catálogo</Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
+    <div data-th-section="checkout" className="max-w-6xl mx-auto px-4 py-12">
       {/* Step indicator */}
       <div className="flex items-center gap-3 mb-10 max-w-xs">
         <StepBadge n={1} label="Entrega" active={step === 1} done={step > 1} />
-        <div className="flex-1 h-px bg-burgundy-900/10" />
+        <div className="flex-1 h-px bg-primary/10" />
         <StepBadge n={2} label="Resumen" active={step === 2} done={false} />
       </div>
 

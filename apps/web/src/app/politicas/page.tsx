@@ -53,11 +53,11 @@ export default async function PoliticasPage() {
         {/* Header */}
         <div className="text-center mb-14">
           <p className="eyebrow mb-4">MVH Flores</p>
-          <h1 className="font-display text-5xl lg:text-6xl text-burgundy-900">
+          <h1 className="font-display text-5xl lg:text-6xl text-primary">
             Políticas de venta
           </h1>
           <div className="gold-divider mt-8 max-w-xs mx-auto">
-            <span className="text-gold-500">✦</span>
+            <span className="text-accent">✦</span>
           </div>
         </div>
 

@@ -16,7 +16,7 @@ export default function EditarProductoPage() {
   if (isLoading) {
     return (
       <div className="p-8">
-        <p className="text-burgundy-900/40 animate-pulse">Cargando producto…</p>
+        <p className="text-primary/40 animate-pulse">Cargando producto…</p>
       </div>
     );
   }

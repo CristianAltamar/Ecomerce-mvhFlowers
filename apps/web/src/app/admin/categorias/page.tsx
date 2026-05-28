@@ -19,8 +19,8 @@ interface AdminCategory {
 }
 
 const INPUT =
-  'w-full border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-burgundy-900/50';
-const LABEL = 'block text-xs uppercase tracking-widest text-burgundy-900/50 mb-1.5';
+  'w-full border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50';
+const LABEL = 'block text-xs uppercase tracking-widest text-primary/50 mb-1.5';
 
 const EMPTY_FORM = {
   name: '',
@@ -134,7 +134,7 @@ export default function CategoriasPage() {
   return (
     <div className="p-8 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl text-burgundy-900">Categorías</h1>
+        <h1 className="font-display text-2xl text-primary">Categorías</h1>
         <button onClick={openCreate} className="btn-primary text-sm px-4 py-2">
           + Nueva categoría
         </button>
@@ -142,8 +142,8 @@ export default function CategoriasPage() {
 
       {/* Create/edit form */}
       {showForm && (
-        <div className="bg-white border border-burgundy-900/20 p-5 mb-6 space-y-4">
-          <h2 className="font-semibold text-burgundy-900 text-sm">
+        <div className="bg-white border border-primary/20 p-5 mb-6 space-y-4">
+          <h2 className="font-semibold text-primary text-sm">
             {editingId ? 'Editar categoría' : 'Nueva categoría'}
           </h2>
           {formError && (
@@ -214,32 +214,32 @@ export default function CategoriasPage() {
 
       {/* Table */}
       {isLoading ? (
-        <p className="text-burgundy-900/40 animate-pulse">Cargando…</p>
+        <p className="text-primary/40 animate-pulse">Cargando…</p>
       ) : (
-        <div className="bg-white border border-burgundy-900/10 overflow-hidden">
+        <div className="bg-white border border-primary/10 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-cream-100/50 border-b border-burgundy-900/10">
+            <thead className="bg-muted/50 border-b border-primary/10">
               <tr>
-                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Categoría</th>
-                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Padre</th>
-                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Hijos</th>
-                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Productos</th>
-                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-burgundy-900/50">Estado</th>
+                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Categoría</th>
+                <th className="text-left px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Padre</th>
+                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Hijos</th>
+                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Productos</th>
+                <th className="text-center px-4 py-3 text-xs uppercase tracking-widest text-primary/50">Estado</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-burgundy-900/5">
+            <tbody className="divide-y divide-primary/5">
               {categories.map((cat) => (
-                <tr key={cat.id} className="hover:bg-cream-50/50 transition-colors">
+                <tr key={cat.id} className="hover:bg-surface/50 transition-colors">
                   <td className="px-4 py-3">
-                    <p className="font-semibold text-burgundy-900">{cat.name}</p>
-                    <p className="text-xs text-burgundy-900/40">{cat.slug}</p>
+                    <p className="font-semibold text-primary">{cat.name}</p>
+                    <p className="text-xs text-primary/40">{cat.slug}</p>
                   </td>
-                  <td className="px-4 py-3 text-burgundy-900/60 text-sm">
+                  <td className="px-4 py-3 text-primary/60 text-sm">
                     {cat.parent?.name ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-center text-burgundy-900/60">{cat._count.children}</td>
-                  <td className="px-4 py-3 text-center text-burgundy-900/60">{cat._count.products}</td>
+                  <td className="px-4 py-3 text-center text-primary/60">{cat._count.children}</td>
+                  <td className="px-4 py-3 text-center text-primary/60">{cat._count.products}</td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => toggleMutation.mutate(cat.id)}
@@ -254,7 +254,7 @@ export default function CategoriasPage() {
                     </button>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button onClick={() => openEdit(cat)} className="text-xs text-gold-700 hover:underline">
+                    <button onClick={() => openEdit(cat)} className="text-xs text-accent hover:underline">
                       Editar
                     </button>
                   </td>
@@ -262,7 +262,7 @@ export default function CategoriasPage() {
               ))}
               {categories.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-burgundy-900/40">
+                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-primary/40">
                     No hay categorías.
                   </td>
                 </tr>

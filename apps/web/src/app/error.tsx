@@ -18,10 +18,10 @@ export default function ErrorPage({
   return (
     <div className="container-mvh py-24 text-center min-h-[60vh] flex flex-col items-center justify-center">
       <p className="eyebrow mb-4">Algo salió mal</p>
-      <h1 className="font-display text-4xl text-burgundy-900 mb-4">
+      <h1 className="font-display text-4xl text-primary mb-4">
         Disculpa, ocurrió un error inesperado
       </h1>
-      <p className="text-burgundy-900/70 mb-8 max-w-md mx-auto">
+      <p className="text-primary/70 mb-8 max-w-md mx-auto">
         Hemos registrado el problema. Puedes intentar de nuevo o volver al inicio.
       </p>
       <div className="flex gap-4 flex-col sm:flex-row">
@@ -33,7 +33,7 @@ export default function ErrorPage({
         </Link>
       </div>
       {process.env.NODE_ENV === 'development' && (
-        <pre className="mt-12 text-xs text-burgundy-900/60 max-w-2xl mx-auto text-left bg-cream-100 p-4 overflow-auto">
+        <pre className="mt-12 text-xs text-primary/60 max-w-2xl mx-auto text-left bg-muted p-4 overflow-auto">
           {error.message}
           {error.digest && `\nDigest: ${error.digest}`}
         </pre>

@@ -9,13 +9,14 @@ import { asyncHandler } from '../../lib/async-handler';
 
 const router: Router = Router();
 
-const ALLOWED_KEYS = ['politicas', 'faq', 'privacidad'] as const;
+const ALLOWED_KEYS = ['politicas', 'faq', 'privacidad', 'theme'] as const;
 type ContentKey = (typeof ALLOWED_KEYS)[number];
 
 const DEFAULTS: Record<ContentKey, string> = {
-  politicas: '',   // se rellena desde la página
-  faq:       '',
+  politicas:  '',
+  faq:        '',
   privacidad: '',
+  theme:      '',
 };
 
 router.get(

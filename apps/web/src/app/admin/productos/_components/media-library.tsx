@@ -100,19 +100,19 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
       <div className="bg-white w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-burgundy-900/10">
-          <h2 className="font-display text-xl text-burgundy-900">Biblioteca de medios</h2>
-          <button onClick={onClose} className="text-burgundy-900/40 hover:text-burgundy-900 text-2xl leading-none">&times;</button>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-primary/10">
+          <h2 className="font-display text-xl text-primary">Biblioteca de medios</h2>
+          <button onClick={onClose} className="text-primary/40 hover:text-primary text-2xl leading-none">&times;</button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-burgundy-900/10">
+        <div className="flex border-b border-primary/10">
           <button
             onClick={() => setTab('library')}
             className={`px-6 py-3 text-sm font-medium transition-colors ${
               tab === 'library'
-                ? 'text-burgundy-900 border-b-2 border-burgundy-900'
-                : 'text-burgundy-900/50 hover:text-burgundy-900'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-primary/50 hover:text-primary'
             }`}
           >
             Biblioteca ({media.length})
@@ -121,8 +121,8 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
             onClick={() => setTab('upload')}
             className={`px-6 py-3 text-sm font-medium transition-colors ${
               tab === 'upload'
-                ? 'text-burgundy-900 border-b-2 border-burgundy-900'
-                : 'text-burgundy-900/50 hover:text-burgundy-900'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-primary/50 hover:text-primary'
             }`}
           >
             Subir archivo
@@ -141,21 +141,21 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
                   onClick={() => fileInputRef.current?.click()}
                   className={`w-full max-w-md border-2 border-dashed rounded p-12 text-center cursor-pointer transition-colors ${
                     isDragging
-                      ? 'border-burgundy-900 bg-burgundy-900/5'
-                      : 'border-burgundy-900/20 hover:border-burgundy-900/50'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-primary/20 hover:border-primary/50'
                   }`}
                 >
                   {uploadMutation.isPending ? (
                     <div className="space-y-2">
                       <div className="text-4xl animate-pulse">⏳</div>
-                      <p className="text-sm text-burgundy-900/60">Subiendo…</p>
+                      <p className="text-sm text-primary/60">Subiendo…</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="text-5xl text-burgundy-900/30">↑</div>
-                      <p className="font-medium text-burgundy-900">Arrastra una imagen aquí</p>
-                      <p className="text-sm text-burgundy-900/50">o haz clic para buscar en tus archivos</p>
-                      <p className="text-xs text-burgundy-900/40">JPG, PNG, WEBP · Máx. 10 MB</p>
+                      <div className="text-5xl text-primary/30">↑</div>
+                      <p className="font-medium text-primary">Arrastra una imagen aquí</p>
+                      <p className="text-sm text-primary/50">o haz clic para buscar en tus archivos</p>
+                      <p className="text-xs text-primary/40">JPG, PNG, WEBP · Máx. 10 MB</p>
                     </div>
                   )}
                 </div>
@@ -175,15 +175,15 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
             ) : isLoading ? (
               <div className="grid grid-cols-5 gap-2">
                 {Array.from({ length: 20 }).map((_, i) => (
-                  <div key={i} className="aspect-square bg-burgundy-900/5 animate-pulse" />
+                  <div key={i} className="aspect-square bg-primary/5 animate-pulse" />
                 ))}
               </div>
             ) : media.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-40 text-burgundy-900/40 text-sm">
+              <div className="flex flex-col items-center justify-center h-40 text-primary/40 text-sm">
                 <p>No hay imágenes todavía.</p>
                 <button
                   onClick={() => setTab('upload')}
-                  className="mt-2 underline hover:text-burgundy-900"
+                  className="mt-2 underline hover:text-primary"
                 >
                   Subir la primera
                 </button>
@@ -196,8 +196,8 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
                     onClick={() => setSelected(item)}
                     className={`relative aspect-square overflow-hidden border-2 transition-all ${
                       selected?.id === item.id
-                        ? 'border-burgundy-900 ring-2 ring-burgundy-900/30'
-                        : 'border-transparent hover:border-burgundy-900/30'
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-transparent hover:border-primary/30'
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -207,7 +207,7 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
                       className="w-full h-full object-cover"
                     />
                     {selected?.id === item.id && (
-                      <div className="absolute top-1 right-1 bg-burgundy-900 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</div>
+                      <div className="absolute top-1 right-1 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</div>
                     )}
                   </button>
                 ))}
@@ -217,15 +217,15 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
 
           {/* Sidebar with details */}
           {selected && tab === 'library' && (
-            <div className="w-56 border-l border-burgundy-900/10 p-4 flex flex-col gap-3 flex-shrink-0">
+            <div className="w-56 border-l border-primary/10 p-4 flex flex-col gap-3 flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={selected.url}
                 alt={selected.alt ?? selected.filename}
-                className="w-full aspect-square object-cover border border-burgundy-900/10"
+                className="w-full aspect-square object-cover border border-primary/10"
               />
-              <div className="space-y-1 text-xs text-burgundy-900/60">
-                <p className="font-medium text-burgundy-900 truncate">{selected.filename}</p>
+              <div className="space-y-1 text-xs text-primary/60">
+                <p className="font-medium text-primary truncate">{selected.filename}</p>
                 {selected.width && selected.height && (
                   <p>{selected.width} × {selected.height} px</p>
                 )}
@@ -243,14 +243,14 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-burgundy-900/10">
-          <button onClick={onClose} className="text-sm text-burgundy-900/60 hover:text-burgundy-900">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-primary/10">
+          <button onClick={onClose} className="text-sm text-primary/60 hover:text-primary">
             Cancelar
           </button>
           <button
             onClick={() => selected && onSelect(selected)}
             disabled={!selected}
-            className="bg-burgundy-900 text-cream-50 px-5 py-2 text-sm hover:bg-burgundy-800 disabled:opacity-40"
+            className="bg-primary text-surface px-5 py-2 text-sm hover:bg-primary-light disabled:opacity-40"
           >
             Seleccionar imagen
           </button>

@@ -6,8 +6,8 @@ interface LogoProps {
 }
 
 export function Logo({ variant = 'dark', size = 'md' }: LogoProps) {
-  const colorClass = variant === 'light' ? 'text-cream-50' : 'text-burgundy-900';
-  const accentClass = variant === 'light' ? 'text-gold-400' : 'text-gold-600';
+  const colorClass = variant === 'light' ? 'text-surface' : 'text-primary';
+  const accentClass = variant === 'light' ? 'text-accent-light' : 'text-accent';
   const sizeClasses = {
     sm: { container: 'gap-0', main: 'text-lg', sub: 'text-[9px]' },
     md: { container: 'gap-0', main: 'text-2xl', sub: 'text-[10px]' },

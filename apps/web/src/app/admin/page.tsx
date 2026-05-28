@@ -49,10 +49,10 @@ const STATUS_COLORS: Record<string, string> = {
 
 function MetricCard({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="bg-white border border-burgundy-900/10 p-5">
-      <p className="text-xs text-burgundy-900/50 uppercase tracking-widest mb-1">{label}</p>
-      <p className="font-display text-2xl text-burgundy-900">{value}</p>
-      <p className="text-xs text-burgundy-900/40 mt-1">{sub}</p>
+    <div className="bg-white border border-primary/10 p-5">
+      <p className="text-xs text-primary/50 uppercase tracking-widest mb-1">{label}</p>
+      <p className="font-display text-2xl text-primary">{value}</p>
+      <p className="text-xs text-primary/40 mt-1">{sub}</p>
     </div>
   );
 }
@@ -67,14 +67,14 @@ export default function AdminDashboard() {
   if (isLoading || !data) {
     return (
       <div className="p-8">
-        <p className="text-burgundy-900/40 animate-pulse">Cargando métricas…</p>
+        <p className="text-primary/40 animate-pulse">Cargando métricas…</p>
       </div>
     );
   }
 
   return (
     <div className="p-8 max-w-5xl">
-      <h1 className="font-display text-2xl text-burgundy-900 mb-6">Dashboard</h1>
+      <h1 className="font-display text-2xl text-primary mb-6">Dashboard</h1>
 
       {/* Metric cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -104,21 +104,21 @@ export default function AdminDashboard() {
         {/* Recent orders */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display text-lg text-burgundy-900">Pedidos recientes</h2>
-            <Link href="/admin/pedidos" className="text-xs text-gold-700 hover:underline">
+            <h2 className="font-display text-lg text-primary">Pedidos recientes</h2>
+            <Link href="/admin/pedidos" className="text-xs text-accent hover:underline">
               Ver todos →
             </Link>
           </div>
-          <div className="bg-white border border-burgundy-900/10 divide-y divide-burgundy-900/5">
+          <div className="bg-white border border-primary/10 divide-y divide-primary/5">
             {data.recentOrders.map((order) => (
               <Link
                 key={order.id}
                 href={`/admin/pedidos/${order.id}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-cream-50 transition-colors"
+                className="flex items-center justify-between px-4 py-3 hover:bg-surface transition-colors"
               >
                 <div>
-                  <p className="text-sm font-semibold text-burgundy-900">{order.orderNumber}</p>
-                  <p className="text-xs text-burgundy-900/50">
+                  <p className="text-sm font-semibold text-primary">{order.orderNumber}</p>
+                  <p className="text-xs text-primary/50">
                     {order.guestEmail ?? 'Cliente registrado'} ·{' '}
                     {new Date(order.createdAt).toLocaleDateString('es-CO')}
                   </p>
@@ -129,12 +129,12 @@ export default function AdminDashboard() {
                   >
                     {STATUS_LABELS[order.status] ?? order.status}
                   </span>
-                  <span className="text-sm text-burgundy-900">{formatCOP(order.totalCents)}</span>
+                  <span className="text-sm text-primary">{formatCOP(order.totalCents)}</span>
                 </div>
               </Link>
             ))}
             {data.recentOrders.length === 0 && (
-              <p className="px-4 py-6 text-sm text-burgundy-900/40 text-center">
+              <p className="px-4 py-6 text-sm text-primary/40 text-center">
                 No hay pedidos todavía.
               </p>
             )}
@@ -144,19 +144,19 @@ export default function AdminDashboard() {
         {/* Low stock */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display text-lg text-burgundy-900">Stock bajo (≤ 5)</h2>
-            <Link href="/admin/productos" className="text-xs text-gold-700 hover:underline">
+            <h2 className="font-display text-lg text-primary">Stock bajo (≤ 5)</h2>
+            <Link href="/admin/productos" className="text-xs text-accent hover:underline">
               Gestionar →
             </Link>
           </div>
-          <div className="bg-white border border-burgundy-900/10 divide-y divide-burgundy-900/5">
+          <div className="bg-white border border-primary/10 divide-y divide-primary/5">
             {data.lowStockProducts.map((p) => (
               <Link
                 key={p.id}
                 href={`/admin/productos/${p.id}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-cream-50 transition-colors"
+                className="flex items-center justify-between px-4 py-3 hover:bg-surface transition-colors"
               >
-                <span className="text-sm text-burgundy-900 truncate mr-4">{p.name}</span>
+                <span className="text-sm text-primary truncate mr-4">{p.name}</span>
                 <span
                   className={`text-xs font-semibold px-2 py-0.5 flex-shrink-0 ${
                     p.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
               </Link>
             ))}
             {data.lowStockProducts.length === 0 && (
-              <p className="px-4 py-6 text-sm text-burgundy-900/40 text-center">
+              <p className="px-4 py-6 text-sm text-primary/40 text-center">
                 Todos los productos tienen stock suficiente.
               </p>
             )}
@@ -176,18 +176,18 @@ export default function AdminDashboard() {
 
         {/* Orders by status */}
         <section className="lg:col-span-2">
-          <h2 className="font-display text-lg text-burgundy-900 mb-3">Estado de pedidos (mes)</h2>
+          <h2 className="font-display text-lg text-primary mb-3">Estado de pedidos (mes)</h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2">
             {Object.entries(STATUS_LABELS).map(([key, label]) => (
               <Link
                 key={key}
                 href={`/admin/pedidos?status=${key}`}
-                className="bg-white border border-burgundy-900/10 p-3 text-center hover:border-gold-500/40 transition-colors"
+                className="bg-white border border-primary/10 p-3 text-center hover:border-accent/40 transition-colors"
               >
-                <p className="font-display text-xl text-burgundy-900">
+                <p className="font-display text-xl text-primary">
                   {data.ordersByStatus[key] ?? 0}
                 </p>
-                <p className="text-xs text-burgundy-900/50 mt-0.5 leading-tight">{label}</p>
+                <p className="text-xs text-primary/50 mt-0.5 leading-tight">{label}</p>
               </Link>
             ))}
           </div>

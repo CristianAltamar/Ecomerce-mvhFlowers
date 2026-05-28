@@ -19,7 +19,7 @@ export function CartDrawer() {
       <div
         onClick={closeCart}
         className={cn(
-          'fixed inset-0 z-50 bg-burgundy-950/60 backdrop-blur-sm transition-opacity duration-300',
+          'fixed inset-0 z-50 bg-ink/60 backdrop-blur-sm transition-opacity duration-300',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         aria-hidden="true"
@@ -28,20 +28,20 @@ export function CartDrawer() {
       {/* Drawer */}
       <aside
         className={cn(
-          'fixed top-0 right-0 z-50 h-full w-full max-w-md bg-cream-50 shadow-premium-lg transition-transform duration-500 flex flex-col',
+          'fixed top-0 right-0 z-50 h-full w-full max-w-md bg-surface shadow-premium-lg transition-transform duration-500 flex flex-col',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
         aria-label="Carrito de compras"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-burgundy-900/10">
-          <h2 className="font-display text-2xl text-burgundy-900">
-            Tu carrito <span className="text-gold-600 text-base">({count})</span>
+        <div className="flex items-center justify-between p-6 border-b border-primary/10">
+          <h2 className="font-display text-2xl text-primary">
+            Tu carrito <span className="text-accent text-base">({count})</span>
           </h2>
           <button
             onClick={closeCart}
-            className="p-2 text-burgundy-900 hover:text-gold-700"
+            className="p-2 text-primary hover:text-accent"
             aria-label="Cerrar carrito"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -55,9 +55,9 @@ export function CartDrawer() {
         <div className="flex-1 overflow-y-auto p-6">
           {items.length === 0 ? (
             <div className="text-center py-20">
-              <div className="text-gold-500 text-4xl mb-4">✦</div>
-              <p className="font-display text-xl text-burgundy-900 mb-2">Tu carrito está vacío</p>
-              <p className="text-sm text-burgundy-900/60 mb-8">
+              <div className="text-accent text-4xl mb-4">✦</div>
+              <p className="font-display text-xl text-primary mb-2">Tu carrito está vacío</p>
+              <p className="text-sm text-primary/60 mb-8">
                 Descubre nuestros arreglos florales.
               </p>
               <button onClick={closeCart} className="btn-outline">
@@ -69,10 +69,10 @@ export function CartDrawer() {
               {items.map((item) => (
                 <li
                   key={`${item.productId}-${item.variantId ?? '_'}`}
-                  className="flex gap-4 pb-6 border-b border-burgundy-900/10 last:border-0"
+                  className="flex gap-4 pb-6 border-b border-primary/10 last:border-0"
                 >
                   {item.imageUrl && (
-                    <div className="w-20 h-24 bg-cream-100 overflow-hidden flex-shrink-0">
+                    <div className="w-20 h-24 bg-muted overflow-hidden flex-shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.imageUrl}
@@ -85,20 +85,20 @@ export function CartDrawer() {
                     <Link
                       href={`/producto/${item.slug}`}
                       onClick={closeCart}
-                      className="font-display text-burgundy-900 hover:text-gold-700 transition-colors line-clamp-2"
+                      className="font-display text-primary hover:text-accent transition-colors line-clamp-2"
                     >
                       {item.name}
                     </Link>
                     {item.variantName && (
-                      <p className="text-xs text-burgundy-900/60 mt-0.5">{item.variantName}</p>
+                      <p className="text-xs text-primary/60 mt-0.5">{item.variantName}</p>
                     )}
                     <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center border border-burgundy-900/20">
+                      <div className="flex items-center border border-primary/20">
                         <button
                           onClick={() =>
                             updateQuantity(item.productId, item.quantity - 1, item.variantId)
                           }
-                          className="px-2 py-1 text-burgundy-900 hover:bg-burgundy-900/5"
+                          className="px-2 py-1 text-primary hover:bg-primary/5"
                           aria-label="Disminuir"
                         >
                           −
@@ -108,19 +108,19 @@ export function CartDrawer() {
                           onClick={() =>
                             updateQuantity(item.productId, item.quantity + 1, item.variantId)
                           }
-                          className="px-2 py-1 text-burgundy-900 hover:bg-burgundy-900/5"
+                          className="px-2 py-1 text-primary hover:bg-primary/5"
                           aria-label="Aumentar"
                         >
                           +
                         </button>
                       </div>
-                      <span className="text-sm font-semibold text-burgundy-900">
+                      <span className="text-sm font-semibold text-primary">
                         {formatCOP(item.unitPriceCents * item.quantity)}
                       </span>
                     </div>
                     <button
                       onClick={() => removeItem(item.productId, item.variantId)}
-                      className="text-xs text-burgundy-900/50 hover:text-burgundy-900 mt-2 underline"
+                      className="text-xs text-primary/50 hover:text-primary mt-2 underline"
                     >
                       Eliminar
                     </button>
@@ -133,14 +133,14 @@ export function CartDrawer() {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-burgundy-900/10 p-6 space-y-4 bg-cream-100/50">
+          <div className="border-t border-primary/10 p-6 space-y-4 bg-muted/50">
             <div className="flex justify-between items-baseline">
               <span className="eyebrow">Subtotal</span>
-              <span className="font-display text-2xl text-burgundy-900">
+              <span className="font-display text-2xl text-primary">
                 {formatCOP(subtotal)}
               </span>
             </div>
-            <p className="text-xs text-burgundy-900/60 text-center">
+            <p className="text-xs text-primary/60 text-center">
               El costo de envío se calcula en el checkout según tu zona.
             </p>
             <Link

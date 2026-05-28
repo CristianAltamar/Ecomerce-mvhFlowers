@@ -59,11 +59,11 @@ function ContentEditor({ tab }: { tab: (typeof TABS)[number] }) {
     },
   });
 
-  if (isLoading) return <p className="text-sm text-burgundy-900/40 animate-pulse">Cargando…</p>;
+  if (isLoading) return <p className="text-sm text-primary/40 animate-pulse">Cargando…</p>;
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-burgundy-900/50 bg-cream-100 px-3 py-2 border border-burgundy-900/10">
+      <p className="text-xs text-primary/50 bg-muted px-3 py-2 border border-primary/10">
         💡 {tab.hint}
       </p>
 
@@ -72,21 +72,21 @@ function ContentEditor({ tab }: { tab: (typeof TABS)[number] }) {
         onChange={(e) => setValue(e.target.value)}
         rows={22}
         spellCheck={false}
-        className="w-full border border-burgundy-900/20 px-4 py-3 text-sm text-burgundy-900 font-mono bg-white focus:outline-none focus:border-burgundy-900 resize-y"
+        className="w-full border border-primary/20 px-4 py-3 text-sm text-primary font-mono bg-white focus:outline-none focus:border-primary resize-y"
       />
 
       <div className="flex items-center gap-3">
         <button
           onClick={() => mutation.mutate(current)}
           disabled={mutation.isPending || value === null}
-          className="bg-burgundy-900 text-cream-50 text-xs uppercase tracking-widest px-6 py-2.5 hover:bg-burgundy-950 transition-colors disabled:opacity-40"
+          className="bg-primary text-surface text-xs uppercase tracking-widest px-6 py-2.5 hover:bg-ink transition-colors disabled:opacity-40"
         >
           {mutation.isPending ? 'Guardando…' : 'Guardar cambios'}
         </button>
         {value !== null && (
           <button
             onClick={() => setValue(null)}
-            className="text-xs text-burgundy-900/40 hover:text-burgundy-900 transition-colors"
+            className="text-xs text-primary/40 hover:text-primary transition-colors"
           >
             Descartar
           </button>
@@ -108,21 +108,21 @@ export default function ContenidoPage() {
 
   return (
     <div className="p-8 max-w-4xl">
-      <h1 className="font-display text-2xl text-burgundy-900 mb-2">Contenido del sitio</h1>
-      <p className="text-sm text-burgundy-900/50 mb-8">
+      <h1 className="font-display text-2xl text-primary mb-2">Contenido del sitio</h1>
+      <p className="text-sm text-primary/50 mb-8">
         Edita las páginas de texto de la tienda. Los cambios se publican inmediatamente.
       </p>
 
       {/* Tabs */}
-      <div className="flex gap-0 border-b border-burgundy-900/10 mb-6">
+      <div className="flex gap-0 border-b border-primary/10 mb-6">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveKey(tab.key)}
             className={`px-5 py-2.5 text-sm transition-colors border-b-2 -mb-px ${
               activeKey === tab.key
-                ? 'border-burgundy-900 text-burgundy-900 font-semibold'
-                : 'border-transparent text-burgundy-900/50 hover:text-burgundy-900'
+                ? 'border-primary text-primary font-semibold'
+                : 'border-transparent text-primary/50 hover:text-primary'
             }`}
           >
             {tab.label}
@@ -134,12 +134,12 @@ export default function ContenidoPage() {
       <ContentEditor key={activeKey} tab={activeTab} />
 
       {/* Links de vista previa */}
-      <p className="mt-4 text-xs text-burgundy-900/40">
+      <p className="mt-4 text-xs text-primary/40">
         Vista previa:{' '}
         <a
           href={activeKey === 'politicas' ? '/politicas' : activeKey === 'faq' ? '/preguntas-frecuentes' : '/privacidad'}
           target="_blank"
-          className="underline hover:text-gold-700"
+          className="underline hover:text-accent"
         >
           abrir página →
         </a>

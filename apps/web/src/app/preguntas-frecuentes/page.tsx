@@ -73,30 +73,30 @@ export default async function FaqPage() {
         {/* Header */}
         <div className="text-center mb-14">
           <p className="eyebrow mb-4">MVH Flores</p>
-          <h1 className="font-display text-5xl lg:text-6xl text-burgundy-900">
+          <h1 className="font-display text-5xl lg:text-6xl text-primary">
             Preguntas frecuentes
           </h1>
           <div className="gold-divider mt-8 max-w-xs mx-auto">
-            <span className="text-gold-500">✦</span>
+            <span className="text-accent">✦</span>
           </div>
         </div>
 
         {/* FAQ list */}
-        <dl className="space-y-0 divide-y divide-burgundy-900/10">
+        <dl className="space-y-0 divide-y divide-primary/10">
           {faqs.map((item, i) => (
             <div key={i} className="py-6">
-              <dt className="font-display text-lg text-burgundy-900 mb-2">{item.q}</dt>
-              <dd className="text-sm text-burgundy-900/70 leading-relaxed">{item.a}</dd>
+              <dt className="font-display text-lg text-primary mb-2">{item.q}</dt>
+              <dd className="text-sm text-primary/70 leading-relaxed">{item.a}</dd>
             </div>
           ))}
         </dl>
 
         {/* CTA */}
-        <div className="mt-14 text-center border border-burgundy-900/10 p-8">
-          <p className="font-display text-xl text-burgundy-900 mb-3">
+        <div className="mt-14 text-center border border-primary/10 p-8">
+          <p className="font-display text-xl text-primary mb-3">
             ¿No encontraste tu respuesta?
           </p>
-          <p className="text-sm text-burgundy-900/60 mb-6">
+          <p className="text-sm text-primary/60 mb-6">
             Escríbenos y te respondemos en minutos.
           </p>
           <a

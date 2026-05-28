@@ -16,7 +16,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
   return (
     <Link href={`/producto/${product.slug}`} className="product-card group">
       {/* Imagen */}
-      <div className="aspect-[4/5] overflow-hidden bg-cream-100 relative">
+      <div className="aspect-[4/5] overflow-hidden bg-muted relative">
         {image ? (
           <Image
             src={image.url}
@@ -27,21 +27,21 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-burgundy-900/30 font-display italic">
+          <div className="flex h-full items-center justify-center text-primary/30 font-display italic">
             sin imagen
           </div>
         )}
 
         {/* Badge premium */}
         {product.isFeatured && (
-          <div className="absolute top-3 left-3 bg-burgundy-950/90 text-gold-400 text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-sm">
+          <div className="absolute top-3 left-3 bg-ink/90 text-accent-light text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-sm">
             Destacado
           </div>
         )}
 
         {/* Quick view overlay */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-burgundy-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-4 flex items-end justify-center">
-          <span className="text-cream-50 text-xs uppercase tracking-widest border-b border-gold-400 pb-1">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-4 flex items-end justify-center">
+          <span className="text-surface text-xs uppercase tracking-widest border-b border-accent-light pb-1">
             Ver detalles →
           </span>
         </div>
@@ -52,16 +52,16 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         {product.category && (
           <p className="eyebrow mb-2">{product.category.name}</p>
         )}
-        <h3 className="font-display text-lg text-burgundy-900 leading-tight mb-3 group-hover:text-gold-700 transition-colors line-clamp-2 min-h-[3.5rem]">
+        <h3 className="font-display text-lg text-primary leading-tight mb-3 group-hover:text-accent transition-colors line-clamp-2 min-h-[3.5rem]">
           {product.name}
         </h3>
         <div className="flex items-center justify-center gap-2 text-sm">
           {hasDiscount && (
-            <span className="text-burgundy-900/40 line-through">
+            <span className="text-primary/40 line-through">
               {formatCOP(product.compareAtPriceCents!)}
             </span>
           )}
-          <span className="text-burgundy-900 font-semibold">
+          <span className="text-primary font-semibold">
             {formatCOP(product.priceCents)}
           </span>
         </div>

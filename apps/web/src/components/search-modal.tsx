@@ -79,14 +79,14 @@ export function SearchModal() {
     <>
       {/* ── Backdrop (behind header) ── */}
       <div
-        className="fixed inset-0 z-[35] bg-burgundy-950/25 backdrop-blur-[2px]"
+        className="fixed inset-0 z-[35] bg-ink/25 backdrop-blur-[2px]"
         onClick={closeSearch}
         aria-hidden="true"
       />
 
       {/* ── Panel ── */}
       <div
-        className="fixed left-0 right-0 bottom-0 z-[36] bg-cream-50 overflow-y-auto animate-fade-in-up"
+        className="fixed left-0 right-0 bottom-0 z-[36] bg-surface overflow-y-auto animate-fade-in-up"
         style={{ top: `${HEADER_HEIGHT}px` }}
         role="dialog"
         aria-modal="true"
@@ -95,10 +95,10 @@ export function SearchModal() {
         <div className="container-mvh py-8 pb-16">
 
           {/* Search input */}
-          <div className="flex items-center gap-4 border-b border-burgundy-900/15 pb-5 mb-10">
+          <div className="flex items-center gap-4 border-b border-primary/15 pb-5 mb-10">
             <svg
               width="22" height="22"
-              className="text-burgundy-900/40 flex-shrink-0"
+              className="text-primary/40 flex-shrink-0"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
             >
               <circle cx="11" cy="11" r="7" />
@@ -112,13 +112,13 @@ export function SearchModal() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="¿Qué estás buscando?"
-              className="flex-1 bg-transparent font-display text-2xl text-burgundy-900 placeholder:text-burgundy-900/25 outline-none"
+              className="flex-1 bg-transparent font-display text-2xl text-primary placeholder:text-primary/25 outline-none"
             />
 
             {query && (
               <button
                 onClick={() => setQuery('')}
-                className="p-1.5 text-burgundy-900/40 hover:text-burgundy-900 transition-colors"
+                className="p-1.5 text-primary/40 hover:text-primary transition-colors"
                 aria-label="Limpiar búsqueda"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -132,21 +132,21 @@ export function SearchModal() {
           {/* ── States ── */}
 
           {!hasQuery && (
-            <p className="text-center font-display italic text-burgundy-900/25 text-xl py-20">
+            <p className="text-center font-display italic text-primary/25 text-xl py-20">
               Escribe para buscar flores y arreglos…
             </p>
           )}
 
           {hasQuery && loading && (
-            <p className="text-center font-display italic text-burgundy-900/40 text-xl py-20">
+            <p className="text-center font-display italic text-primary/40 text-xl py-20">
               Buscando…
             </p>
           )}
 
           {hasQuery && !loading && results.length === 0 && (
             <div className="text-center py-20">
-              <p className="font-display text-2xl text-burgundy-900 mb-2">Sin resultados</p>
-              <p className="text-sm text-burgundy-900/50">
+              <p className="font-display text-2xl text-primary mb-2">Sin resultados</p>
+              <p className="text-sm text-primary/50">
                 Intenta con otro término de búsqueda.
               </p>
             </div>
@@ -168,7 +168,7 @@ export function SearchModal() {
                       onClick={closeSearch}
                       className="product-card group"
                     >
-                      <div className="aspect-[4/5] overflow-hidden bg-cream-100 relative">
+                      <div className="aspect-[4/5] overflow-hidden bg-muted relative">
                         {image ? (
                           <Image
                             src={image.url}
@@ -178,16 +178,16 @@ export function SearchModal() {
                             className="object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-burgundy-900/30 font-display italic text-sm">
+                          <div className="flex h-full items-center justify-center text-primary/30 font-display italic text-sm">
                             sin imagen
                           </div>
                         )}
                       </div>
                       <div className="p-4 text-center">
-                        <h3 className="font-display text-base text-burgundy-900 leading-tight mb-2 group-hover:text-gold-700 transition-colors line-clamp-2">
+                        <h3 className="font-display text-base text-primary leading-tight mb-2 group-hover:text-accent transition-colors line-clamp-2">
                           {product.name}
                         </h3>
-                        <p className="text-sm text-burgundy-900/70 font-semibold">
+                        <p className="text-sm text-primary/70 font-semibold">
                           {formatCOP(product.priceCents)}
                         </p>
                       </div>

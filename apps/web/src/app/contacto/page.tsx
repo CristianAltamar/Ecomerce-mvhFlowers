@@ -13,23 +13,23 @@ export default function ContactoPage() {
     <div className="container-mvh py-16 lg:py-24">
       <div className="max-w-3xl mx-auto text-center">
         <p className="eyebrow mb-4">Estamos para ti</p>
-        <h1 className="font-display text-5xl lg:text-6xl text-burgundy-900 mb-6">
+        <h1 className="font-display text-5xl lg:text-6xl text-primary mb-6">
           Hablemos de tu próximo arreglo
         </h1>
-        <p className="text-burgundy-900/70 text-lg leading-relaxed">
+        <p className="text-primary/70 text-lg leading-relaxed">
           ¿Tienes una ocasión especial? Te ayudamos a elegir o diseñar el arreglo perfecto.
         </p>
         <div className="gold-divider mt-10 mb-16 max-w-xs mx-auto">
-          <span className="text-gold-500">✦</span>
+          <span className="text-accent">✦</span>
         </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
         {/* Tienda */}
-        <div className="text-center p-8 border border-burgundy-900/10 bg-cream-50">
-          <div className="text-gold-500 text-3xl mb-4">✦</div>
-          <h2 className="font-display text-xl text-burgundy-900 mb-3">Visítanos</h2>
-          <p className="text-sm text-burgundy-900/70 leading-relaxed">
+        <div className="text-center p-8 border border-primary/10 bg-surface">
+          <div className="text-accent text-3xl mb-4">✦</div>
+          <h2 className="font-display text-xl text-primary mb-3">Visítanos</h2>
+          <p className="text-sm text-primary/70 leading-relaxed">
             Cra 48 # 75 - 51
             <br />
             Barranquilla, Atlántico
@@ -37,15 +37,15 @@ export default function ContactoPage() {
         </div>
 
         {/* WhatsApp */}
-        <div className="text-center p-8 border border-gold-500 bg-burgundy-950 text-cream-50">
-          <div className="text-gold-400 text-3xl mb-4">✦</div>
+        <div className="text-center p-8 border border-accent bg-ink text-surface">
+          <div className="text-accent-light text-3xl mb-4">✦</div>
           <h2 className="font-display text-xl mb-3">WhatsApp</h2>
-          <p className="text-sm text-cream-200/80 mb-4">Respuesta más rápida</p>
+          <p className="text-sm text-muted/80 mb-4">Respuesta más rápida</p>
           <a
             href={WHATSAPP_LINK}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block text-gold-400 hover:text-gold-300 transition-colors"
+            className="inline-block text-accent-light hover:text-accent-light transition-colors"
           >
             +57 322 451 3906
           </a>
@@ -55,7 +55,7 @@ export default function ContactoPage() {
         <ContactForm />
       </div>
 
-      <div className="mt-16 text-center text-sm text-burgundy-900/60">
+      <div className="mt-16 text-center text-sm text-primary/60">
         <p className="font-serif italic">
           Horario de atención · Lunes a sábado · 8:00 AM – 7:00 PM
         </p>

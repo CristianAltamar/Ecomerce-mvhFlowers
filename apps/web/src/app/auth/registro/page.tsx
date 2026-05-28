@@ -51,11 +51,11 @@ export default function RegistroPage() {
     <div className="min-h-[65vh] flex items-center justify-center py-16 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-gold-500 text-3xl mb-3">✦</div>
-          <h1 className="font-display text-3xl text-burgundy-900 mb-2">Crea tu cuenta</h1>
-          <p className="text-sm text-burgundy-900/60">
+          <div className="text-accent text-3xl mb-3">✦</div>
+          <h1 className="font-display text-3xl text-primary mb-2">Crea tu cuenta</h1>
+          <p className="text-sm text-primary/60">
             ¿Ya tienes cuenta?{' '}
-            <Link href="/auth/login" className="text-gold-700 hover:underline">
+            <Link href="/auth/login" className="text-accent hover:underline">
               Inicia sesión aquí
             </Link>
           </p>
@@ -78,7 +78,7 @@ export default function RegistroPage() {
                 required
                 autoComplete="given-name"
                 placeholder="María"
-                className="w-full border border-burgundy-900/20 bg-cream-50 px-4 py-2.5 text-sm focus:outline-none focus:border-burgundy-900/60 transition-colors"
+                className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors"
               />
             </div>
             <div>
@@ -90,7 +90,7 @@ export default function RegistroPage() {
                 required
                 autoComplete="family-name"
                 placeholder="García"
-                className="w-full border border-burgundy-900/20 bg-cream-50 px-4 py-2.5 text-sm focus:outline-none focus:border-burgundy-900/60 transition-colors"
+                className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors"
               />
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function RegistroPage() {
               required
               autoComplete="email"
               placeholder="tu@email.com"
-              className="w-full border border-burgundy-900/20 bg-cream-50 px-4 py-2.5 text-sm focus:outline-none focus:border-burgundy-900/60 transition-colors"
+              className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors"
             />
           </div>
 
@@ -117,19 +117,19 @@ export default function RegistroPage() {
               required
               autoComplete="new-password"
               placeholder="Mín. 8 caracteres, 1 mayúscula, 1 número"
-              className="w-full border border-burgundy-900/20 bg-cream-50 px-4 py-2.5 text-sm focus:outline-none focus:border-burgundy-900/60 transition-colors"
+              className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors"
             />
           </div>
 
           <div>
-            <label className="eyebrow block mb-1.5">Teléfono <span className="text-burgundy-900/40">(opcional)</span></label>
+            <label className="eyebrow block mb-1.5">Teléfono <span className="text-primary/40">(opcional)</span></label>
             <input
               type="tel"
               value={form.phone}
               onChange={set('phone')}
               autoComplete="tel"
               placeholder="+57 300 123 4567"
-              className="w-full border border-burgundy-900/20 bg-cream-50 px-4 py-2.5 text-sm focus:outline-none focus:border-burgundy-900/60 transition-colors"
+              className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors"
             />
           </div>
 

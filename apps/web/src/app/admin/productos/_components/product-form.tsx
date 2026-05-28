@@ -10,8 +10,8 @@ import type { Category } from '@mvh/types';
 import { MediaLibrary } from './media-library';
 
 const INPUT =
-  'w-full border border-burgundy-900/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-burgundy-900/50 transition-colors';
-const LABEL = 'block text-xs uppercase tracking-widest text-burgundy-900/50 mb-1.5';
+  'w-full border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-colors';
+const LABEL = 'block text-xs uppercase tracking-widest text-primary/50 mb-1.5';
 const ERR = 'text-red-500 text-xs mt-1';
 
 interface ProductData {
@@ -186,10 +186,10 @@ export function ProductForm({ product }: ProductFormProps) {
   return (
     <div className="p-8 max-w-3xl">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.back()} className="text-sm text-burgundy-900/50 hover:text-burgundy-900">
+        <button onClick={() => router.back()} className="text-sm text-primary/50 hover:text-primary">
           ← Volver
         </button>
-        <h1 className="font-display text-2xl text-burgundy-900">
+        <h1 className="font-display text-2xl text-primary">
           {isEdit ? 'Editar producto' : 'Nuevo producto'}
         </h1>
       </div>
@@ -202,8 +202,8 @@ export function ProductForm({ product }: ProductFormProps) {
         )}
 
         {/* Basic info */}
-        <section className="bg-white border border-burgundy-900/10 p-5 space-y-4">
-          <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest">
+        <section className="bg-white border border-primary/10 p-5 space-y-4">
+          <h2 className="font-semibold text-primary text-sm uppercase tracking-widest">
             Información básica
           </h2>
           <div>
@@ -236,8 +236,8 @@ export function ProductForm({ product }: ProductFormProps) {
         </section>
 
         {/* Pricing & stock */}
-        <section className="bg-white border border-burgundy-900/10 p-5 space-y-4">
-          <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest">
+        <section className="bg-white border border-primary/10 p-5 space-y-4">
+          <h2 className="font-semibold text-primary text-sm uppercase tracking-widest">
             Precio y stock
           </h2>
           <div className="grid grid-cols-3 gap-4">
@@ -245,7 +245,7 @@ export function ProductForm({ product }: ProductFormProps) {
               <label className={LABEL}>Precio (COP) *</label>
               <input type="number" min={0} value={form.priceCents} onChange={f('priceCents')} required className={INPUT} placeholder="9000000" />
               {form.priceCents && (
-                <p className="text-xs text-burgundy-900/40 mt-1">{formatCOP(Number(form.priceCents))}</p>
+                <p className="text-xs text-primary/40 mt-1">{formatCOP(Number(form.priceCents))}</p>
               )}
             </div>
             <div>
@@ -289,15 +289,15 @@ export function ProductForm({ product }: ProductFormProps) {
       {/* Images — only shown for existing products */}
       {isEdit && (
         <>
-          <section className="mt-6 bg-white border border-burgundy-900/10 p-5">
+          <section className="mt-6 bg-white border border-primary/10 p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest">
+              <h2 className="font-semibold text-primary text-sm uppercase tracking-widest">
                 Imágenes
               </h2>
               <button
                 type="button"
                 onClick={() => setShowMediaLibrary(true)}
-                className="bg-burgundy-900 text-cream-50 px-4 py-2 text-xs hover:bg-burgundy-800 transition-colors"
+                className="bg-primary text-surface px-4 py-2 text-xs hover:bg-primary-light transition-colors"
               >
                 + Agregar imagen
               </button>
@@ -306,7 +306,7 @@ export function ProductForm({ product }: ProductFormProps) {
               <button
                 type="button"
                 onClick={() => setShowMediaLibrary(true)}
-                className="w-full border-2 border-dashed border-burgundy-900/20 py-8 text-sm text-burgundy-900/40 hover:border-burgundy-900/40 hover:text-burgundy-900/60 transition-colors"
+                className="w-full border-2 border-dashed border-primary/20 py-8 text-sm text-primary/40 hover:border-primary/40 hover:text-primary/60 transition-colors"
               >
                 Clic para agregar imágenes
               </button>
@@ -315,7 +315,7 @@ export function ProductForm({ product }: ProductFormProps) {
                 {product.images.map((img) => (
                   <div key={img.id} className="relative group">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.url} alt={img.alt ?? ''} className="w-24 h-24 object-cover border border-burgundy-900/10" />
+                    <img src={img.url} alt={img.alt ?? ''} className="w-24 h-24 object-cover border border-primary/10" />
                     <button
                       type="button"
                       onClick={() => deleteImageMutation.mutate(img.id)}
@@ -343,14 +343,14 @@ export function ProductForm({ product }: ProductFormProps) {
 
       {/* Variants — only shown for existing products */}
       {isEdit && (
-        <section className="mt-6 bg-white border border-burgundy-900/10 p-5">
-          <h2 className="font-semibold text-burgundy-900 text-sm uppercase tracking-widest mb-4">
+        <section className="mt-6 bg-white border border-primary/10 p-5">
+          <h2 className="font-semibold text-primary text-sm uppercase tracking-widest mb-4">
             Variantes
           </h2>
           {product.variants.length > 0 && (
             <table className="w-full text-sm mb-4">
-              <thead className="border-b border-burgundy-900/10">
-                <tr className="text-xs uppercase tracking-widest text-burgundy-900/50">
+              <thead className="border-b border-primary/10">
+                <tr className="text-xs uppercase tracking-widest text-primary/50">
                   <th className="text-left py-2">SKU</th>
                   <th className="text-left py-2">Nombre</th>
                   <th className="text-right py-2">Precio</th>
@@ -358,14 +358,14 @@ export function ProductForm({ product }: ProductFormProps) {
                   <th className="py-2" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-burgundy-900/5">
+              <tbody className="divide-y divide-primary/5">
                 {product.variants.map((v) => (
                   <tr key={v.id}>
-                    <td className="py-2 text-burgundy-900/60">{v.sku}</td>
+                    <td className="py-2 text-primary/60">{v.sku}</td>
                     <td className="py-2">
                       {v.name}
                       {v.isDefault && (
-                        <span className="ml-1 text-xs text-gold-600">(por defecto)</span>
+                        <span className="ml-1 text-xs text-accent">(por defecto)</span>
                       )}
                     </td>
                     <td className="py-2 text-right">{formatCOP(v.priceCents)}</td>
@@ -406,7 +406,7 @@ export function ProductForm({ product }: ProductFormProps) {
             <button
               onClick={handleAddVariant}
               disabled={addVariantMutation.isPending}
-              className="bg-burgundy-900 text-cream-50 px-3 py-2 text-sm hover:bg-burgundy-800 disabled:opacity-50"
+              className="bg-primary text-surface px-3 py-2 text-sm hover:bg-primary-light disabled:opacity-50"
             >
               + Agregar
             </button>

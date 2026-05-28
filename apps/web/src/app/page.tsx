@@ -24,14 +24,14 @@ export default async function HomePage() {
   return (
     <>
       {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden bg-burgundy-radial text-cream-50 min-h-[80vh] lg:min-h-[88vh] flex items-center">
+      <section data-th-section="hero" className="relative overflow-hidden bg-surface text-primary min-h-[80vh] lg:min-h-[88vh] flex items-center">
         {/* Ornamento de fondo */}
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div
             className="absolute inset-0"
             style={{
               backgroundImage:
-                'radial-gradient(circle at 20% 30%, #ecc774 0%, transparent 8%), radial-gradient(circle at 80% 70%, #d49328 0%, transparent 10%)',
+                'radial-gradient(circle at 20% 30%, var(--th-accent-light) 0%, transparent 8%), radial-gradient(circle at 80% 70%, var(--th-accent) 0%, transparent 10%)',
             }}
           />
         </div>
@@ -42,15 +42,15 @@ export default async function HomePage() {
         <div className="container-mvh relative grid lg:grid-cols-2 gap-12 py-20 lg:py-0">
           {/* Texto */}
           <div className="flex flex-col justify-center animate-fade-up">
-            <p className="eyebrow text-gold-400 mb-6">Floristería · Barranquilla</p>
+            <p className="eyebrow text-accent mb-6">Floristería · Barranquilla</p>
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.05] tracking-tight text-balance">
               ¿Tienes una
               <br />
-              <span className="italic text-gold-400">fecha especial</span>
+              <span className="italic text-accent">fecha especial</span>
               <br />
               hoy?
             </h1>
-            <p className="mt-8 text-lg lg:text-xl text-cream-200/85 font-serif leading-relaxed max-w-xl">
+            <p className="mt-8 text-lg lg:text-xl text-primary/85 font-serif leading-relaxed max-w-xl">
               Cumpleaños, aniversarios, amor o simplemente porque sí — hacemos llegar flores
               frescas a cualquier dirección en Barranquilla el mismo día.
             </p>
@@ -64,7 +64,7 @@ export default async function HomePage() {
                 href={WHATSAPP_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-cream-200/30 text-cream-100 hover:border-gold-400 hover:text-gold-300 transition-all duration-300"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-primary/30 text-primary hover:border-accent hover:text-accent transition-all duration-300"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
@@ -81,9 +81,9 @@ export default async function HomePage() {
                 { label: 'Pago', value: 'Seguro' },
                 { label: 'Asesoría', value: 'Personalizada' },
               ].map((b, i) => (
-                <div key={i} className="border-l-2 border-gold-500 pl-3">
-                  <p className="text-cream-200/60 uppercase tracking-widest">{b.label}</p>
-                  <p className="text-cream-50 mt-1 font-serif text-sm">{b.value}</p>
+                <div key={i} className="border-l-2 border-accent pl-3">
+                  <p className="text-primary/60 uppercase tracking-widest">{b.label}</p>
+                  <p className="text-primary mt-1 font-serif text-sm">{b.value}</p>
                 </div>
               ))}
             </div>
@@ -93,8 +93,8 @@ export default async function HomePage() {
           <div className="relative hidden lg:flex items-center justify-center">
             <div className="relative w-full aspect-[3/4] max-w-md">
               {/* Marco dorado decorativo */}
-              <div className="absolute -top-4 -left-4 right-8 bottom-8 border border-gold-500/60" />
-              <div className="absolute top-8 left-8 -right-4 -bottom-4 border border-gold-500/40" />
+              <div className="absolute -top-4 -left-4 right-8 bottom-8 border border-accent/60" />
+              <div className="absolute top-8 left-8 -right-4 -bottom-4 border border-accent/40" />
               <div className="relative w-full h-full overflow-hidden shadow-premium-lg">
                 <Image
                   src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=900&q=85"
@@ -104,10 +104,10 @@ export default async function HomePage() {
                   sizes="(min-width: 1024px) 40vw, 80vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-burgundy-950/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
               </div>
               {/* Sello dorado */}
-              <div className="absolute -bottom-2 -right-2 w-28 h-28 rounded-full bg-gold-500 flex items-center justify-center text-burgundy-950 font-display italic shadow-premium-lg rotate-[-12deg]">
+              <div className="absolute -bottom-2 -right-2 w-28 h-28 rounded-full bg-accent flex items-center justify-center text-ink font-display italic shadow-premium-lg rotate-[-12deg]">
                 <div className="text-center">
                   <p className="text-[10px] uppercase tracking-widest">Entrega</p>
                   <p className="text-xl font-bold">Mismo</p>
@@ -119,7 +119,7 @@ export default async function HomePage() {
         </div>
 
         {/* Texto inferior */}
-        <p className="absolute bottom-6 left-0 right-0 text-center text-cream-200/50 text-xs tracking-widest uppercase">
+        <p className="absolute bottom-6 left-0 right-0 text-center text-primary/50 text-xs tracking-widest uppercase">
           Agenda tu pedido hoy · Entrega en el horario ideal
         </p>
       </section>
@@ -128,11 +128,11 @@ export default async function HomePage() {
       <section className="container-mvh py-24">
         <div className="text-center mb-16">
           <p className="eyebrow mb-3">Para cada momento</p>
-          <h2 className="font-display text-4xl lg:text-5xl text-burgundy-900">
+          <h2 className="font-display text-4xl lg:text-5xl text-primary">
             Encuentra el arreglo perfecto
           </h2>
           <div className="gold-divider mt-6 max-w-xs mx-auto">
-            <span className="text-gold-500">✦</span>
+            <span className="text-accent">✦</span>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ export default async function HomePage() {
               className="group block animate-fade-up"
               style={{ animationDelay: `${i * 80}ms` }}
             >
-              <div className="aspect-square relative overflow-hidden bg-cream-100">
+              <div className="aspect-square relative overflow-hidden bg-muted">
                 <Image
                   src={tile.img}
                   alt={tile.name}
@@ -152,9 +152,9 @@ export default async function HomePage() {
                   sizes="(min-width: 1024px) 16vw, 33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-burgundy-950/30 group-hover:bg-burgundy-950/50 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-ink/30 group-hover:bg-ink/50 transition-colors duration-500" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <h3 className="font-display text-2xl text-cream-50 italic">{tile.name}</h3>
+                  <h3 className="font-display text-2xl text-surface italic">{tile.name}</h3>
                 </div>
               </div>
             </Link>
@@ -163,18 +163,18 @@ export default async function HomePage() {
       </section>
 
       {/* ============ ARREGLOS DESTACADOS ============ */}
-      <section className="bg-cream-100 py-24">
+      <section className="bg-muted py-24">
         <div className="container-mvh">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
               <p className="eyebrow mb-3">Selección de la casa</p>
-              <h2 className="font-display text-4xl lg:text-5xl text-burgundy-900">
+              <h2 className="font-display text-4xl lg:text-5xl text-primary">
                 Arreglos destacados
               </h2>
             </div>
             <Link
               href="/categoria/arreglos-premium"
-              className="text-burgundy-900 hover:text-gold-700 transition-colors text-sm uppercase tracking-widest border-b border-burgundy-900/30 hover:border-gold-700 pb-1 self-start md:self-end"
+              className="text-primary hover:text-accent transition-colors text-sm uppercase tracking-widest border-b border-primary/30 hover:border-accent pb-1 self-start md:self-end"
             >
               Ver todos los diseños →
             </Link>
@@ -182,10 +182,10 @@ export default async function HomePage() {
 
           {featured.length === 0 ? (
             <div className="text-center py-20">
-              <p className="font-display text-2xl text-burgundy-900 mb-3">
+              <p className="font-display text-2xl text-primary mb-3">
                 Cargando creaciones florales…
               </p>
-              <p className="text-sm text-burgundy-900/60">
+              <p className="text-sm text-primary/60">
                 ¿No ves productos? Asegúrate de que la API esté corriendo y la BD seedeada.
               </p>
             </div>
@@ -207,7 +207,7 @@ export default async function HomePage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
               <p className="eyebrow mb-3">Ofertas especiales</p>
-              <h2 className="font-display text-4xl lg:text-5xl text-burgundy-900">
+              <h2 className="font-display text-4xl lg:text-5xl text-primary">
                 Arreglos en promoción
               </h2>
             </div>
@@ -224,23 +224,23 @@ export default async function HomePage() {
       )}
 
       {/* ============ CTA FINAL ============ */}
-      <section className="relative bg-burgundy-950 text-cream-50 overflow-hidden">
+      <section className="relative bg-ink text-surface overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div
             className="absolute inset-0"
             style={{
               backgroundImage:
-                'radial-gradient(circle at 70% 50%, #d49328 0%, transparent 30%)',
+                'radial-gradient(circle at 70% 50%, var(--th-accent) 0%, transparent 30%)',
             }}
           />
         </div>
         <div className="container-mvh py-24 relative">
           <div className="max-w-2xl mx-auto text-center">
-            <p className="eyebrow text-gold-400 mb-4">¿Algo en mente?</p>
+            <p className="eyebrow text-accent-light mb-4">¿Algo en mente?</p>
             <h2 className="font-display text-4xl lg:text-5xl mb-6 italic">
               Diseñamos tu arreglo a medida.
             </h2>
-            <p className="text-cream-200/80 mb-10 text-lg">
+            <p className="text-muted/80 mb-10 text-lg">
               Cuéntanos la ocasión, el destinatario y tu presupuesto. Nuestra florista creará
               algo único para ti.
             </p>

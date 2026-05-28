@@ -82,23 +82,23 @@ export default async function ProductPage({ params }: PageProps) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
-    <div className="container-mvh py-12 lg:py-16">
+    <div data-th-section="producto" className="container-mvh py-12 lg:py-16">
       {/* Breadcrumb */}
-      <nav className="text-xs uppercase tracking-widest text-burgundy-900/60 mb-8">
-        <Link href="/" className="hover:text-gold-700">Inicio</Link>
+      <nav className="text-xs uppercase tracking-widest text-primary/60 mb-8">
+        <Link href="/" className="hover:text-accent">Inicio</Link>
         {product.category && (
           <>
             <span className="mx-2">/</span>
             <Link
               href={`/categoria/${product.category.slug}`}
-              className="hover:text-gold-700"
+              className="hover:text-accent"
             >
               {product.category.name}
             </Link>
           </>
         )}
         <span className="mx-2">/</span>
-        <span className="text-burgundy-900 truncate inline-block max-w-[200px] align-bottom">
+        <span className="text-primary truncate inline-block max-w-[200px] align-bottom">
           {product.name}
         </span>
       </nav>
@@ -107,7 +107,7 @@ export default async function ProductPage({ params }: PageProps) {
         {/* === Galería === */}
         <div>
           {mainImage ? (
-            <div className="relative aspect-[4/5] bg-cream-100 overflow-hidden shadow-premium">
+            <div className="relative aspect-[4/5] bg-muted overflow-hidden shadow-premium">
               <Image
                 src={mainImage.url}
                 alt={mainImage.alt ?? product.name}
@@ -117,13 +117,13 @@ export default async function ProductPage({ params }: PageProps) {
                 className="object-cover"
               />
               {product.isFeatured && (
-                <div className="absolute top-4 left-4 bg-burgundy-950/90 text-gold-400 text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-sm">
+                <div className="absolute top-4 left-4 bg-ink/90 text-accent-light text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-sm">
                   Destacado
                 </div>
               )}
             </div>
           ) : (
-            <div className="aspect-[4/5] bg-cream-100 flex items-center justify-center text-burgundy-900/30 font-display italic">
+            <div className="aspect-[4/5] bg-muted flex items-center justify-center text-primary/30 font-display italic">
               sin imagen
             </div>
           )}
@@ -131,7 +131,7 @@ export default async function ProductPage({ params }: PageProps) {
           {galleryImages.length > 0 && (
             <div className="grid grid-cols-4 gap-3 mt-4">
               {galleryImages.map((img) => (
-                <div key={img.id} className="aspect-square bg-cream-100 overflow-hidden">
+                <div key={img.id} className="aspect-square bg-muted overflow-hidden">
                   <Image
                     src={img.url}
                     alt={img.alt ?? product.name}
@@ -150,30 +150,30 @@ export default async function ProductPage({ params }: PageProps) {
           {product.category && (
             <p className="eyebrow mb-3">{product.category.name}</p>
           )}
-          <h1 className="font-display text-4xl lg:text-5xl text-burgundy-900 leading-tight text-balance">
+          <h1 className="font-display text-4xl lg:text-5xl text-primary leading-tight text-balance">
             {product.name}
           </h1>
 
           {product.shortDescription && (
-            <p className="mt-4 text-lg text-burgundy-900/70 leading-relaxed">
+            <p className="mt-4 text-lg text-primary/70 leading-relaxed">
               {product.shortDescription}
             </p>
           )}
 
           {/* Precio */}
           <div className="mt-8 flex items-baseline gap-3">
-            <span className="font-display text-4xl text-burgundy-900 font-semibold">
+            <span className="font-display text-4xl text-primary font-semibold">
               {formatCOP(product.priceCents)}
             </span>
             {hasDiscount && (
-              <span className="text-lg text-burgundy-900/40 line-through">
+              <span className="text-lg text-primary/40 line-through">
                 {formatCOP(product.compareAtPriceCents!)}
               </span>
             )}
           </div>
 
           {/* Línea dorada */}
-          <div className="my-8 h-px bg-gradient-to-r from-gold-500/40 via-gold-500 to-transparent" />
+          <div className="my-8 h-px bg-gradient-to-r from-accent/40 via-accent to-transparent" />
 
           {/* Add to cart (Client Component) */}
           <AddToCartButton product={product} />
@@ -182,46 +182,46 @@ export default async function ProductPage({ params }: PageProps) {
           {product.description && (
             <div className="mt-12">
               <h2 className="eyebrow mb-4">Descripción</h2>
-              <p className="text-burgundy-900/80 leading-relaxed whitespace-pre-line">
+              <p className="text-primary/80 leading-relaxed whitespace-pre-line">
                 {product.description}
               </p>
             </div>
           )}
 
           {/* Info adicional */}
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t border-burgundy-900/10">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t border-primary/10">
             <div className="flex items-start gap-3">
-              <span className="text-gold-500 text-2xl mt-1">✦</span>
+              <span className="text-accent text-2xl mt-1">✦</span>
               <div>
-                <p className="font-display text-burgundy-900">Entrega el mismo día</p>
-                <p className="text-xs text-burgundy-900/60 mt-1">
+                <p className="font-display text-primary">Entrega el mismo día</p>
+                <p className="text-xs text-primary/60 mt-1">
                   Pide antes de las 5:00 PM en Barranquilla.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-gold-500 text-2xl mt-1">✦</span>
+              <span className="text-accent text-2xl mt-1">✦</span>
               <div>
-                <p className="font-display text-burgundy-900">Flores frescas</p>
-                <p className="text-xs text-burgundy-900/60 mt-1">
+                <p className="font-display text-primary">Flores frescas</p>
+                <p className="text-xs text-primary/60 mt-1">
                   Seleccionadas cuidadosamente cada mañana.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-gold-500 text-2xl mt-1">✦</span>
+              <span className="text-accent text-2xl mt-1">✦</span>
               <div>
-                <p className="font-display text-burgundy-900">Asesoría personalizada</p>
-                <p className="text-xs text-burgundy-900/60 mt-1">
+                <p className="font-display text-primary">Asesoría personalizada</p>
+                <p className="text-xs text-primary/60 mt-1">
                   ¿Dudas? Escríbenos por WhatsApp.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <span className="text-gold-500 text-2xl mt-1">✦</span>
+              <span className="text-accent text-2xl mt-1">✦</span>
               <div>
-                <p className="font-display text-burgundy-900">Pago seguro</p>
-                <p className="text-xs text-burgundy-900/60 mt-1">
+                <p className="font-display text-primary">Pago seguro</p>
+                <p className="text-xs text-primary/60 mt-1">
                   Tarjeta, PSE, Nequi y contraentrega.
                 </p>
               </div>

@@ -6,6 +6,7 @@ import { CartDrawer } from '@/components/cart-drawer';
 import { SearchModal } from '@/components/search-modal';
 import { QueryProvider } from '@/providers/query-provider';
 import { AuthProvider } from '@/providers/auth-provider';
+import { ThemeCssVars } from '@/components/theme-css-vars';
 import '@/styles/globals.css';
 
 // Display: Playfair Display — elegancia editorial
@@ -104,7 +105,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="es-CO"
       className={`${playfair.variable} ${cormorant.variable} ${inter.variable}`}
     >
-      <body className="font-serif min-h-screen flex flex-col bg-cream">
+      <body className="font-serif min-h-screen flex flex-col bg-surface">
+        <ThemeCssVars />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
         <QueryProvider>
           <AuthProvider>

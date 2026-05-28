@@ -115,9 +115,9 @@ adminRouter.get('/delivery/blocked-dates', adminDeliveryController.listBlockedDa
 adminRouter.post('/delivery/blocked-dates', validate(createBlockedDateSchema), adminDeliveryController.blockDate);
 adminRouter.delete('/delivery/blocked-dates/:id', validate(idParamsSchema, 'params'), adminDeliveryController.unblockDate);
 
-// ─── Site content (políticas, FAQ, privacidad) ────────────────────────────────
+// ─── Site content (políticas, FAQ, privacidad, theme) ────────────────────────
 const siteContentSchema = z.object({ content: z.string().max(50_000) });
-const CONTENT_KEYS = ['politicas', 'faq', 'privacidad'] as const;
+const CONTENT_KEYS = ['politicas', 'faq', 'privacidad', 'theme'] as const;
 
 adminRouter.put(
   '/site-content/:key',

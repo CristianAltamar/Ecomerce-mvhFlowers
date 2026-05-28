@@ -5,7 +5,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Paleta MVH Flores: burdeos + dorado + crema
+        // ── Tokens semánticos del tema (editables desde /admin/configuracion/temas) ──
+        // Las variaciones se logran con opacidad: bg-primary/10, text-primary/50, etc.
+        // Cada uno se define con canales RGB para soportar el modificador <alpha-value>.
+        primary:        'rgb(var(--th-primary-rgb) / <alpha-value>)',
+        'primary-light':'rgb(var(--th-primary-light-rgb) / <alpha-value>)',
+        accent:         'rgb(var(--th-accent-rgb) / <alpha-value>)',
+        'accent-light': 'rgb(var(--th-accent-light-rgb) / <alpha-value>)',
+        surface:        'rgb(var(--th-surface-rgb) / <alpha-value>)',
+        muted:          'rgb(var(--th-muted-rgb) / <alpha-value>)',
+        ink:            'rgb(var(--th-ink-rgb) / <alpha-value>)',
+
+        // ── Paleta legacy (estática) — fallback para usos no migrados ──
         burgundy: {
           50: '#fdf2f4',
           100: '#fbe5ea',
@@ -16,7 +27,7 @@ const config: Config = {
           600: '#bc2752',
           700: '#9d1d44',
           800: '#831b3e',
-          900: '#5a1028', // tono principal
+          900: '#5a1028',
           950: '#3d0a1c',
         },
         gold: {
@@ -25,7 +36,7 @@ const config: Config = {
           200: '#f4dfaa',
           300: '#ecc774',
           400: '#e4ac47',
-          500: '#d49328', // tono principal
+          500: '#d49328',
           600: '#b9761f',
           700: '#985a1d',
           800: '#7e481e',
@@ -42,9 +53,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['var(--font-display)', 'Georgia', 'serif'],
-        serif: ['var(--font-serif)', 'Georgia', 'serif'],
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--th-font-heading)', 'Georgia', 'serif'],
+        serif: ['var(--th-font-body)', 'Georgia', 'serif'],
+        sans: ['var(--th-font-ui)', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         widest: '0.25em',
@@ -67,9 +78,10 @@ const config: Config = {
         'shimmer':         'shimmer 2s linear infinite',
       },
       backgroundImage: {
-        'gold-gradient': 'linear-gradient(135deg, #d49328 0%, #ecc774 50%, #d49328 100%)',
+        'gold-gradient':
+          'linear-gradient(135deg, var(--th-accent) 0%, var(--th-accent-light) 50%, var(--th-accent) 100%)',
         'burgundy-radial':
-          'radial-gradient(ellipse at top, #831b3e 0%, #5a1028 60%, #3d0a1c 100%)',
+          'radial-gradient(ellipse at top, var(--th-primary-light) 0%, var(--th-primary) 60%, #3d0a1c 100%)',
       },
     },
   },
