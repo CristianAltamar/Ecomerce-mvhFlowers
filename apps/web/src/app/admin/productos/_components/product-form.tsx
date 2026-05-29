@@ -95,6 +95,14 @@ export function ProductForm({ product }: ProductFormProps) {
     },
   });
 
+  const deleteProductMutation = useMutation({
+    mutationFn: () => authFetch(`/admin/products/${product!.id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      router.push('/admin/productos');
+    },
+  });
+
   const deleteImageMutation = useMutation({
     mutationFn: (imageId: string) =>
       authFetch(`/admin/products/${product!.id}/images/${imageId}`, { method: 'DELETE' }),
@@ -472,6 +480,36 @@ export function ProductForm({ product }: ProductFormProps) {
             >
               + Agregar
             </button>
+          </div>
+        </section>
+      )}
+
+      {/* Zona de peligro — eliminar producto */}
+      {isEdit && (
+        <section className="mt-8 border border-red-200 bg-red-50/50 p-5">
+          <h2 className="font-semibold text-red-700 text-sm uppercase tracking-widest mb-2">
+            Eliminar producto
+          </h2>
+          <p className="text-sm text-primary/60 mb-4">
+            Esta acción es permanente. Se eliminarán también sus imágenes y variantes. Los pedidos
+            existentes conservan su histórico.
+          </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(`¿Eliminar "${product.name}" permanentemente?`)) {
+                  deleteProductMutation.mutate();
+                }
+              }}
+              disabled={deleteProductMutation.isPending}
+              className="bg-red-600 text-white text-xs uppercase tracking-widest px-5 py-2.5 hover:bg-red-700 transition-colors disabled:opacity-40"
+            >
+              {deleteProductMutation.isPending ? 'Eliminando…' : 'Eliminar producto'}
+            </button>
+            {deleteProductMutation.isError && (
+              <span className="text-xs text-red-500">No se pudo eliminar.</span>
+            )}
           </div>
         </section>
       )}

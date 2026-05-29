@@ -29,5 +29,7 @@ export default function EditarProductoPage() {
     );
   }
 
-  return <ProductForm product={product} />;
+  // key por isActive/updatedAt: si los datos del servidor cambian (p.ej. tras togglear
+  // activo en la lista), el form se remonta con los valores frescos en vez de quedar pegado.
+  return <ProductForm key={`${product.id}:${String(product.isActive)}`} product={product} />;
 }

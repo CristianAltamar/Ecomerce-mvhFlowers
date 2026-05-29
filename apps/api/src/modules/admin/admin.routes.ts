@@ -68,6 +68,7 @@ adminRouter.post('/products', validate(createProductSchema), adminProductsContro
 adminRouter.get('/products/:id', validate(idParamsSchema, 'params'), adminProductsController.getById);
 adminRouter.put('/products/:id', validate(idParamsSchema, 'params'), validate(updateProductSchema), adminProductsController.update);
 adminRouter.patch('/products/:id/toggle-active', validate(idParamsSchema, 'params'), adminProductsController.toggleActive);
+adminRouter.delete('/products/:id', validate(idParamsSchema, 'params'), adminProductsController.remove);
 
 // Images
 adminRouter.post('/products/:id/images', validate(idParamsSchema, 'params'), validate(productImageSchema), adminProductsController.addImage);

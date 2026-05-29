@@ -41,6 +41,11 @@ export const adminProductsController = {
     sendSuccess(res, product);
   }),
 
+  remove: asyncHandler(async (req: ReqWithId, res: Response) => {
+    await adminProductsService.remove(req.params.id);
+    sendNoContent(res);
+  }),
+
   addImage: asyncHandler(async (req: ReqWithId, res: Response) => {
     const image = await adminProductsService.addImage(req.params.id, req.body as ProductImageInput);
     sendCreated(res, image);

@@ -1,130 +1,29 @@
 # 🌸 MVH Flores — Ecommerce Headless
 
-Plataforma ecommerce moderna para **MVH Flores** (Barranquilla, Colombia), construida con arquitectura headless. Reemplaza la solución actual basada en WordPress + WooCommerce.
+Plataforma ecommerce para **MVH Flores** (Barranquilla, Colombia). Monorepo Turborepo + pnpm:
+Next.js 14 (web + panel admin) + Express/Prisma (API) + PostgreSQL + Redis + Cloudinary + Bold.
 
-> **Estado actual: Entrega 1 — Fundación del monorepo (Fases 1 y 2 del roadmap)**
+## 📖 Documentación
 
----
+**Toda la documentación del proyecto está en [`CLAUDE.md`](CLAUDE.md)** — estructura, API, frontend,
+modelos de datos, servicios de terceros, sistema de tema, pagos, despliegue, convenciones y reglas.
+Es la única fuente de verdad y se mantiene 100% al día con cada cambio.
 
-## 📦 Estructura del proyecto
-
-```
-mvh-store/
-├── apps/
-│   ├── web/        → Frontend público (Next.js 14 + App Router)
-│   ├── admin/      → Panel administrativo (pendiente — Entrega 3)
-│   └── api/        → Backend REST (Node.js + Express + Prisma)
-├── packages/
-│   ├── types/      → Tipos TypeScript compartidos
-│   ├── utils/      → Utilidades comunes
-│   ├── config/     → Configuraciones compartidas (ESLint, TS)
-│   └── ui/         → Componentes UI compartidos
-├── docker/         → Dockerfiles y configuraciones
-├── docs/           → Documentación técnica
-└── docker-compose.yml
-```
-
----
-
-## 🧱 Stack tecnológico
-
-| Capa            | Tecnologías                                                                 |
-| --------------- | --------------------------------------------------------------------------- |
-| **Frontend**    | Next.js 14, React 18, TypeScript, TailwindCSS, Zustand, TanStack Query, Zod |
-| **Backend**     | Node.js 24, Express, TypeScript, Prisma ORM, JWT, Zod, Pino                 |
-| **Base datos**  | PostgreSQL 16                                                               |
-| **Cache/Queue** | Redis 7 + BullMQ (configurado, integración en Entrega 2)                    |
-| **Infra**       | Docker, Docker Compose, pnpm workspaces, Turborepo                          |
-| **Pagos**       | Bold (módulo aislado — integración en Entrega 2)                            |
-| **Imágenes**    | Cloudinary (configurado, integración en Entrega 3)                          |
-
----
-
-## 🚀 Quick Start
-
-### Requisitos previos
-
-- **Node.js** ≥ 22.x
-- **pnpm** ≥ 11.x → `npm install -g pnpm@11`
-- **Docker** y **Docker Compose**
-
-### Instalación
+## 🚀 Quick start
 
 ```bash
-# 1. Clonar e instalar dependencias
-git clone <repo>
-cd mvh-store
 pnpm install
-
-# 2. Configurar variables de entorno
-cp .env.example .env
-cp apps/api/.env.example apps/api/.env
+cp apps/api/.env.example apps/api/.env        # configurar credenciales
 cp apps/web/.env.example apps/web/.env.local
-
-# 3. Levantar servicios (Postgres + Redis)
-docker compose up -d
-
-# 4. Aplicar migraciones y poblar BD
+docker compose up -d                          # Postgres + Redis
 pnpm --filter @mvh/api db:migrate
 pnpm --filter @mvh/api db:seed
-
-# 5. Iniciar todo (API en :4000, Web en :3000)
-pnpm dev
+pnpm dev                                       # web :3000 · api :4000
 ```
 
-Una vez arriba:
-- 🌐 **Web pública** → http://localhost:3000
-- ⚙️ **API REST**   → http://localhost:4000
-- 🩺 **Healthcheck** → http://localhost:4000/health
-- 📚 **Docs API**   → http://localhost:4000/docs
+Credenciales demo: admin `admin@mvhflores.com` / `Admin123!` · cliente `cliente@test.com` / `Cliente123!`
 
----
-
-## 🔐 Credenciales de prueba (post-seed)
-
-| Rol     | Email                | Password   |
-| ------- | -------------------- | ---------- |
-| Admin   | `admin@mvhflores.com`| `Admin123!`|
-| Cliente | `cliente@test.com`   | `Cliente123!`|
-
----
-
-## 📜 Scripts principales
-
-```bash
-pnpm dev              # Inicia todas las apps en modo desarrollo
-pnpm build            # Build de producción de todo el monorepo
-pnpm lint             # Lint en todos los paquetes
-pnpm test             # Tests en todos los paquetes
-pnpm format           # Formatea código con Prettier
-
-# Scripts específicos del API
-pnpm --filter @mvh/api db:migrate     # Aplica migraciones Prisma
-pnpm --filter @mvh/api db:seed        # Pobla BD con datos demo
-pnpm --filter @mvh/api db:studio      # Abre Prisma Studio (GUI BD)
-pnpm --filter @mvh/api db:reset       # Reset completo de BD
-```
-
----
-
-## 🗺️ Roadmap de entregas
-
-- ✅ **Entrega 1** — Fundación: monorepo, BD, auth, catálogo público *(actual)*
-- ⏳ **Entrega 2** — Carrito persistente, checkout, integración Bold
-- ⏳ **Entrega 3** — Panel admin (CRUD productos, pedidos, métricas)
-- ⏳ **Entrega 4** — Sistema de entregas (franjas, zonas), cupones
-- ⏳ **Entrega 5** — SEO avanzado, Core Web Vitals, despliegue Vercel/VPS
-
----
-
-## 📖 Documentación adicional
-
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Arquitectura detallada
-- [`docs/API.md`](docs/API.md) — Referencia de endpoints REST
-- [`docs/DATABASE.md`](docs/DATABASE.md) — Modelo de datos
-- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Guía de despliegue
-
----
+> Ver [`CLAUDE.md §3`](CLAUDE.md) para comandos, migraciones y notas del entorno.
 
 ## 📄 Licencia
 

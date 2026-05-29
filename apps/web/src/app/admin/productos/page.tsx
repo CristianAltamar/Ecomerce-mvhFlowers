@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authFetch } from '@/lib/auth-fetch';
 import { formatCOP } from '@mvh/utils';
-import type { ProductVariant, ProductImage } from '@mvh/types';
+import type { ProductVariant, ProductImage, Category } from '@mvh/types';
 
 interface AdminProduct {
   id: string;
@@ -36,11 +36,17 @@ function ProductsContent() {
   const page = Number(searchParams.get('page') ?? 1);
   const search = searchParams.get('search') ?? '';
   const isActive = searchParams.get('isActive') ?? '';
+  const categoryId = searchParams.get('categoryId') ?? '';
 
   const [searchInput, setSearchInput] = useState(search);
 
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: () => authFetch<Category[]>('/admin/categories'),
+  });
+
   const { data, isLoading } = useQuery<ProductsData>({
-    queryKey: ['admin-products', page, search, isActive],
+    queryKey: ['admin-products', page, search, isActive, categoryId],
     queryFn: () =>
       authFetch('/admin/products', {
         searchParams: {
@@ -48,22 +54,27 @@ function ProductsContent() {
           perPage: 20,
           ...(search ? { search } : {}),
           ...(isActive ? { isActive } : {}),
+          ...(categoryId ? { categoryId } : {}),
         },
       }),
   });
 
   const toggleMutation = useMutation({
     mutationFn: (id: string) =>
-      authFetch(`/admin/products/${id}/toggle-active`, { method: 'PATCH' }),
-    onSuccess: () => {
+      authFetch<AdminProduct>(`/admin/products/${id}/toggle-active`, { method: 'PATCH' }),
+    onSuccess: (updated, id) => {
       void queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      // Mantén el caché del detalle en sync (el provider tiene staleTime 60s,
+      // si no, al entrar a editar mostraría el estado viejo)
+      queryClient.setQueryData(['admin-product', id], updated);
     },
   });
 
   const applySearch = () => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString());
     if (searchInput) params.set('search', searchInput);
-    if (isActive) params.set('isActive', isActive);
+    else params.delete('search');
+    params.delete('page');
     router.push(`/admin/productos?${params.toString()}`);
   };
 
@@ -103,6 +114,18 @@ function ProductsContent() {
             Buscar
           </button>
         </div>
+        <select
+          value={categoryId}
+          onChange={(e) => setFilter('categoryId', e.target.value)}
+          className="border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none"
+        >
+          <option value="">Todas las categorías</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
         <select
           value={isActive}
           onChange={(e) => setFilter('isActive', e.target.value)}

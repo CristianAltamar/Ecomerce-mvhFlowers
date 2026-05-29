@@ -159,6 +159,15 @@ export const adminProductsService = {
     return mapProduct(product);
   },
 
+  async remove(id: string) {
+    const existing = await prisma.product.findUnique({ where: { id }, select: { id: true, slug: true } });
+    if (!existing) throw new NotFoundError('Producto no encontrado');
+    // onDelete: Cascade borra imágenes/variantes; los OrderItem quedan con productId = null (SetNull)
+    await prisma.product.delete({ where: { id } });
+    await cache.del(`products:slug:${existing.slug}`, 'products:featured:8');
+    await cache.delPattern('products:*');
+  },
+
   // ─── Images ────────────────────────────────────────────────────────────────
 
   async addImage(productId: string, data: ProductImageInput) {
