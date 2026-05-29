@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import express from 'express';
 import { optionalAuth } from '../../middlewares/auth';
 import { validate } from '../../middlewares/validate';
 import { paymentController } from './payment.controller';
@@ -16,10 +15,7 @@ paymentRouter.post(
   paymentController.initiate,
 );
 
-// POST /payments/webhooks/bold — recibe notificaciones de Bold
-// Usa express.raw() para preservar el body en buffer (necesario para verificar firma HMAC)
-paymentRouter.post(
-  '/webhooks/bold',
-  express.raw({ type: 'application/json' }),
-  paymentController.boldWebhook,
-);
+// POST /webhooks/bold — notificaciones de Bold.
+// El body crudo se captura en el verify de express.json (app.ts) → req.rawBody,
+// usado para verificar la firma HMAC sobre los bytes exactos recibidos.
+paymentRouter.post('/webhooks/bold', paymentController.boldWebhook);

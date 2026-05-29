@@ -6,38 +6,49 @@
  * concreta se inyecta. Esto permite cambiar de proveedor sin tocar lógica
  * de checkout, órdenes ni notificaciones.
  *
- * Implementaciones planeadas:
- *   - BoldPaymentProvider     (Entrega 2 — pasarela principal)
- *   - CashOnDeliveryProvider  (Entrega 2 — contraentrega)
- *   - MockPaymentProvider     (testing)
+ * Implementaciones:
+ *   - BoldPaymentProvider     (pasarela principal — botón embebido + firma)
+ *   - (contraentrega y mock se manejan en payment.service)
  */
 
-export interface CreatePaymentInput {
+export interface BuildPaymentInput {
   orderId: string;
-  orderNumber: string;
-  amountCents: number;
+  reference: string; // identificador único que se envía a Bold (data-order-id)
+  amountCents: number; // entero (COP sin decimales)
   currency: string;
+  description: string;
+  redirectionUrl: string;
   customer: {
     email: string;
     firstName: string;
     lastName: string;
     phone?: string;
   };
-  returnUrl: string;
-  cancelUrl: string;
 }
 
-export interface CreatePaymentResult {
-  providerPaymentId: string;
-  redirectUrl?: string;
-  raw: unknown;
+/**
+ * Configuración que el frontend necesita para renderizar el botón de pagos de Bold.
+ * `apiKey` es la llave de IDENTIDAD (pública); la firma se calcula en el servidor
+ * con la llave secreta y NUNCA se expone.
+ */
+export interface BoldButtonConfig {
+  apiKey: string;
+  orderReference: string;
+  amount: number;
+  currency: string;
+  integritySignature: string;
+  description: string;
+  redirectionUrl: string;
+  customerData?: string; // JSON string (email, fullName, phone)
 }
 
-export interface PaymentStatusResult {
-  status: 'PENDING' | 'AUTHORIZED' | 'APPROVED' | 'REJECTED' | 'FAILED' | 'REFUNDED';
-  providerReference?: string;
-  raw: unknown;
-}
+export type PaymentStatus =
+  | 'PENDING'
+  | 'AUTHORIZED'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'FAILED'
+  | 'REFUNDED';
 
 export interface WebhookVerifyInput {
   rawBody: string;
@@ -46,14 +57,14 @@ export interface WebhookVerifyInput {
 
 export interface WebhookVerifyResult {
   isValid: boolean;
-  providerPaymentId?: string;
-  status?: PaymentStatusResult['status'];
+  reference?: string; // nuestra referencia (data-order-id) devuelta en metadata
+  providerPaymentId?: string; // id de la transacción en Bold
+  status?: PaymentStatus;
   raw: unknown;
 }
 
 export interface PaymentProvider {
   name: string;
-  createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult>;
-  getPaymentStatus(providerPaymentId: string): Promise<PaymentStatusResult>;
-  verifyWebhook(input: WebhookVerifyInput): Promise<WebhookVerifyResult>;
+  buildButtonConfig(input: BuildPaymentInput): BoldButtonConfig;
+  verifyWebhook(input: WebhookVerifyInput): WebhookVerifyResult;
 }

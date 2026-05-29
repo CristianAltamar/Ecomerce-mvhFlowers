@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { apiFetch, ApiClientError } from '@/lib/api-client';
 import { authFetch } from '@/lib/auth-fetch';
 import { formatCOP } from '@mvh/utils';
+import { BoldPaymentButton } from '@/components/bold-payment-button';
 import type {
   Address,
   DeliverySlot,
@@ -16,8 +17,9 @@ import type {
   BlockedDate,
   ValidateCouponResult,
   Order,
-  InitiatePaymentResult,
   PublicUser,
+  InitiatePaymentResult,
+  BoldButtonConfig,
 } from '@mvh/types';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -38,50 +40,40 @@ const SELECT = `${INPUT} appearance-none`;
 const LABEL = 'eyebrow block mb-1.5';
 const ERR = 'text-red-500 text-xs mt-1';
 
-// ─── Step indicator ─────────────────────────────────────────────────────────
+// ─── Widget decorativo de Bold ───────────────────────────────────────────────
 
-function StepBadge({ n, label, active, done }: { n: number; label: string; active: boolean; done: boolean }) {
+function LockIcon() {
   return (
-    <div className="flex items-center gap-2">
-      <div
-        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
-          done
-            ? 'bg-accent text-white'
-            : active
-            ? 'bg-primary text-surface'
-            : 'bg-primary/10 text-primary/40'
-        }`}
-      >
-        {done ? '✓' : n}
-      </div>
-      <span className={`text-sm ${active ? 'text-primary font-semibold' : 'text-primary/40'}`}>
-        {label}
-      </span>
-    </div>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
   );
 }
 
-// ─── Order sidebar ───────────────────────────────────────────────────────────
-
-function OrderSidebar({
-  subtotalCents,
-  discountCents,
-  deliveryFeeCents,
-  totalCents,
-}: {
-  subtotalCents: number;
-  discountCents: number;
-  deliveryFeeCents: number;
-  totalCents: number;
-}) {
+function BoldWidget() {
+  const methods = ['Visa', 'Mastercard', 'Amex', 'PSE', 'Nequi'];
   return (
-    <div className="bg-muted/50 border border-primary/10 p-6 space-y-3 sticky top-4">
-      <h3 className="font-display text-xl text-primary mb-4">Resumen</h3>
-      <Row label="Subtotal" value={formatCOP(subtotalCents)} />
-      {discountCents > 0 && <Row label="Descuento" value={`− ${formatCOP(discountCents)}`} green />}
-      <Row label="Envío" value={deliveryFeeCents > 0 ? formatCOP(deliveryFeeCents) : '—'} />
-      <div className="border-t border-primary/10 pt-3">
-        <Row label="Total" value={formatCOP(totalCents)} bold />
+    <div className="text-center space-y-3 border border-primary/10 bg-muted/40 p-5">
+      <p className="eyebrow">Paga en línea con Bold</p>
+      <p className="font-display text-3xl tracking-tight text-primary leading-none">
+        b<span className="text-accent">o</span>ld
+      </p>
+      <p className="text-xs text-primary/60 leading-relaxed">
+        Completa tu pago de forma fácil y segura con tarjeta, PSE o Nequi.
+      </p>
+      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+        {methods.map((m) => (
+          <span
+            key={m}
+            className="text-[10px] uppercase tracking-wider text-primary/50 border border-primary/15 rounded px-2 py-1"
+          >
+            {m}
+          </span>
+        ))}
+      </div>
+      <div className="flex items-center justify-center gap-1.5 text-xs text-green-700">
+        <LockIcon /> Compra 100% protegida
       </div>
     </div>
   );
@@ -198,7 +190,6 @@ function Step1({
   deliverySlotId, setDeliverySlotId,
   deliveryZoneId, setDeliveryZoneId,
   errors,
-  onNext,
 }: {
   user: PublicUser | null;
   guestEmail: string; setGuestEmail: (v: string) => void;
@@ -216,7 +207,6 @@ function Step1({
   deliverySlotId: string; setDeliverySlotId: (v: string) => void;
   deliveryZoneId: string; setDeliveryZoneId: (v: string) => void;
   errors: Record<string, string>;
-  onNext: () => void;
 }) {
   const hasSavedAddresses = savedAddresses.length > 0;
   const showAddressForm = !user || addressMode === 'new' || !hasSavedAddresses;
@@ -367,149 +357,6 @@ function Step1({
         </div>
         {errors.deliveryZoneId && <p className={ERR}>{errors.deliveryZoneId}</p>}
       </section>
-
-      <button onClick={onNext} className="btn-primary w-full">
-        Continuar al resumen →
-      </button>
-    </div>
-  );
-}
-
-// ─── Step 2: Resumen + pago ──────────────────────────────────────────────────
-
-function Step2({
-  subtotalCents,
-  deliveryFeeCents,
-  discountCents,
-  totalCents,
-  couponCode, setCouponCode,
-  appliedCoupon,
-  couponError,
-  isValidatingCoupon,
-  onValidateCoupon,
-  onRemoveCoupon,
-  customerNote, setCustomerNote,
-  isSubmitting,
-  submitError,
-  onBack,
-  onSubmit,
-}: {
-  subtotalCents: number;
-  deliveryFeeCents: number;
-  discountCents: number;
-  totalCents: number;
-  couponCode: string; setCouponCode: (v: string) => void;
-  appliedCoupon: ValidateCouponResult | null;
-  couponError: string;
-  isValidatingCoupon: boolean;
-  onValidateCoupon: () => void;
-  onRemoveCoupon: () => void;
-  customerNote: string; setCustomerNote: (v: string) => void;
-  isSubmitting: boolean;
-  submitError: string;
-  onBack: () => void;
-  onSubmit: () => void;
-}) {
-  return (
-    <div className="space-y-8">
-      {/* Price summary */}
-      <section>
-        <h2 className="font-display text-xl text-primary mb-4">Resumen del pedido</h2>
-        <div className="border border-primary/10 divide-y divide-primary/10">
-          <Row2 label="Subtotal" value={formatCOP(subtotalCents)} />
-          {discountCents > 0 && <Row2 label={`Cupón (${appliedCoupon?.coupon.code})`} value={`− ${formatCOP(discountCents)}`} green />}
-          <Row2 label="Envío" value={deliveryFeeCents > 0 ? formatCOP(deliveryFeeCents) : 'Gratis'} />
-          <Row2 label="Total" value={formatCOP(totalCents)} bold />
-        </div>
-      </section>
-
-      {/* Coupon */}
-      <section>
-        <h2 className="font-display text-xl text-primary mb-3">Cupón de descuento</h2>
-        {appliedCoupon ? (
-          <div className="flex items-center justify-between bg-green-50 border border-green-200 px-4 py-3">
-            <div>
-              <span className="text-sm font-semibold text-green-800">{appliedCoupon.coupon.code}</span>
-              {appliedCoupon.coupon.description && (
-                <p className="text-xs text-green-700">{appliedCoupon.coupon.description}</p>
-              )}
-            </div>
-            <button onClick={onRemoveCoupon} className="text-xs text-green-700 underline hover:text-green-900">
-              Quitar
-            </button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-              placeholder="CÓDIGO"
-              className={`${INPUT} flex-1`}
-              onKeyDown={(e) => e.key === 'Enter' && onValidateCoupon()}
-            />
-            <button
-              onClick={onValidateCoupon}
-              disabled={!couponCode.trim() || isValidatingCoupon}
-              className="btn-outline px-4 py-2 text-sm disabled:opacity-50"
-            >
-              {isValidatingCoupon ? '…' : 'Aplicar'}
-            </button>
-          </div>
-        )}
-        {couponError && <p className={ERR}>{couponError}</p>}
-      </section>
-
-      {/* Customer note */}
-      <section>
-        <label className="font-display text-xl text-primary block mb-3">
-          Nota para el pedido <span className="text-sm text-primary/40 font-sans">(opcional)</span>
-        </label>
-        <textarea
-          value={customerNote}
-          onChange={(e) => setCustomerNote(e.target.value)}
-          rows={3}
-          maxLength={500}
-          placeholder="Instrucciones especiales, dedicatoria, etc."
-          className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors resize-none"
-        />
-      </section>
-
-      {submitError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
-          {submitError}
-        </div>
-      )}
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button onClick={onBack} className="btn-outline flex-1">
-          ← Volver
-        </button>
-        <button
-          onClick={onSubmit}
-          disabled={isSubmitting}
-          className="btn-primary flex-[2] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? 'Procesando pedido…' : `Pagar ${formatCOP(totalCents)}`}
-        </button>
-      </div>
-
-      <p className="text-xs text-center text-primary/40">
-        Serás redirigido a Bold para completar el pago de forma segura.
-      </p>
-    </div>
-  );
-}
-
-function Row2({
-  label, value, bold, green,
-}: { label: string; value: string; bold?: boolean; green?: boolean }) {
-  return (
-    <div className="flex justify-between items-center px-4 py-3 text-sm">
-      <span className={bold ? 'font-semibold text-primary' : 'text-primary/60'}>{label}</span>
-      <span className={`${bold ? 'font-display text-lg text-primary' : ''} ${green ? 'text-green-700 font-semibold' : ''}`}>
-        {value}
-      </span>
     </div>
   );
 }
@@ -519,13 +366,12 @@ function Row2({
 export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
-  const clearCart = useCartStore((s) => s.clear);
   const subtotalCents = useCartStore(selectCartSubtotalCents);
   const user = useAuthStore((s) => s.user);
 
-  const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [payConfig, setPayConfig] = useState<BoldButtonConfig | null>(null);
 
   // Step 1 — guest info
   const [guestEmail, setGuestEmail] = useState('');
@@ -582,6 +428,28 @@ export default function CheckoutPage() {
   const discountCents = appliedCoupon?.discountCents ?? 0;
   const totalCents = subtotalCents - discountCents + deliveryFeeCents;
 
+  // Si cambia cualquier dato que afecte el pedido, invalida el botón ya generado
+  // para no pagar un monto/datos desactualizados.
+  const formSignature = useMemo(
+    () =>
+      JSON.stringify({
+        items: items.map((i) => [i.productId, i.variantId, i.quantity]),
+        guestEmail, guestFirstName, guestLastName, guestPhone,
+        addressMode, selectedAddressId, addressForm,
+        deliveryDate, deliverySlotId, deliveryZoneId,
+        coupon: appliedCoupon?.coupon.code ?? null,
+        customerNote,
+      }),
+    [
+      items, guestEmail, guestFirstName, guestLastName, guestPhone,
+      addressMode, selectedAddressId, addressForm,
+      deliveryDate, deliverySlotId, deliveryZoneId, appliedCoupon, customerNote,
+    ],
+  );
+  useEffect(() => {
+    setPayConfig(null);
+  }, [formSignature]);
+
   // Step 1 validation
   const validateStep1 = () => {
     const errs: Record<string, string> = {};
@@ -608,10 +476,6 @@ export default function CheckoutPage() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleNext = () => {
-    if (validateStep1()) setStep(2);
-  };
-
   // Coupon validation
   const handleValidateCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -631,9 +495,10 @@ export default function CheckoutPage() {
     }
   };
 
-  // Place order
-  const handlePlaceOrder = async () => {
-    setIsSubmitting(true);
+  // Prepara el pago: crea el pedido (PENDING) y obtiene la config del botón de Bold.
+  const handlePreparePayment = async () => {
+    if (!validateStep1()) return;
+    setIsPreparing(true);
     setSubmitError('');
     try {
       const usingNewAddress = !user || addressMode === 'new' || !savedAddresses.length;
@@ -671,26 +536,21 @@ export default function CheckoutPage() {
         orderBody.guestPhone = guestPhone || undefined;
       }
 
-      const order = await authFetch<Order>('/orders', {
+      const order = await authFetch<Order>('/orders', { method: 'POST', body: orderBody });
+
+      const origin =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : (process.env.NEXT_PUBLIC_SITE_URL ?? '');
+      const pay = await authFetch<InitiatePaymentResult>(`/orders/${order.id}/pay`, {
         method: 'POST',
-        body: orderBody,
+        body: { method: 'BOLD_CARD', returnUrl: `${origin}/pedido/${order.id}?status=success` },
       });
 
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-      const paymentResult = await authFetch<InitiatePaymentResult>(`/orders/${order.id}/pay`, {
-        method: 'POST',
-        body: {
-          method: 'BOLD_CARD',
-          returnUrl: `${siteUrl}/pedido/${order.id}?status=success`,
-          cancelUrl: `${siteUrl}/pedido/${order.id}?status=cancelled`,
-        },
-      });
-
-      clearCart();
-
-      if (paymentResult.redirectUrl) {
-        window.location.href = paymentResult.redirectUrl;
+      if (pay.bold) {
+        setPayConfig(pay.bold);
       } else {
+        // Métodos sin redirección (p.ej. contraentrega)
         router.push(`/pedido/${order.id}`);
       }
     } catch (err) {
@@ -698,7 +558,7 @@ export default function CheckoutPage() {
         err instanceof ApiClientError ? err.message : 'Error al procesar tu pedido. Intenta de nuevo.',
       );
     } finally {
-      setIsSubmitting(false);
+      setIsPreparing(false);
     }
   };
 
@@ -716,66 +576,169 @@ export default function CheckoutPage() {
 
   return (
     <div data-th-section="checkout" className="max-w-6xl mx-auto px-4 py-12">
-      {/* Step indicator */}
-      <div className="flex items-center gap-3 mb-10 max-w-xs">
-        <StepBadge n={1} label="Entrega" active={step === 1} done={step > 1} />
-        <div className="flex-1 h-px bg-primary/10" />
-        <StepBadge n={2} label="Resumen" active={step === 2} done={false} />
-      </div>
+      <h1 className="font-display text-3xl text-primary mb-8">Finalizar compra</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Form */}
-        <div className="lg:col-span-2">
-          {step === 1 && (
-            <Step1
-              user={user}
-              guestEmail={guestEmail} setGuestEmail={setGuestEmail}
-              guestFirstName={guestFirstName} setGuestFirstName={setGuestFirstName}
-              guestLastName={guestLastName} setGuestLastName={setGuestLastName}
-              guestPhone={guestPhone} setGuestPhone={setGuestPhone}
-              savedAddresses={savedAddresses}
-              addressMode={addressMode} setAddressMode={setAddressMode}
-              selectedAddressId={selectedAddressId} setSelectedAddressId={setSelectedAddressId}
-              addressForm={addressForm} setAddressForm={setAddressForm}
-              slots={slots}
-              zones={zones}
-              blockedDates={blockedDates}
-              deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
-              deliverySlotId={deliverySlotId} setDeliverySlotId={setDeliverySlotId}
-              deliveryZoneId={deliveryZoneId} setDeliveryZoneId={setDeliveryZoneId}
-              errors={step1Errors}
-              onNext={handleNext}
+        {/* Formulario */}
+        <div className="lg:col-span-2 space-y-8">
+          <Step1
+            user={user}
+            guestEmail={guestEmail} setGuestEmail={setGuestEmail}
+            guestFirstName={guestFirstName} setGuestFirstName={setGuestFirstName}
+            guestLastName={guestLastName} setGuestLastName={setGuestLastName}
+            guestPhone={guestPhone} setGuestPhone={setGuestPhone}
+            savedAddresses={savedAddresses}
+            addressMode={addressMode} setAddressMode={setAddressMode}
+            selectedAddressId={selectedAddressId} setSelectedAddressId={setSelectedAddressId}
+            addressForm={addressForm} setAddressForm={setAddressForm}
+            slots={slots}
+            zones={zones}
+            blockedDates={blockedDates}
+            deliveryDate={deliveryDate} setDeliveryDate={setDeliveryDate}
+            deliverySlotId={deliverySlotId} setDeliverySlotId={setDeliverySlotId}
+            deliveryZoneId={deliveryZoneId} setDeliveryZoneId={setDeliveryZoneId}
+            errors={step1Errors}
+          />
+
+          {/* Nota / dedicatoria */}
+          <section>
+            <label className="font-display text-xl text-primary block mb-3">
+              Nota para el pedido <span className="text-sm text-primary/40 font-sans">(opcional)</span>
+            </label>
+            <textarea
+              value={customerNote}
+              onChange={(e) => setCustomerNote(e.target.value)}
+              rows={3}
+              maxLength={500}
+              placeholder="Dedicatoria, instrucciones especiales de entrega, etc."
+              className="w-full border border-primary/20 bg-surface px-4 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-colors resize-none"
             />
-          )}
-          {step === 2 && (
-            <Step2
-              subtotalCents={subtotalCents}
-              deliveryFeeCents={deliveryFeeCents}
-              discountCents={discountCents}
-              totalCents={totalCents}
-              couponCode={couponCode} setCouponCode={setCouponCode}
-              appliedCoupon={appliedCoupon}
-              couponError={couponError}
-              isValidatingCoupon={isValidatingCoupon}
-              onValidateCoupon={handleValidateCoupon}
-              onRemoveCoupon={() => { setAppliedCoupon(null); setCouponCode(''); }}
-              customerNote={customerNote} setCustomerNote={setCustomerNote}
-              isSubmitting={isSubmitting}
-              submitError={submitError}
-              onBack={() => setStep(1)}
-              onSubmit={handlePlaceOrder}
-            />
-          )}
+          </section>
         </div>
 
-        {/* Sidebar */}
-        <div className="hidden lg:block">
-          <OrderSidebar
-            subtotalCents={subtotalCents}
-            discountCents={discountCents}
-            deliveryFeeCents={deliveryFeeCents}
-            totalCents={totalCents}
-          />
+        {/* Resumen + pago */}
+        <div className="lg:sticky lg:top-4 h-fit space-y-6">
+          {/* Resumen del pedido */}
+          <div className="bg-muted/50 border border-primary/10 p-6">
+            <h3 className="font-display text-xl text-primary mb-4">Tu pedido</h3>
+            <ul className="space-y-3 mb-4">
+              {items.map((i) => (
+                <li
+                  key={`${i.productId}::${i.variantId ?? ''}`}
+                  className="flex justify-between gap-3 text-sm"
+                >
+                  <span className="text-primary">
+                    {i.name}
+                    {i.variantName && <span className="text-primary/50"> · {i.variantName}</span>}
+                    <span className="text-primary/50"> × {i.quantity}</span>
+                  </span>
+                  <span className="text-primary font-semibold flex-shrink-0">
+                    {formatCOP(i.unitPriceCents * i.quantity)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="border-t border-primary/10 pt-3 space-y-2">
+              <Row label="Subtotal" value={formatCOP(subtotalCents)} />
+              {discountCents > 0 && (
+                <Row
+                  label={`Cupón (${appliedCoupon?.coupon.code})`}
+                  value={`− ${formatCOP(discountCents)}`}
+                  green
+                />
+              )}
+              <Row
+                label="Envío"
+                value={
+                  deliveryZoneId
+                    ? deliveryFeeCents > 0
+                      ? formatCOP(deliveryFeeCents)
+                      : 'Gratis'
+                    : '—'
+                }
+              />
+              <div className="border-t border-primary/10 pt-2">
+                <Row label="Total" value={formatCOP(totalCents)} bold />
+              </div>
+            </div>
+
+            {/* Cupón de descuento */}
+            <div className="mt-4">
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between bg-green-50 border border-green-200 px-3 py-2">
+                  <span className="text-xs font-semibold text-green-800">
+                    {appliedCoupon.coupon.code}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setAppliedCoupon(null);
+                      setCouponCode('');
+                    }}
+                    className="text-xs text-green-700 underline hover:text-green-900"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Cupón de descuento"
+                    className={`${INPUT} flex-1`}
+                    onKeyDown={(e) => e.key === 'Enter' && handleValidateCoupon()}
+                  />
+                  <button
+                    onClick={handleValidateCoupon}
+                    disabled={!couponCode.trim() || isValidatingCoupon}
+                    className="btn-outline px-4 py-2 text-sm disabled:opacity-50"
+                  >
+                    {isValidatingCoupon ? '…' : 'Aplicar'}
+                  </button>
+                </div>
+              )}
+              {couponError && <p className={ERR}>{couponError}</p>}
+            </div>
+          </div>
+
+          {/* Pago */}
+          <div className="border border-primary/10 p-6 space-y-4">
+            <BoldWidget />
+
+            {submitError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+                {submitError}
+              </div>
+            )}
+
+            {payConfig ? (
+              <div className="space-y-2">
+                <BoldPaymentButton config={payConfig} />
+                <p className="text-xs text-center text-primary/50">
+                  Haz clic en el botón de Bold para completar tu pago.
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={handlePreparePayment}
+                disabled={isPreparing}
+                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isPreparing ? 'Preparando pago…' : `Pagar ${formatCOP(totalCents)}`}
+              </button>
+            )}
+
+            <p className="text-xs text-primary/50 leading-relaxed">
+              Tus datos personales se utilizarán para procesar tu pedido y mejorar tu experiencia,
+              según nuestra{' '}
+              <Link href="/privacidad" className="text-accent hover:underline">
+                política de privacidad
+              </Link>
+              .
+            </p>
+          </div>
         </div>
       </div>
     </div>

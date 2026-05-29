@@ -9,6 +9,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
   API_BASE_URL: z.string().url().default('http://localhost:4000'),
+  WEB_BASE_URL: z.string().url().default('http://localhost:3000'), // base del frontend (redirección Bold)
   CORS_ORIGINS: z
     .string()
     .default('http://localhost:3000')
@@ -31,10 +32,13 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
 
-  BOLD_API_KEY: z.string().optional(),
-  BOLD_SECRET_KEY: z.string().optional(),
-  BOLD_WEBHOOK_SECRET: z.string().optional(),
+  // Bold — botón de pagos embebido
+  BOLD_API_KEY: z.string().optional(),     // llave de IDENTIDAD (pública, va en data-api-key)
+  BOLD_SECRET_KEY: z.string().optional(),  // llave SECRETA (firma de integridad + webhook)
+  BOLD_WEBHOOK_SECRET: z.string().optional(), // opcional: override de la llave para verificar webhook (por defecto usa BOLD_SECRET_KEY)
   BOLD_ENVIRONMENT: z.enum(['sandbox', 'production']).default('sandbox'),
+  // Solo dev/sandbox: si 'true' y NODE_ENV!=production, omite la verificación de firma del webhook
+  BOLD_WEBHOOK_SKIP_VERIFY: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
 
   // Email (SMTP) — opcional; sin config no se envían emails
   SMTP_HOST: z.string().optional(),

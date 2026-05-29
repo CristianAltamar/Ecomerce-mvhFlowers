@@ -19,14 +19,19 @@ export const paymentController = {
   }),
 
   boldWebhook: asyncHandler(async (req: Request, res: Response) => {
-    // rawBody must be the unparsed buffer — set by express.raw() in routes
-    const rawBody =
-      req.body instanceof Buffer ? req.body.toString('utf8') : JSON.stringify(req.body);
+    // rawBody es el buffer crudo capturado en el verify de express.json (app.ts).
+    // Se usa para verificar la firma HMAC sobre los bytes exactos recibidos.
+    const rawBuf = (req as Request & { rawBody?: Buffer }).rawBody;
+    const rawBody = rawBuf
+      ? rawBuf.toString('utf8')
+      : req.body
+        ? JSON.stringify(req.body)
+        : '';
     const result = await paymentService.handleWebhook(
       rawBody,
       req.headers as Record<string, string | string[] | undefined>,
     );
-    // Bold expects 200 OK quickly — always respond before heavy processing
+    // Bold espera 200 OK rápido
     res.status(200).json(result);
   }),
 };

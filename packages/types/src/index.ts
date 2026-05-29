@@ -198,10 +198,22 @@ export interface Order {
   updatedAt: string;
 }
 
+/** Config que el front necesita para renderizar el botón de pagos de Bold. */
+export interface BoldButtonConfig {
+  apiKey: string;
+  orderReference: string;
+  amount: number;
+  currency: string;
+  integritySignature: string;
+  description: string;
+  redirectionUrl: string;
+  customerData?: string;
+}
+
 export interface InitiatePaymentResult {
   paymentId: string;
-  redirectUrl: string | null;
-  provider: string;
+  provider: string;       // 'bold' | 'cash'
+  bold: BoldButtonConfig | null;
 }
 
 // === PAGINACIÓN ===

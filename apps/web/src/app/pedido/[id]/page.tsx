@@ -1,13 +1,15 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { useCartStore } from '@/store/cart-store';
 import { authFetch } from '@/lib/auth-fetch';
 import { ApiClientError } from '@/lib/api-client';
 import { formatCOP } from '@mvh/utils';
-import type { Order } from '@mvh/types';
+import type { Order, InitiatePaymentResult } from '@mvh/types';
+import { BoldPaymentButton } from '@/components/bold-payment-button';
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING: 'Pendiente de pago',
@@ -59,6 +61,29 @@ function OrderDetail() {
     },
   });
 
+  // Pago pendiente y el usuario aún no ha vuelto de Bold → mostrar botón de pago.
+  // Si status === 'success', el pago ya se hizo y estamos esperando el webhook.
+  const needsPayment = order?.status === 'PENDING' && status !== 'cancelled' && status !== 'success';
+  const awaitingConfirmation = order?.status === 'PENDING' && status === 'success';
+
+  const { data: payInfo, isLoading: payLoading } = useQuery<InitiatePaymentResult>({
+    queryKey: ['order-pay', id],
+    queryFn: () =>
+      authFetch<InitiatePaymentResult>(`/orders/${id}/pay`, {
+        method: 'POST',
+        body: { method: 'BOLD_CARD' },
+      }),
+    enabled: Boolean(needsPayment),
+    staleTime: 60_000,
+    retry: 1,
+  });
+
+  // Al confirmarse el pago, vacía el carrito (el pedido ya quedó guardado).
+  const clearCart = useCartStore((s) => s.clear);
+  useEffect(() => {
+    if (order?.status === 'PAID') clearCart();
+  }, [order?.status, clearCart]);
+
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -96,9 +121,11 @@ function OrderDetail() {
         </h1>
         {!isCancelled && (
           <p className="text-primary/60">
-            {order.status === 'PENDING'
-              ? 'Estamos procesando tu pago. Te notificaremos cuando sea confirmado.'
-              : 'Tu pedido ha sido recibido y está en proceso.'}
+            {order.status !== 'PENDING'
+              ? 'Tu pedido ha sido recibido y está en proceso.'
+              : awaitingConfirmation
+                ? 'Estamos confirmando tu pago. Esto puede tardar unos segundos…'
+                : 'Tu pedido está reservado. Completa el pago para confirmarlo.'}
           </p>
         )}
         {isCancelled && status === 'cancelled' && (
@@ -116,6 +143,27 @@ function OrderDetail() {
         </div>
         <p className="font-display text-2xl text-primary">{order.orderNumber}</p>
       </div>
+
+      {/* Pago */}
+      {awaitingConfirmation && (
+        <div className="border border-primary/10 p-6 mb-6 text-center">
+          <p className="text-primary/70 animate-pulse">Confirmando tu pago con Bold…</p>
+        </div>
+      )}
+      {needsPayment && (
+        <div className="border border-accent/40 bg-accent/5 p-6 mb-6 text-center space-y-4">
+          <h2 className="font-display text-lg text-primary">Completa tu pago</h2>
+          <p className="text-sm text-primary/60">
+            Total a pagar:{' '}
+            <span className="font-semibold text-primary">{formatCOP(order.totalCents)}</span>
+          </p>
+          {payLoading && <p className="text-sm text-primary/50 animate-pulse">Preparando el pago…</p>}
+          {payInfo?.bold && <BoldPaymentButton config={payInfo.bold} />}
+          {payInfo && !payInfo.bold && (
+            <p className="text-sm text-primary/60">Tu pedido se pagará contra entrega.</p>
+          )}
+        </div>
+      )}
 
       {/* Delivery info */}
       <div className="border border-primary/10 p-6 mb-6 space-y-2">

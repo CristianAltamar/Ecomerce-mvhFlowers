@@ -43,7 +43,16 @@ export function createApp(): Application {
 
   // === MIDDLEWARES ===
   app.use(compression());
-  app.use(express.json({ limit: '1mb' }));
+  // Captura el body crudo en req.rawBody para verificar la firma HMAC del webhook de Bold
+  // (la firma debe calcularse sobre los bytes exactos recibidos, no sobre el JSON re-serializado).
+  app.use(
+    express.json({
+      limit: '1mb',
+      verify: (req, _res, buf) => {
+        (req as express.Request & { rawBody?: Buffer }).rawBody = buf;
+      },
+    }),
+  );
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(cookieParser());
 

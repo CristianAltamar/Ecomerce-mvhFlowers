@@ -132,7 +132,8 @@ Base: `http://localhost:4000/api/v1` (dev)
 | POST | `/coupons/validate` | Validar código de descuento |
 | GET | `/site-content/:key` | Contenido de página (politicas, faq, privacidad, theme) |
 | POST | `/contact` | Formulario de contacto |
-| POST | `/payments/bold/webhook` | Webhook de Bold |
+| POST | `/orders/:id/pay` | Iniciar pago (auth opcional). Bold → `{ provider, paymentId, bold: BoldButtonConfig }`; contraentrega → `bold: null` |
+| POST | `/webhooks/bold` | Webhook de Bold (firma `x-bold-signature`; eventos `SALE_APPROVED/REJECTED`, `VOID_APPROVED`) |
 
 ### Autenticados (Bearer token)
 
@@ -176,6 +177,26 @@ Base: `http://localhost:4000/api/v1` (dev)
 | GET | `/admin/media` | Listar media |
 | POST | `/admin/media/upload` | Subir imagen a Cloudinary (multipart/form-data, campo: file) |
 | DELETE | `/admin/media/:id` | Eliminar imagen |
+
+---
+
+## Flujo de pago (Bold — botón embebido)
+
+Método: **botón de pagos de Bold** (`checkout.bold.co/library/boldPaymentButton.js`) + firma de
+integridad calculada en el servidor. NO se usa API REST de payment-link.
+
+1. Checkout crea el pedido (PENDING) → `router.push('/pedido/[id]')`.
+2. `/pedido/[id]` (PENDING) pide config a `POST /orders/:id/pay`; el server arma `BoldButtonConfig`
+   con la firma `SHA256(referencia + monto + divisa + BOLD_SECRET_KEY)` y la llave de identidad.
+3. `BoldPaymentButton` (`apps/web/src/components/bold-payment-button.tsx`) inyecta el script con los
+   `data-*`. El usuario paga en el checkout de Bold; Bold redirige a `/pedido/[id]?status=success`.
+4. Bold notifica a `POST /webhooks/bold`. Se verifica `x-bold-signature` (HMAC con `BOLD_SECRET_KEY`;
+   en sandbox puede omitirse con `BOLD_WEBHOOK_SKIP_VERIFY=true`), se busca el `Payment` por
+   `providerReference` (= referencia = `orderNumber`) y se transiciona PENDING→PAID/CANCELLED.
+5. La página de pedido hace polling PENDING→PAID hasta confirmar.
+
+Llaves: `BOLD_API_KEY` (identidad/pública) y `BOLD_SECRET_KEY` (secreta). El body crudo del webhook
+se captura en el `verify` de `express.json` (`app.ts`) como `req.rawBody`.
 
 ---
 

@@ -499,6 +499,7 @@ text-primary/40 animate-pulse  <!-- loading -->
 - **Sin console.log en producción:** usar el logger de Pino (`apps/api/src/config/logger.ts`)
 - **Cache Redis:** usar helpers de `apps/api/src/lib/cache.ts` para invalidar en mutaciones
 - **Imágenes:** subir siempre a través de `/admin/media/upload` (Cloudinary) — no almacenar localmente
+- **Pagos (Bold):** método botón embebido + firma de integridad (ver flujo en AGENT.md). El front renderiza `<BoldPaymentButton>` con la config de `POST /orders/:id/pay`; el estado real lo confirma el webhook `POST /webhooks/bold`. NO confiar en el redirect para marcar PAID. El body crudo del webhook está en `req.rawBody` (capturado en el `verify` de `express.json`) — nunca re-parsees el body para validar la firma HMAC
 
 ---
 
