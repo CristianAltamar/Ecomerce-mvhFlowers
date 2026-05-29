@@ -16,11 +16,11 @@ function toOrderResponse(order: Awaited<ReturnType<typeof prisma.order.findUniqu
     orderNumber: order.orderNumber,
     userId: order.userId,
     status: order.status,
-    subtotalCents: order.subtotalCents,
-    discountCents: order.discountCents,
-    shippingFeeCents: order.shippingFeeCents,
-    taxCents: order.taxCents,
-    totalCents: order.totalCents,
+    subtotal: order.subtotal,
+    discount: order.discount,
+    shippingFee: order.shippingFee,
+    tax: order.tax,
+    total: order.total,
     currency: order.currency,
     couponCode: order.couponCode,
     deliveryDate: order.deliveryDate?.toISOString().split('T')[0] ?? null,
@@ -54,35 +54,38 @@ export const orderService = {
     const productIds = [...new Set(input.items.map((i) => i.productId))];
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
-      include: { images: { orderBy: { position: 'asc' }, take: 1 }, variants: true },
+      include: {
+        images: { orderBy: { position: 'asc' }, take: 1, include: { media: { select: { url: true } } } },
+        variants: true,
+      },
     });
 
     const productMap = new Map(products.map((p) => [p.id, p]));
 
-    let subtotalCents = 0;
+    let subtotal = 0;
     const orderItemsData: Array<{
       productId: string;
       variantId?: string;
       productName: string;
       variantName?: string;
       imageUrl?: string;
-      unitPriceCents: number;
+      unitPrice: number;
       quantity: number;
-      subtotalCents: number;
+      subtotal: number;
     }> = [];
 
     for (const item of input.items) {
       const product = productMap.get(item.productId);
       if (!product) throw new NotFoundError(`Producto "${item.productId}" no encontrado`);
 
-      let unitPrice = product.priceCents;
+      let unitPrice = product.price;
       let variantName: string | undefined;
       let availableStock = product.stock;
 
       if (item.variantId) {
         const variant = product.variants.find((v) => v.id === item.variantId);
         if (!variant) throw new NotFoundError(`Variante "${item.variantId}" no encontrada`);
-        unitPrice = variant.priceCents;
+        unitPrice = variant.price;
         variantName = variant.name;
         availableStock = variant.stock;
       }
@@ -94,16 +97,16 @@ export const orderService = {
       }
 
       const lineTotal = unitPrice * item.quantity;
-      subtotalCents += lineTotal;
+      subtotal += lineTotal;
       orderItemsData.push({
         productId: item.productId,
         variantId: item.variantId,
         productName: product.name,
         variantName,
-        imageUrl: product.images[0]?.url,
-        unitPriceCents: unitPrice,
+        imageUrl: product.images[0]?.media?.url,
+        unitPrice: unitPrice,
         quantity: item.quantity,
-        subtotalCents: lineTotal,
+        subtotal: lineTotal,
       });
     }
 
@@ -123,24 +126,24 @@ export const orderService = {
     if (isBlocked) throw new BadRequestError('La fecha seleccionada no está disponible para entregas');
 
     // 4. Delivery zone + shipping fee
-    let shippingFeeCents = 0;
+    let shippingFee = 0;
     let deliveryZoneName: string | undefined;
     if (input.deliveryZoneId) {
       const zone = await prisma.deliveryZone.findUnique({
         where: { id: input.deliveryZoneId, isActive: true },
       });
       if (!zone) throw new NotFoundError('Zona de entrega no encontrada');
-      shippingFeeCents = zone.feeCents;
+      shippingFee = zone.fee;
       deliveryZoneName = zone.name;
     }
 
     // 5. Coupon
-    let discountCents = 0;
+    let discount = 0;
     let appliedCouponId: string | undefined;
     let appliedCouponCode: string | undefined;
     if (input.couponCode) {
-      const couponResult = await couponService.validate(input.couponCode, subtotalCents);
-      discountCents = couponResult.discountCents;
+      const couponResult = await couponService.validate(input.couponCode, subtotal);
+      discount = couponResult.discount;
       appliedCouponId = couponResult.coupon.id;
       appliedCouponCode = couponResult.coupon.code;
     }
@@ -184,7 +187,7 @@ export const orderService = {
       throw new BadRequestError('Se requiere una dirección de entrega');
     }
 
-    const totalCents = subtotalCents - discountCents + shippingFeeCents;
+    const total = subtotal - discount + shippingFee;
     const orderNumber = await generateOrderNumber();
 
     // 7. Create order in transaction
@@ -204,11 +207,11 @@ export const orderService = {
           deliverySlotLabel: slot.label,
           deliveryZoneId: input.deliveryZoneId ?? null,
           deliveryZoneName: deliveryZoneName ?? null,
-          shippingFeeCents,
-          subtotalCents,
-          discountCents,
-          taxCents: 0,
-          totalCents,
+          shippingFee,
+          subtotal,
+          discount,
+          tax: 0,
+          total,
           couponId: appliedCouponId ?? null,
           couponCode: appliedCouponCode ?? null,
           customerNote: input.customerNote,
@@ -271,12 +274,12 @@ export const orderService = {
         orderNumber,
         customerEmail,
         customerName: input.guestFirstName ?? 'Cliente',
-        totalCents,
+        total,
         deliveryDate: result.deliveryDate ?? '',
         items: orderItemsData.map((i) => ({
           productName: i.productName,
           quantity: i.quantity,
-          unitPriceCents: i.unitPriceCents,
+          unitPrice: i.unitPrice,
         })),
       }).catch(() => { /* non-critical */ });
     }

@@ -124,7 +124,7 @@ async function main() {
       shortDescription: 'Sembrado con flores de temporada en tonos vibrantes.',
       description:
         'Un sembrado floral cuidadosamente compuesto con flores frescas de temporada en tonos rosa, blanco y verde. Ideal como detalle delicado o regalo para alegrar cualquier espacio.',
-      priceCents: 9_000_000,
+      price: 90_000,
       categoryId: sembrados.id,
       isFeatured: true,
       stock: 15,
@@ -137,7 +137,7 @@ async function main() {
       shortDescription: 'Combinación elegante de rosas y gladiolos en base de cerámica.',
       description:
         'Arreglo floral en base de cerámica que combina rosas premium con gladiolos. Una pieza imponente, perfecta para regalar o decorar espacios especiales.',
-      priceCents: 15_000_000,
+      price: 150_000,
       categoryId: arreglosFlorales.id,
       isFeatured: true,
       stock: 8,
@@ -150,7 +150,7 @@ async function main() {
       shortDescription: 'Diseño tropical vibrante con heliconias y aves del paraíso.',
       description:
         'Composición tropical que evoca la frescura del Caribe colombiano. Incluye heliconias, aves del paraíso y follaje selecto.',
-      priceCents: 21_400_000,
+      price: 214_000,
       categoryId: arreglosFlorales.id,
       isFeatured: true,
       stock: 6,
@@ -163,7 +163,7 @@ async function main() {
       shortDescription: 'Una creación premium personalizada por nuestra florista.',
       description:
         'Diseñado por nuestra florista principal, este arreglo único es irrepetible. Cada pieza varía según las flores frescas disponibles del día.',
-      priceCents: 27_400_000,
+      price: 274_000,
       categoryId: arreglosPremium.id,
       isFeatured: true,
       stock: 4,
@@ -176,7 +176,7 @@ async function main() {
       shortDescription: 'Centro de mesa con velas y flores blancas.',
       description:
         'Centro de mesa elegante que combina velas LED con flores blancas y verdes. Perfecto para eventos, cenas o decoración especial.',
-      priceCents: 29_700_000,
+      price: 297_000,
       categoryId: arreglosPremium.id,
       isFeatured: false,
       stock: 5,
@@ -189,7 +189,7 @@ async function main() {
       shortDescription: '24 rosas de colores variados en presentación premium.',
       description:
         'Un arcoíris de 24 rosas frescas en una gama de colores cuidadosamente seleccionada. Presentación premium con empaque sofisticado.',
-      priceCents: 39_000_000,
+      price: 390_000,
       categoryId: arreglosPremium.id,
       isFeatured: true,
       stock: 7,
@@ -202,7 +202,7 @@ async function main() {
       shortDescription: 'Bouquet en tonos rosa palo y nude.',
       description:
         'Un bouquet romántico en paleta blush, perfecto para aniversarios, citas especiales o como detalle de "porque sí".',
-      priceCents: 25_400_000,
+      price: 254_000,
       categoryId: bouquets.id,
       isFeatured: true,
       stock: 10,
@@ -215,7 +215,7 @@ async function main() {
       shortDescription: 'Caja premium con girasoles y detalles dorados.',
       description:
         'Una caja de regalo con girasoles frescos, follaje verde y acentos dorados. Energía y alegría en cada pétalo.',
-      priceCents: 28_700_000,
+      price: 287_000,
       categoryId: bouquets.id,
       isFeatured: true,
       stock: 9,
@@ -228,7 +228,7 @@ async function main() {
       shortDescription: 'Bouquet romántico con rosas rojas y blancas.',
       description:
         'Una declaración floral del primer amor: rosas rojas como pasión, blancas como pureza. Acompañado de tarjeta personalizable.',
-      priceCents: 39_500_000,
+      price: 395_000,
       categoryId: amor.id,
       isFeatured: true,
       stock: 6,
@@ -240,7 +240,7 @@ async function main() {
       name: 'Bouquet amarillo radiante',
       shortDescription: 'Bouquet con girasoles y flores amarillas.',
       description: 'Bouquet en tonos amarillos vibrantes. Energía pura para regalar alegría.',
-      priceCents: 12_500_000,
+      price: 125_000,
       categoryId: bouquets.id,
       isFeatured: false,
       stock: 14,
@@ -252,7 +252,7 @@ async function main() {
       name: 'Bouquet de margaritas',
       shortDescription: 'Bouquet fresco de margaritas blancas y amarillas.',
       description: 'Sencillo y encantador. Un bouquet de margaritas frescas, ideal como detalle.',
-      priceCents: 6_000_000,
+      price: 60_000,
       categoryId: bouquets.id,
       isFeatured: false,
       stock: 20,
@@ -264,7 +264,7 @@ async function main() {
       name: 'Bouquet surtido',
       shortDescription: 'Combinación variada de flores de temporada.',
       description: 'Bouquet con flores variadas de temporada. El precio más accesible del catálogo.',
-      priceCents: 4_000_000,
+      price: 40_000,
       categoryId: bouquets.id,
       isFeatured: false,
       stock: 25,
@@ -275,26 +275,36 @@ async function main() {
 
   for (const p of products) {
     const { imageUrl, ...productData } = p;
+    const media = await prisma.media.upsert({
+      where: { id: `seed-${productData.slug}` },
+      update: {},
+      create: {
+        id: `seed-${productData.slug}`,
+        url: imageUrl,
+        alt: productData.name,
+        filename: `${productData.slug}.jpg`,
+      },
+    });
     const created = await prisma.product.create({
       data: {
         ...productData,
         metaTitle: `${productData.name} | MVH Flores Barranquilla`,
         metaDescription: productData.shortDescription,
         images: {
-          create: [{ url: imageUrl, alt: productData.name, position: 0 }],
+          create: [{ mediaId: media.id, alt: productData.name, position: 0 }],
         },
       },
     });
 
     // Variantes para arreglos premium
-    if (productData.priceCents >= 25_000_000) {
+    if (productData.price >= 250_000) {
       await prisma.productVariant.createMany({
         data: [
           {
             productId: created.id,
             sku: `${productData.slug}-M`,
             name: 'Mediano',
-            priceCents: productData.priceCents,
+            price: productData.price,
             stock: Math.floor((productData.stock ?? 0) / 2),
             isDefault: true,
           },
@@ -302,7 +312,7 @@ async function main() {
             productId: created.id,
             sku: `${productData.slug}-G`,
             name: 'Grande',
-            priceCents: Math.round(productData.priceCents * 1.3),
+            price: Math.round(productData.price * 1.3),
             stock: Math.ceil((productData.stock ?? 0) / 2),
             isDefault: false,
           },
@@ -317,25 +327,25 @@ async function main() {
     data: [
       {
         name: 'Norte',
-        feeCents: 1_000_000,
+        fee: 10_000,
         description: 'Norte de Barranquilla: Alto Prado, Villa Country, El Golf, Riomar.',
         neighborhoods: ['Alto Prado', 'Villa Country', 'El Golf', 'Riomar', 'Villa Santos', 'Altos del Prado'],
       },
       {
         name: 'Centro',
-        feeCents: 800_000,
+        fee: 8_000,
         description: 'Centro y zonas céntricas.',
         neighborhoods: ['Centro', 'Prado', 'Boston', 'El Recreo', 'Abajo'],
       },
       {
         name: 'Sur',
-        feeCents: 1_200_000,
+        fee: 12_000,
         description: 'Sur de Barranquilla.',
         neighborhoods: ['Ciudadela 20 de Julio', 'La Magdalena', 'Las Estrellas', 'Las Nieves'],
       },
       {
         name: 'Sur Occidente',
-        feeCents: 1_500_000,
+        fee: 15_000,
         description: 'Soledad y zonas aledañas.',
         neighborhoods: ['Soledad Centro', 'Hipódromo', 'Cordialidad'],
       },
@@ -378,8 +388,8 @@ async function main() {
       description: '10% de descuento en tu primera compra',
       type: 'PERCENT',
       value: 10,
-      minPurchaseCents: 5_000_000,
-      maxDiscountCents: 5_000_000,
+      minPurchase: 50_000,
+      maxDiscount: 50_000,
       isActive: true,
     },
   });

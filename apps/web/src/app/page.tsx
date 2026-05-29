@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { api } from '@/lib/api';
+import { getTheme } from '@/lib/theme-server';
 import { ProductCard } from '@/components/product-card';
+
+const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=900&q=85';
 
 const WHATSAPP_LINK = process.env.NEXT_PUBLIC_WHATSAPP_LINK ?? 'https://wa.me/573224513906';
 
@@ -16,10 +19,12 @@ const OCCASION_TILES = [
 ];
 
 export default async function HomePage() {
-  const [featured, onSale] = await Promise.all([
+  const [featured, onSale, theme] = await Promise.all([
     api.getFeaturedProducts(8).catch(() => []),
     api.getOnSaleProducts(8).catch(() => []),
+    getTheme(),
   ]);
+  const heroImage = theme.hero.imageUrl ?? DEFAULT_HERO_IMAGE;
 
   return (
     <>
@@ -97,7 +102,7 @@ export default async function HomePage() {
               <div className="absolute top-8 left-8 -right-4 -bottom-4 border border-accent/40" />
               <div className="relative w-full h-full overflow-hidden shadow-premium-lg">
                 <Image
-                  src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=900&q=85"
+                  src={heroImage}
                   alt="Arreglo floral premium MVH"
                   fill
                   priority

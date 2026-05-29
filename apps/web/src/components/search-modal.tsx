@@ -188,7 +188,7 @@ export function SearchModal() {
                           {product.name}
                         </h3>
                         <p className="text-sm text-primary/70 font-semibold">
-                          {formatCOP(product.priceCents)}
+                          {formatCOP(product.price)}
                         </p>
                       </div>
                     </Link>

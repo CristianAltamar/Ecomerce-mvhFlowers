@@ -1,6 +1,8 @@
+import type { DiscountType } from '@prisma/client';
 import { prisma } from '../../config/prisma';
-import { NotFoundError, ConflictError } from '../../lib/errors';
+import { NotFoundError, ConflictError, BadRequestError } from '../../lib/errors';
 import { cache } from '../../lib/cache';
+import { productImagesInclude, mapProduct } from '../products/product.mapper';
 import type {
   CreateProductInput,
   UpdateProductInput,
@@ -12,10 +14,34 @@ import type {
 
 const PRODUCT_INCLUDE = {
   category: { select: { id: true, name: true, slug: true } },
-  images: { orderBy: { position: 'asc' as const } },
+  images: productImagesInclude,
   variants: { orderBy: { createdAt: 'asc' as const } },
   _count: { select: { orderItems: true } },
 } as const;
+
+/**
+ * A partir del precio base + descuento, calcula el precio final de venta y el
+ * "precio antes" (compareAtPrice). Si no hay descuento, no hay precio tachado.
+ */
+function computePricing(input: {
+  price: number;
+  discountType?: DiscountType | null;
+  discountValue?: number | null;
+}): { price: number; compareAtPrice: number | null; discountType: DiscountType | null; discountValue: number | null } {
+  const base = input.price;
+  const type = input.discountType ?? null;
+  const value = input.discountValue ?? null;
+
+  if (!type || value === null || value <= 0) {
+    return { price: base, compareAtPrice: null, discountType: null, discountValue: null };
+  }
+
+  const final = type === 'PERCENT' ? Math.round(base * (1 - value / 100)) : base - value;
+  if (final <= 0) {
+    throw new BadRequestError('El descuento no puede dejar el precio en 0 o menos.');
+  }
+  return { price: final, compareAtPrice: base, discountType: type, discountValue: value };
+}
 
 export const adminProductsService = {
   async list(query: AdminProductsQuery) {
@@ -46,7 +72,7 @@ export const adminProductsService = {
       prisma.product.count({ where }),
     ]);
 
-    return { data, meta: { page, perPage, total, totalPages: Math.ceil(total / perPage) } };
+    return { data: data.map(mapProduct), meta: { page, perPage, total, totalPages: Math.ceil(total / perPage) } };
   },
 
   async getById(id: string) {
@@ -55,12 +81,14 @@ export const adminProductsService = {
       include: PRODUCT_INCLUDE,
     });
     if (!product) throw new NotFoundError('Producto no encontrado');
-    return product;
+    return mapProduct(product);
   },
 
   async create(data: CreateProductInput) {
     const existing = await prisma.product.findUnique({ where: { slug: data.slug } });
     if (existing) throw new ConflictError(`El slug "${data.slug}" ya existe`);
+
+    const pricing = computePricing(data);
 
     const product = await prisma.product.create({
       data: {
@@ -68,8 +96,10 @@ export const adminProductsService = {
         slug: data.slug,
         description: data.description,
         shortDescription: data.shortDescription,
-        priceCents: data.priceCents,
-        compareAtPriceCents: data.compareAtPriceCents,
+        price: pricing.price,
+        compareAtPrice: pricing.compareAtPrice,
+        discountType: pricing.discountType,
+        discountValue: pricing.discountValue,
         categoryId: data.categoryId,
         stock: data.stock,
         isFeatured: data.isFeatured,
@@ -80,7 +110,7 @@ export const adminProductsService = {
       include: PRODUCT_INCLUDE,
     });
     await cache.delPattern('products:*');
-    return product;
+    return mapProduct(product);
   },
 
   async update(id: string, data: UpdateProductInput) {
@@ -93,14 +123,28 @@ export const adminProductsService = {
       if (conflict) throw new ConflictError(`El slug "${data.slug}" ya está en uso`);
     }
 
+    // Si llega un precio nuevo, recalculamos precio final + compareAtPrice + descuento
+    const { discountType: _dt, discountValue: _dv, ...rest } = data;
+    const pricingData =
+      data.price !== undefined
+        ? computePricing({
+            price: data.price,
+            discountType: data.discountType ?? null,
+            discountValue: data.discountValue ?? null,
+          })
+        : null;
+
     const product = await prisma.product.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(pricingData ?? {}),
+      },
       include: PRODUCT_INCLUDE,
     });
     await cache.del(`products:slug:${existing.slug}`, 'products:featured:8');
     await cache.delPattern('products:list:*');
-    return product;
+    return mapProduct(product);
   },
 
   async toggleActive(id: string) {
@@ -112,20 +156,27 @@ export const adminProductsService = {
     });
     await cache.del(`products:slug:${existing.slug}`, 'products:featured:8');
     await cache.delPattern('products:list:*');
-    return product;
+    return mapProduct(product);
   },
 
   // ─── Images ────────────────────────────────────────────────────────────────
 
   async addImage(productId: string, data: ProductImageInput) {
     await this.getById(productId);
-    return prisma.productImage.create({ data: { ...data, productId } });
+    const media = await prisma.media.findUnique({ where: { id: data.mediaId } });
+    if (!media) throw new NotFoundError('La imagen seleccionada no existe en la biblioteca');
+    await prisma.productImage.create({
+      data: { mediaId: data.mediaId, alt: data.alt, position: data.position, productId },
+    });
+    await cache.delPattern('products:*');
+    return this.getById(productId);
   },
 
   async deleteImage(productId: string, imageId: string) {
     const image = await prisma.productImage.findFirst({ where: { id: imageId, productId } });
     if (!image) throw new NotFoundError('Imagen no encontrada');
     await prisma.productImage.delete({ where: { id: imageId } });
+    await cache.delPattern('products:*');
   },
 
   // ─── Variants ──────────────────────────────────────────────────────────────

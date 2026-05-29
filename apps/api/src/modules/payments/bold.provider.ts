@@ -55,9 +55,9 @@ export class BoldPaymentProvider implements PaymentProvider {
     return {
       apiKey: this.identityKey,
       orderReference: input.reference,
-      amount: input.amountCents,
+      amount: input.amount,
       currency: input.currency,
-      integritySignature: this.integritySignature(input.reference, input.amountCents, input.currency),
+      integritySignature: this.integritySignature(input.reference, input.amount, input.currency),
       description: input.description,
       redirectionUrl: input.redirectionUrl,
       customerData,

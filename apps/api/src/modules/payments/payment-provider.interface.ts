@@ -14,7 +14,7 @@
 export interface BuildPaymentInput {
   orderId: string;
   reference: string; // identificador único que se envía a Bold (data-order-id)
-  amountCents: number; // entero (COP sin decimales)
+  amount: number; // entero (COP sin decimales)
   currency: string;
   description: string;
   redirectionUrl: string;

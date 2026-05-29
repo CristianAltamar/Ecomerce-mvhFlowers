@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authFetch } from '@/lib/auth-fetch';
 import { useAuthStore } from '@/store/auth-store';
 
-interface MediaItem {
+export interface MediaItem {
   id: string;
   url: string;
   alt: string | null;
@@ -28,6 +28,8 @@ function formatBytes(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1';
+
 export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'library' | 'upload'>('library');
@@ -40,18 +42,42 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
     queryFn: () => authFetch<{ data: MediaItem[] }>('/admin/media?perPage=100'),
   });
 
+  const [syncing, setSyncing] = useState(false);
+  const runSync = useCallback(async () => {
+    setSyncing(true);
+    try {
+      await authFetch('/admin/media/sync', { method: 'POST' });
+      await queryClient.invalidateQueries({ queryKey: ['admin-media'] });
+    } catch {
+      /* error silencioso en el picker */
+    } finally {
+      setSyncing(false);
+    }
+  }, [queryClient]);
+
+  // Sincroniza con Cloudinary una sola vez por sesión del navegador
+  const autoSyncedRef = useRef(false);
+  useEffect(() => {
+    if (autoSyncedRef.current) return;
+    autoSyncedRef.current = true;
+    if (typeof window !== 'undefined' && sessionStorage.getItem('mvh_media_synced') === '1') return;
+    void runSync().finally(() => {
+      if (typeof window !== 'undefined') sessionStorage.setItem('mvh_media_synced', '1');
+    });
+  }, [runSync]);
+
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('file', file);
       const { accessToken } = useAuthStore.getState();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}/admin/media/upload`, {
+      const res = await fetch(`${API_BASE}/admin/media/upload`, {
         method: 'POST',
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         body: formData,
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({})) as { message?: string };
+        const err = (await res.json().catch(() => ({}))) as { message?: string };
         throw new Error(err.message ?? 'Error al subir la imagen');
       }
       return res.json() as Promise<{ data: MediaItem }>;
@@ -106,13 +132,11 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-primary/10">
+        <div className="flex border-b border-primary/10 items-center">
           <button
             onClick={() => setTab('library')}
             className={`px-6 py-3 text-sm font-medium transition-colors ${
-              tab === 'library'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-primary/50 hover:text-primary'
+              tab === 'library' ? 'text-primary border-b-2 border-primary' : 'text-primary/50 hover:text-primary'
             }`}
           >
             Biblioteca ({media.length})
@@ -120,12 +144,17 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
           <button
             onClick={() => setTab('upload')}
             className={`px-6 py-3 text-sm font-medium transition-colors ${
-              tab === 'upload'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-primary/50 hover:text-primary'
+              tab === 'upload' ? 'text-primary border-b-2 border-primary' : 'text-primary/50 hover:text-primary'
             }`}
           >
             Subir archivo
+          </button>
+          <button
+            onClick={() => void runSync()}
+            disabled={syncing}
+            className="ml-auto mr-4 text-xs text-primary/60 hover:text-primary disabled:opacity-40"
+          >
+            {syncing ? 'Sincronizando…' : '⟳ Sincronizar con Cloudinary'}
           </button>
         </div>
 
@@ -140,9 +169,7 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                   className={`w-full max-w-md border-2 border-dashed rounded p-12 text-center cursor-pointer transition-colors ${
-                    isDragging
-                      ? 'border-primary bg-primary/5'
-                      : 'border-primary/20 hover:border-primary/50'
+                    isDragging ? 'border-primary bg-primary/5' : 'border-primary/20 hover:border-primary/50'
                   }`}
                 >
                   {uploadMutation.isPending ? (
@@ -160,17 +187,9 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
                   )}
                 </div>
                 {uploadMutation.isError && (
-                  <p className="mt-3 text-sm text-red-500">
-                    {(uploadMutation.error as Error).message}
-                  </p>
+                  <p className="mt-3 text-sm text-red-500">{(uploadMutation.error as Error).message}</p>
                 )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => handleFiles(e.target.files)}
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFiles(e.target.files)} />
               </div>
             ) : isLoading ? (
               <div className="grid grid-cols-5 gap-2">
@@ -181,12 +200,7 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
             ) : media.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-40 text-primary/40 text-sm">
                 <p>No hay imágenes todavía.</p>
-                <button
-                  onClick={() => setTab('upload')}
-                  className="mt-2 underline hover:text-primary"
-                >
-                  Subir la primera
-                </button>
+                <button onClick={() => setTab('upload')} className="mt-2 underline hover:text-primary">Subir la primera</button>
               </div>
             ) : (
               <div className="grid grid-cols-5 gap-2">
@@ -195,17 +209,11 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
                     key={item.id}
                     onClick={() => setSelected(item)}
                     className={`relative aspect-square overflow-hidden border-2 transition-all ${
-                      selected?.id === item.id
-                        ? 'border-primary ring-2 ring-primary/30'
-                        : 'border-transparent hover:border-primary/30'
+                      selected?.id === item.id ? 'border-primary ring-2 ring-primary/30' : 'border-transparent hover:border-primary/30'
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.url}
-                      alt={item.alt ?? item.filename}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={item.url} alt={item.alt ?? item.filename} className="w-full h-full object-cover" />
                     {selected?.id === item.id && (
                       <div className="absolute top-1 right-1 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">✓</div>
                     )}
@@ -219,16 +227,10 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
           {selected && tab === 'library' && (
             <div className="w-56 border-l border-primary/10 p-4 flex flex-col gap-3 flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selected.url}
-                alt={selected.alt ?? selected.filename}
-                className="w-full aspect-square object-cover border border-primary/10"
-              />
+              <img src={selected.url} alt={selected.alt ?? selected.filename} className="w-full aspect-square object-cover border border-primary/10" />
               <div className="space-y-1 text-xs text-primary/60">
                 <p className="font-medium text-primary truncate">{selected.filename}</p>
-                {selected.width && selected.height && (
-                  <p>{selected.width} × {selected.height} px</p>
-                )}
+                {selected.width && selected.height && <p>{selected.width} × {selected.height} px</p>}
                 <p>{formatBytes(selected.sizeBytes)}</p>
               </div>
               <button
@@ -244,9 +246,7 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-primary/10">
-          <button onClick={onClose} className="text-sm text-primary/60 hover:text-primary">
-            Cancelar
-          </button>
+          <button onClick={onClose} className="text-sm text-primary/60 hover:text-primary">Cancelar</button>
           <button
             onClick={() => selected && onSelect(selected)}
             disabled={!selected}

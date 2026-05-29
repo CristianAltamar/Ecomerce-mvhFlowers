@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
-export const createProductSchema = z.object({
+const productBaseSchema = z.object({
   name: z.string().min(2).max(200),
   slug: z
     .string()
@@ -11,8 +11,10 @@ export const createProductSchema = z.object({
     .regex(/^[a-z0-9-]+$/, 'Solo minúsculas, números y guiones'),
   description: z.string().max(5000).optional(),
   shortDescription: z.string().max(500).optional(),
-  priceCents: z.number().int().min(0),
-  compareAtPriceCents: z.number().int().min(0).nullable().optional(),
+  // price es el precio base en pesos (COP). El descuento se aplica sobre él.
+  price: z.number().int().positive(),
+  discountType: z.enum(['PERCENT', 'FIXED']).nullable().optional(),
+  discountValue: z.number().int().min(0).nullable().optional(),
   categoryId: z.string().nullable().optional(),
   stock: z.number().int().min(0).default(0),
   isFeatured: z.boolean().default(false),
@@ -21,18 +23,48 @@ export const createProductSchema = z.object({
   metaDescription: z.string().max(500).optional(),
 });
 
-export const updateProductSchema = createProductSchema.partial();
+// Valida que el descuento sea coherente y no deje el precio en 0 o menos.
+function validateDiscount(
+  data: { price?: number; discountType?: 'PERCENT' | 'FIXED' | null; discountValue?: number | null },
+  ctx: z.RefinementCtx,
+) {
+  const { price, discountType, discountValue } = data;
+  if (!discountType) return; // sin descuento, nada que validar
+  if (discountValue === null || discountValue === undefined || discountValue <= 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountValue'], message: 'Ingresa un valor de descuento mayor a 0.' });
+    return;
+  }
+  if (price === undefined) return; // en updates parciales sin precio, se valida en el servicio
+  if (discountType === 'PERCENT') {
+    if (discountValue >= 100) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountValue'], message: 'El porcentaje debe ser menor a 100%.' });
+    }
+  } else if (discountValue >= price) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['discountValue'], message: 'El descuento no puede ser mayor o igual al precio.' });
+  }
+}
+
+export const createProductSchema = productBaseSchema.superRefine(validateDiscount);
+
+export const updateProductSchema = productBaseSchema.partial().superRefine(validateDiscount);
 
 export const productImageSchema = z.object({
-  url: z.string().url(),
+  mediaId: z.string().min(1),
   alt: z.string().max(200).optional(),
   position: z.number().int().min(0).default(0),
+});
+
+// ─── Media ───────────────────────────────────────────────────────────────────
+
+export const updateMediaSchema = z.object({
+  filename: z.string().min(1).max(200).optional(),
+  alt: z.string().max(300).nullable().optional(),
 });
 
 export const productVariantSchema = z.object({
   sku: z.string().min(1).max(50),
   name: z.string().min(1).max(100),
-  priceCents: z.number().int().min(0),
+  price: z.number().int().min(0),
   stock: z.number().int().min(0).default(0),
   isDefault: z.boolean().default(false),
 });
@@ -94,8 +126,8 @@ export const createCouponSchema = z.object({
   description: z.string().max(300).optional(),
   type: z.enum(['PERCENT', 'FIXED']),
   value: z.number().int().positive(),
-  minPurchaseCents: z.number().int().min(0).default(0),
-  maxDiscountCents: z.number().int().positive().nullable().optional(),
+  minPurchase: z.number().int().min(0).default(0),
+  maxDiscount: z.number().int().positive().nullable().optional(),
   usageLimit: z.number().int().positive().nullable().optional(),
   perUserLimit: z.number().int().positive().nullable().optional(),
   startsAt: z.string().datetime({ offset: true }).nullable().optional(),
@@ -116,7 +148,7 @@ export const adminCouponsQuerySchema = z.object({
 
 export const createZoneSchema = z.object({
   name: z.string().min(2).max(100),
-  feeCents: z.number().int().min(0),
+  fee: z.number().int().min(0),
   description: z.string().max(300).optional(),
   neighborhoods: z.array(z.string().min(1)).min(1),
   isActive: z.boolean().default(true),

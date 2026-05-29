@@ -44,7 +44,7 @@ mvh-store/
 
 ### Requisitos previos
 
-- **Node.js** ≥ 24.x
+- **Node.js** ≥ 22.x
 - **pnpm** ≥ 11.x → `npm install -g pnpm@11`
 - **Docker** y **Docker Compose**
 

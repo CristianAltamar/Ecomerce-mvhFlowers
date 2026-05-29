@@ -7,7 +7,7 @@ import { ApiClientError } from '@/lib/api-client';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Zone { id: string; name: string; feeCents: number; description: string | null; neighborhoods: string[]; isActive: boolean; }
+interface Zone { id: string; name: string; fee: number; description: string | null; neighborhoods: string[]; isActive: boolean; }
 interface Slot { id: string; label: string; startTime: string; endTime: string; position: number; isActive: boolean; }
 interface BlockedDate { id: string; date: string; reason: string | null; }
 
@@ -15,8 +15,8 @@ interface BlockedDate { id: string; date: string; reason: string | null; }
 const INPUT = 'w-full border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50';
 const LABEL = 'block text-xs uppercase tracking-widest text-primary/50 mb-1.5';
 
-function formatCOP(cents: number) {
-  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(cents / 100);
+function formatCOP(pesos: number) {
+  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(pesos);
 }
 
 // ─── Zones tab ────────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ function ZonesTab() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', feeCents: '', description: '', neighborhoods: '', isActive: true });
+  const [form, setForm] = useState({ name: '', fee: '', description: '', neighborhoods: '', isActive: true });
   const [formError, setFormError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
@@ -60,11 +60,11 @@ function ZonesTab() {
     },
   });
 
-  const closeForm = () => { setShowForm(false); setEditingId(null); setForm({ name: '', feeCents: '', description: '', neighborhoods: '', isActive: true }); setFormError(''); };
+  const closeForm = () => { setShowForm(false); setEditingId(null); setForm({ name: '', fee: '', description: '', neighborhoods: '', isActive: true }); setFormError(''); };
 
   const openEdit = (z: Zone) => {
     setEditingId(z.id);
-    setForm({ name: z.name, feeCents: String(z.feeCents), description: z.description ?? '', neighborhoods: z.neighborhoods.join('\n'), isActive: z.isActive });
+    setForm({ name: z.name, fee: String(z.fee), description: z.description ?? '', neighborhoods: z.neighborhoods.join('\n'), isActive: z.isActive });
     setFormError('');
     setShowForm(true);
   };
@@ -72,7 +72,7 @@ function ZonesTab() {
   const handleSave = () => {
     const nbds = form.neighborhoods.split('\n').map((s) => s.trim()).filter(Boolean);
     if (!form.name || nbds.length === 0) { setFormError('Nombre y al menos un barrio son requeridos'); return; }
-    saveMutation.mutate({ name: form.name, feeCents: Number(form.feeCents) || 0, description: form.description || undefined, neighborhoods: nbds, isActive: form.isActive });
+    saveMutation.mutate({ name: form.name, fee: Number(form.fee) || 0, description: form.description || undefined, neighborhoods: nbds, isActive: form.isActive });
   };
 
   return (
@@ -92,7 +92,7 @@ function ZonesTab() {
             </div>
             <div>
               <label className={LABEL}>Tarifa de envío (centavos)</label>
-              <input type="number" min={0} value={form.feeCents} onChange={(e) => setForm((p) => ({ ...p, feeCents: e.target.value }))} className={INPUT} placeholder="500000" />
+              <input type="number" min={0} value={form.fee} onChange={(e) => setForm((p) => ({ ...p, fee: e.target.value }))} className={INPUT} placeholder="500000" />
             </div>
           </div>
           <div>
@@ -137,7 +137,7 @@ function ZonesTab() {
                     <p className="font-semibold text-primary">{z.name}</p>
                     {z.description && <p className="text-xs text-primary/40">{z.description}</p>}
                   </td>
-                  <td className="px-4 py-3 text-primary/70">{formatCOP(z.feeCents)}</td>
+                  <td className="px-4 py-3 text-primary/70">{formatCOP(z.fee)}</td>
                   <td className="px-4 py-3">
                     <p className="text-xs text-primary/60">{z.neighborhoods.slice(0, 3).join(', ')}{z.neighborhoods.length > 3 ? ` +${z.neighborhoods.length - 3}` : ''}</p>
                   </td>

@@ -4,25 +4,17 @@
  */
 
 /**
- * Convierte centavos a un string formateado en pesos colombianos.
- * @example formatCOP(15000000) → "$ 150.000"
+ * Formatea un monto en pesos colombianos (enteros, sin decimales).
+ * El sistema almacena y opera siempre en pesos (no centavos).
+ * @example formatCOP(150000) → "$ 150.000"
  */
-export function formatCOP(cents: number): string {
-  const pesos = Math.round(cents / 100);
+export function formatCOP(pesos: number): string {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(pesos);
-}
-
-/**
- * Convierte pesos enteros a centavos para almacenar en BD.
- * @example pesosToCents(150000) → 15000000
- */
-export function pesosToCents(pesos: number): number {
-  return Math.round(pesos * 100);
+  }).format(Math.round(pesos));
 }
 
 /**

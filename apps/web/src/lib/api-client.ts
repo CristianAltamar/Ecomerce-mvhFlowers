@@ -68,9 +68,21 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
 
   const res = await fetch(url.toString(), fetchInit);
 
+  // Respuestas sin cuerpo (204 No Content, p. ej. DELETE) → no hay JSON que parsear.
+  if (res.status === 204) {
+    if (res.ok) return undefined as T;
+    throw new ApiClientError(res.status, 'UNKNOWN_ERROR', `HTTP ${res.status}`);
+  }
+
+  const text = await res.text();
+  if (!text) {
+    if (res.ok) return undefined as T;
+    throw new ApiClientError(res.status, 'UNKNOWN_ERROR', `HTTP ${res.status}`);
+  }
+
   let json: ApiResponse<T>;
   try {
-    json = (await res.json()) as ApiResponse<T>;
+    json = JSON.parse(text) as ApiResponse<T>;
   } catch {
     throw new ApiClientError(res.status, 'INVALID_RESPONSE', 'Respuesta inválida del servidor');
   }

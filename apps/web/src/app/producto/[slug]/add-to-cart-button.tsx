@@ -18,7 +18,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   );
 
   const selectedVariant = product.variants.find((v) => v.id === selectedVariantId);
-  const effectivePrice = selectedVariant?.priceCents ?? product.priceCents;
+  const effectivePrice = selectedVariant?.price ?? product.price;
   const stock = selectedVariant?.stock ?? product.stock;
   const isOutOfStock = stock <= 0;
 
@@ -30,7 +30,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
       name: product.name,
       variantName: selectedVariant?.name,
       imageUrl: product.images[0]?.url,
-      unitPriceCents: effectivePrice,
+      unitPrice: effectivePrice,
       quantity,
     });
   }
@@ -57,7 +57,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
               >
                 <span className="block">{variant.name}</span>
                 <span className="block text-xs opacity-80 mt-0.5">
-                  {formatCOP(variant.priceCents)}
+                  {formatCOP(variant.price)}
                 </span>
               </button>
             ))}

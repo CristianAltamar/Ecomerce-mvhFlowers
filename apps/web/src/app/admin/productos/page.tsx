@@ -12,7 +12,7 @@ interface AdminProduct {
   id: string;
   name: string;
   slug: string;
-  priceCents: number;
+  price: number;
   stock: number;
   isActive: boolean;
   isFeatured: boolean;
@@ -164,7 +164,7 @@ function ProductsContent() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right text-primary">
-                      {formatCOP(product.priceCents)}
+                      {formatCOP(product.price)}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <span

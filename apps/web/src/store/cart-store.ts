@@ -15,7 +15,7 @@ export interface CartItem {
   name: string;
   variantName?: string;
   imageUrl?: string;
-  unitPriceCents: number;
+  unitPrice: number;
   quantity: number;
 }
 
@@ -105,6 +105,6 @@ export function selectCartCount(state: CartState): number {
   return state.items.reduce((acc, i) => acc + i.quantity, 0);
 }
 
-export function selectCartSubtotalCents(state: CartState): number {
-  return state.items.reduce((acc, i) => acc + i.unitPriceCents * i.quantity, 0);
+export function selectCartSubtotal(state: CartState): number {
+  return state.items.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
 }

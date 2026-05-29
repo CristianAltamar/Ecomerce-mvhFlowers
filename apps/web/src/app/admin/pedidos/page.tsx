@@ -11,7 +11,7 @@ interface AdminOrder {
   id: string;
   orderNumber: string;
   status: string;
-  totalCents: number;
+  total: number;
   deliveryDate: string | null;
   shippingCity: string;
   guestEmail: string | null;
@@ -157,7 +157,7 @@ function OrdersContent() {
                         : '—'}
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-primary">
-                      {formatCOP(order.totalCents)}
+                      {formatCOP(order.total)}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span

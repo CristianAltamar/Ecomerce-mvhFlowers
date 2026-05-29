@@ -12,8 +12,8 @@ interface PageProps {
   searchParams: {
     page?: string;
     sort?: string;
-    minPrice?: string; // en centavos (como lo espera la API)
-    maxPrice?: string; // en centavos
+    minPrice?: string; // en pesos
+    maxPrice?: string; // en pesos
   };
 }
 
@@ -64,8 +64,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   const page = Math.max(1, Number(searchParams.page) || 1);
   const sort =
     (searchParams.sort as 'newest' | 'price_asc' | 'price_desc' | 'name_asc') ?? 'newest';
-  const minPriceCents = searchParams.minPrice ? Number(searchParams.minPrice) : undefined;
-  const maxPriceCents = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
+  const minPrice = searchParams.minPrice ? Number(searchParams.minPrice) : undefined;
+  const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
 
   // ── Fetch paralelo: todas las categorías + productos filtrados ────────────
   const [allCategories, products] = await Promise.all([
@@ -76,8 +76,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
         page,
         perPage: 12,
         sort,
-        minPrice: minPriceCents,
-        maxPrice: maxPriceCents,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
       })
       .catch(() => ({ data: [], meta: { page: 1, perPage: 12, total: 0, totalPages: 1 } })),
   ]);
@@ -109,8 +109,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   };
 
   // ── Valores del slider en pesos (para pasar al sidebar) ──────────────────
-  const sliderInitMin = minPriceCents ? Math.round(minPriceCents / 100) : 0;
-  const sliderInitMax = maxPriceCents ? Math.round(maxPriceCents / 100) : 0;
+  const sliderInitMin = minPrice ?? 0;
+  const sliderInitMax = maxPrice ?? 0;
 
   return (
     <>
@@ -175,7 +175,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
               <p className="text-sm text-primary/65">
                 {products.meta.total}{' '}
                 {products.meta.total === 1 ? 'producto' : 'productos'}
-                {(minPriceCents || maxPriceCents) && (
+                {(minPrice || maxPrice) && (
                   <span className="ml-2 text-xs text-accent">· Filtrado por precio</span>
                 )}
               </p>
@@ -196,7 +196,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                 <div className="text-accent text-4xl mb-4">✦</div>
                 <p className="font-display text-2xl text-primary mb-3">
                   No hay productos en esta categoría
-                  {(minPriceCents || maxPriceCents) && ' con ese rango de precio'}
+                  {(minPrice || maxPrice) && ' con ese rango de precio'}
                 </p>
                 <Link href={`/categoria/${params.slug}`} className="btn-outline mt-6 inline-flex">
                   Ver todos los productos
@@ -220,8 +220,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   const qp = new URLSearchParams();
                   qp.set('page', String(p));
                   if (sort !== 'newest') qp.set('sort', sort);
-                  if (minPriceCents) qp.set('minPrice', String(minPriceCents));
-                  if (maxPriceCents) qp.set('maxPrice', String(maxPriceCents));
+                  if (minPrice) qp.set('minPrice', String(minPrice));
+                  if (maxPrice) qp.set('maxPrice', String(maxPrice));
                   return (
                     <Link
                       key={p}

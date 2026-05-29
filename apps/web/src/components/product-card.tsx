@@ -11,7 +11,7 @@ interface ProductCardProps {
 export function ProductCard({ product, priority = false }: ProductCardProps) {
   const image = product.images[0];
   const hasDiscount =
-    product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
+    product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
     <Link href={`/producto/${product.slug}`} className="product-card group">
@@ -58,11 +58,11 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         <div className="flex items-center justify-center gap-2 text-sm">
           {hasDiscount && (
             <span className="text-primary/40 line-through">
-              {formatCOP(product.compareAtPriceCents!)}
+              {formatCOP(product.compareAtPrice!)}
             </span>
           )}
           <span className="text-primary font-semibold">
-            {formatCOP(product.priceCents)}
+            {formatCOP(product.price)}
           </span>
         </div>
       </div>

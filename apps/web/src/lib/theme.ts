@@ -30,6 +30,15 @@ export interface ThemeConfig {
     radius: number;
     uppercase: boolean;
   };
+  /** Logo de la marca: versión clara (fondos oscuros) y oscura (fondos claros). */
+  logo: {
+    lightUrl: string | null;
+    darkUrl: string | null;
+  };
+  /** Imagen de fondo/destacada del Hero de la home. */
+  hero: {
+    imageUrl: string | null;
+  };
   sections: Record<SectionKey, SectionStyle>;
 }
 
@@ -59,6 +68,13 @@ export const DEFAULT_THEME: ThemeConfig = {
   buttons: {
     radius: 0,
     uppercase: false,
+  },
+  logo: {
+    lightUrl: null,
+    darkUrl: null,
+  },
+  hero: {
+    imageUrl: null,
   },
   sections: {
     // Claras (look por defecto)
@@ -195,6 +211,8 @@ export function mergeTheme(raw: unknown): ThemeConfig {
     colors?: Partial<ThemeConfig['colors']> & { background?: string; text?: string };
     fonts?: Partial<ThemeConfig['fonts']>;
     buttons?: Partial<ThemeConfig['buttons']>;
+    logo?: Partial<ThemeConfig['logo']>;
+    hero?: Partial<ThemeConfig['hero']>;
     sections?: Partial<Record<SectionKey, unknown>>;
   };
 
@@ -220,6 +238,13 @@ export function mergeTheme(raw: unknown): ThemeConfig {
     colors,
     fonts:   { ...DEFAULT_THEME.fonts,   ...(src.fonts ?? {}) },
     buttons: { ...DEFAULT_THEME.buttons, ...(src.buttons ?? {}) },
+    logo: {
+      lightUrl: src.logo?.lightUrl ?? DEFAULT_THEME.logo.lightUrl,
+      darkUrl:  src.logo?.darkUrl  ?? DEFAULT_THEME.logo.darkUrl,
+    },
+    hero: {
+      imageUrl: src.hero?.imageUrl ?? DEFAULT_THEME.hero.imageUrl,
+    },
     sections,
   };
 }

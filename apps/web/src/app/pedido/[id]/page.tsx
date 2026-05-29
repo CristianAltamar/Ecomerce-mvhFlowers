@@ -155,7 +155,7 @@ function OrderDetail() {
           <h2 className="font-display text-lg text-primary">Completa tu pago</h2>
           <p className="text-sm text-primary/60">
             Total a pagar:{' '}
-            <span className="font-semibold text-primary">{formatCOP(order.totalCents)}</span>
+            <span className="font-semibold text-primary">{formatCOP(order.total)}</span>
           </p>
           {payLoading && <p className="text-sm text-primary/50 animate-pulse">Preparando el pago…</p>}
           {payInfo?.bold && <BoldPaymentButton config={payInfo.bold} />}
@@ -197,7 +197,7 @@ function OrderDetail() {
                 {item.variantName && <span className="text-primary/50 ml-1">· {item.variantName}</span>}
                 <span className="text-primary/50 ml-1">× {item.quantity}</span>
               </span>
-              <span className="text-primary font-semibold">{formatCOP(item.subtotalCents)}</span>
+              <span className="text-primary font-semibold">{formatCOP(item.subtotal)}</span>
             </li>
           ))}
         </ul>
@@ -206,13 +206,13 @@ function OrderDetail() {
       {/* Totals */}
       <div className="border border-primary/10 p-6 mb-8 space-y-2">
         <h2 className="font-display text-lg text-primary mb-3">Totales</h2>
-        <InfoRow label="Subtotal" value={formatCOP(order.subtotalCents)} />
-        {order.discountCents > 0 && (
-          <InfoRow label={`Descuento${order.couponCode ? ` (${order.couponCode})` : ''}`} value={`− ${formatCOP(order.discountCents)}`} />
+        <InfoRow label="Subtotal" value={formatCOP(order.subtotal)} />
+        {order.discount > 0 && (
+          <InfoRow label={`Descuento${order.couponCode ? ` (${order.couponCode})` : ''}`} value={`− ${formatCOP(order.discount)}`} />
         )}
-        <InfoRow label="Envío" value={formatCOP(order.shippingFeeCents)} />
+        <InfoRow label="Envío" value={formatCOP(order.shippingFee)} />
         <div className="border-t border-primary/10 pt-2">
-          <InfoRow label="Total" value={formatCOP(order.totalCents)} bold />
+          <InfoRow label="Total" value={formatCOP(order.total)} bold />
         </div>
       </div>
 

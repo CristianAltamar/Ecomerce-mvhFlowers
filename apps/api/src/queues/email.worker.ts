@@ -30,7 +30,7 @@ function renderOrderConfirmationHtml(payload: Extract<EmailJobData, { type: 'ord
       (i) =>
         `<tr><td style="padding:6px 0;border-bottom:1px solid #f0e8de">${i.productName}</td>
          <td style="padding:6px 0;border-bottom:1px solid #f0e8de;text-align:center">${i.quantity}</td>
-         <td style="padding:6px 0;border-bottom:1px solid #f0e8de;text-align:right">${formatCOP(i.unitPriceCents * i.quantity)}</td></tr>`,
+         <td style="padding:6px 0;border-bottom:1px solid #f0e8de;text-align:right">${formatCOP(i.unitPrice * i.quantity)}</td></tr>`,
     )
     .join('');
 
@@ -58,7 +58,7 @@ function renderOrderConfirmationHtml(payload: Extract<EmailJobData, { type: 'ord
     </table>
 
     <p style="font-size:16px;font-weight:bold;text-align:right;color:#6b1d2a">
-      Total: ${formatCOP(payload.totalCents)}
+      Total: ${formatCOP(payload.total)}
     </p>
 
     <p style="color:#555;font-size:14px">

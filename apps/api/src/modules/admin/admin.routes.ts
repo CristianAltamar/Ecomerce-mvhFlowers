@@ -44,6 +44,7 @@ import {
   createSlotSchema,
   updateSlotSchema,
   createBlockedDateSchema,
+  updateMediaSchema,
 } from './admin.schemas';
 
 export const adminRouter = Router();
@@ -54,6 +55,8 @@ adminRouter.use(requireAuth, requireRole('ADMIN', 'STAFF'));
 // ─── Media library ────────────────────────────────────────────────────────────
 adminRouter.get('/media', adminMediaController.list);
 adminRouter.post('/media/upload', imageUpload.single('file'), adminMediaController.upload);
+adminRouter.post('/media/sync', adminMediaController.sync);
+adminRouter.patch('/media/:id', validate(idParamsSchema, 'params'), validate(updateMediaSchema), adminMediaController.update);
 adminRouter.delete('/media/:id', validate(idParamsSchema, 'params'), adminMediaController.remove);
 
 // ─── Metrics ─────────────────────────────────────────────────────────────────

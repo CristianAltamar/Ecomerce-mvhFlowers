@@ -52,7 +52,7 @@ function ChevronRight() {
 
 // ── Componente principal ───────────────────────────────────────────────────
 
-export function Header({ navItems }: { navItems: NavItem[] }) {
+export function Header({ navItems, logoUrl }: { navItems: NavItem[]; logoUrl?: string | null }) {
   const cartCount = useCartStore(selectCartCount);
   const openCart  = useCartStore((s) => s.openCart);
 
@@ -111,7 +111,7 @@ export function Header({ navItems }: { navItems: NavItem[] }) {
 
             {/* Logo */}
             <div className="flex-1 lg:flex-none flex justify-center lg:justify-start">
-              <Logo />
+              <Logo imageUrl={logoUrl} />
             </div>
 
             {/* ── Nav desktop ─────────────────────────────────────────── */}

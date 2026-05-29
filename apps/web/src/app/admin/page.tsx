@@ -6,14 +6,14 @@ import { authFetch } from '@/lib/auth-fetch';
 import { formatCOP } from '@mvh/utils';
 
 interface DashboardData {
-  today: { orders: number; revenueCents: number };
-  month: { orders: number; revenueCents: number };
+  today: { orders: number; revenue: number };
+  month: { orders: number; revenue: number };
   ordersByStatus: Record<string, number>;
   recentOrders: Array<{
     id: string;
     orderNumber: string;
     status: string;
-    totalCents: number;
+    total: number;
     createdAt: string;
     guestEmail: string | null;
     userId: string | null;
@@ -23,7 +23,7 @@ interface DashboardData {
     name: string;
     slug: string;
     stock: number;
-    priceCents: number;
+    price: number;
   }>;
 }
 
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
         />
         <MetricCard
           label="Ingresos hoy"
-          value={formatCOP(data.today.revenueCents)}
+          value={formatCOP(data.today.revenue)}
           sub="Pedidos pagados"
         />
         <MetricCard
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
         />
         <MetricCard
           label="Ingresos este mes"
-          value={formatCOP(data.month.revenueCents)}
+          value={formatCOP(data.month.revenue)}
           sub="Pedidos pagados"
         />
       </div>
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
                   >
                     {STATUS_LABELS[order.status] ?? order.status}
                   </span>
-                  <span className="text-sm text-primary">{formatCOP(order.totalCents)}</span>
+                  <span className="text-sm text-primary">{formatCOP(order.total)}</span>
                 </div>
               </Link>
             ))}

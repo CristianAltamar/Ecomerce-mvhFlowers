@@ -7,10 +7,10 @@ const ORDER_LIST_SELECT = {
   id: true,
   orderNumber: true,
   status: true,
-  totalCents: true,
-  subtotalCents: true,
-  discountCents: true,
-  shippingFeeCents: true,
+  total: true,
+  subtotal: true,
+  discount: true,
+  shippingFee: true,
   deliveryDate: true,
   shippingCity: true,
   shippingLine1: true,
@@ -19,7 +19,7 @@ const ORDER_LIST_SELECT = {
   createdAt: true,
   updatedAt: true,
   items: {
-    select: { id: true, productName: true, quantity: true, unitPriceCents: true },
+    select: { id: true, productName: true, quantity: true, unitPrice: true },
   },
 } as const;
 

@@ -6,8 +6,8 @@ import type { ValidateCouponInput } from './coupon.schemas';
 
 export const couponController = {
   validate: asyncHandler(async (req: Request, res: Response) => {
-    const { code, subtotalCents } = req.body as ValidateCouponInput;
-    const result = await couponService.validate(code, subtotalCents);
+    const { code, subtotal } = req.body as ValidateCouponInput;
+    const result = await couponService.validate(code, subtotal);
     sendSuccess(res, result);
   }),
 };

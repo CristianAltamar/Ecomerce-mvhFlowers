@@ -1,25 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { formatCOP, pesosToCents, slugify, truncate, errorMessage } from '@mvh/utils';
+import { formatCOP, slugify, truncate, errorMessage } from '@mvh/utils';
 
 describe('formatCOP', () => {
-  it('formatea centavos a pesos colombianos', () => {
-    expect(formatCOP(15_000_000)).toMatch(/150\.000/);
-    expect(formatCOP(9_000_000)).toMatch(/90\.000/);
+  it('formatea pesos colombianos', () => {
+    expect(formatCOP(150_000)).toMatch(/150\.000/);
+    expect(formatCOP(90_000)).toMatch(/90\.000/);
   });
 
   it('maneja el cero', () => {
     expect(formatCOP(0)).toMatch(/0/);
-  });
-});
-
-describe('pesosToCents', () => {
-  it('convierte pesos a centavos', () => {
-    expect(pesosToCents(150_000)).toBe(15_000_000);
-    expect(pesosToCents(40_000)).toBe(4_000_000);
-  });
-
-  it('redondea decimales', () => {
-    expect(pesosToCents(1.005)).toBe(101);
   });
 });
 

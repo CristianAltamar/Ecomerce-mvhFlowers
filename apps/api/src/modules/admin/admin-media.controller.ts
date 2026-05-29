@@ -21,6 +21,16 @@ export const adminMediaController = {
     sendSuccess(res, media, 201);
   }),
 
+  update: asyncHandler(async (req: Request<{ id: string }>, res: Response) => {
+    const media = await adminMediaService.update(req.params.id, req.body as { filename?: string; alt?: string | null });
+    sendSuccess(res, media);
+  }),
+
+  sync: asyncHandler(async (_req: Request, res: Response) => {
+    const result = await adminMediaService.syncFromCloudinary();
+    sendSuccess(res, result);
+  }),
+
   remove: asyncHandler(async (req: Request, res: Response) => {
     await adminMediaService.remove(req.params.id!);
     res.status(204).send();

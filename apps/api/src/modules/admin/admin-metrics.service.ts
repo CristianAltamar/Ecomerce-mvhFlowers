@@ -30,14 +30,14 @@ export const adminMetricsService = {
       }),
       prisma.order.aggregate({
         where: { createdAt: { gte: todayStart }, status: { in: ['PAID', 'PROCESSING', 'OUT_FOR_DELIVERY', 'DELIVERED'] } },
-        _sum: { totalCents: true },
+        _sum: { total: true },
       }),
       prisma.order.count({
         where: { createdAt: { gte: monthStart }, status: { not: 'CANCELLED' } },
       }),
       prisma.order.aggregate({
         where: { createdAt: { gte: monthStart }, status: { in: ['PAID', 'PROCESSING', 'OUT_FOR_DELIVERY', 'DELIVERED'] } },
-        _sum: { totalCents: true },
+        _sum: { total: true },
       }),
       prisma.order.groupBy({
         by: ['status'],
@@ -51,7 +51,7 @@ export const adminMetricsService = {
           id: true,
           orderNumber: true,
           status: true,
-          totalCents: true,
+          total: true,
           createdAt: true,
           guestEmail: true,
           userId: true,
@@ -59,7 +59,7 @@ export const adminMetricsService = {
       }),
       prisma.product.findMany({
         where: { stock: { lte: 5 }, isActive: true },
-        select: { id: true, name: true, slug: true, stock: true, priceCents: true },
+        select: { id: true, name: true, slug: true, stock: true, price: true },
         orderBy: { stock: 'asc' },
         take: 10,
       }),
@@ -73,11 +73,11 @@ export const adminMetricsService = {
     return {
       today: {
         orders: ordersToday,
-        revenueCents: revenueToday._sum.totalCents ?? 0,
+        revenue: revenueToday._sum.total ?? 0,
       },
       month: {
         orders: ordersMonth,
-        revenueCents: revenueMonth._sum.totalCents ?? 0,
+        revenue: revenueMonth._sum.total ?? 0,
       },
       ordersByStatus: statusMap,
       recentOrders,

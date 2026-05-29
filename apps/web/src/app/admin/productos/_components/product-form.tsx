@@ -7,7 +7,7 @@ import { authFetch } from '@/lib/auth-fetch';
 import { ApiClientError } from '@/lib/api-client';
 import { formatCOP } from '@mvh/utils';
 import type { Category } from '@mvh/types';
-import { MediaLibrary } from './media-library';
+import { MediaLibrary } from '@/components/media-library';
 
 const INPUT =
   'w-full border border-primary/20 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary/50 transition-colors';
@@ -20,8 +20,10 @@ interface ProductData {
   slug: string;
   description: string | null;
   shortDescription: string | null;
-  priceCents: number;
-  compareAtPriceCents: number | null;
+  price: number;
+  compareAtPrice: number | null;
+  discountType: 'PERCENT' | 'FIXED' | null;
+  discountValue: number | null;
   stock: number;
   isFeatured: boolean;
   isActive: boolean;
@@ -29,7 +31,7 @@ interface ProductData {
   metaTitle: string | null;
   metaDescription: string | null;
   images: Array<{ id: string; url: string; alt: string | null; position: number }>;
-  variants: Array<{ id: string; sku: string; name: string; priceCents: number; stock: number; isDefault: boolean }>;
+  variants: Array<{ id: string; sku: string; name: string; price: number; stock: number; isDefault: boolean }>;
 }
 
 interface ProductFormProps {
@@ -56,8 +58,10 @@ export function ProductForm({ product }: ProductFormProps) {
     slug: product?.slug ?? '',
     description: product?.description ?? '',
     shortDescription: product?.shortDescription ?? '',
-    priceCents: product ? String(product.priceCents) : '',
-    compareAtPriceCents: product?.compareAtPriceCents ? String(product.compareAtPriceCents) : '',
+    // price es el precio BASE; si hay descuento, el base es compareAtPrice
+    price: product ? String(product.compareAtPrice ?? product.price) : '',
+    discountType: (product?.discountType ?? '') as '' | 'PERCENT' | 'FIXED',
+    discountValue: product?.discountValue ? String(product.discountValue) : '',
     stock: product ? String(product.stock) : '0',
     categoryId: product?.categoryId ?? '',
     isFeatured: product?.isFeatured ?? false,
@@ -74,7 +78,7 @@ export function ProductForm({ product }: ProductFormProps) {
 
   // Variant form
   const [variantForm, setVariantForm] = useState({
-    sku: '', name: '', priceCents: '', stock: '0', isDefault: false,
+    sku: '', name: '', price: '', stock: '0', isDefault: false,
   });
   const [variantError, setVariantError] = useState('');
 
@@ -84,7 +88,7 @@ export function ProductForm({ product }: ProductFormProps) {
   });
 
   const addImageMutation = useMutation({
-    mutationFn: (data: { url: string; alt?: string }) =>
+    mutationFn: (data: { mediaId: string; alt?: string }) =>
       authFetch(`/admin/products/${product!.id}/images`, { method: 'POST', body: data }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin-product', product!.id] });
@@ -104,7 +108,7 @@ export function ProductForm({ product }: ProductFormProps) {
       authFetch(`/admin/products/${product!.id}/variants`, { method: 'POST', body: data }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin-product', product!.id] });
-      setVariantForm({ sku: '', name: '', priceCents: '', stock: '0', isDefault: false });
+      setVariantForm({ sku: '', name: '', price: '', stock: '0', isDefault: false });
       setVariantError('');
     },
     onError: (err) => {
@@ -124,6 +128,17 @@ export function ProductForm({ product }: ProductFormProps) {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setForm((p) => ({ ...p, [k]: e.target.value }));
 
+  // ── Cálculo en vivo del precio final según el descuento ──────────────────
+  const basePrice = Number(form.price) || 0;
+  const discValue = Number(form.discountValue) || 0;
+  const hasDiscount = form.discountType !== '' && discValue > 0;
+  const finalPrice = !hasDiscount
+    ? basePrice
+    : form.discountType === 'PERCENT'
+      ? Math.round(basePrice * (1 - discValue / 100))
+      : basePrice - discValue;
+  const discountInvalid = hasDiscount && (finalPrice <= 0 || (form.discountType === 'PERCENT' && discValue >= 100));
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
     setForm((p) => ({ ...p, name, ...(!isEdit ? { slug: slugify(name) } : {}) }));
@@ -132,6 +147,10 @@ export function ProductForm({ product }: ProductFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (discountInvalid) {
+      setError('El descuento no puede dejar el precio en 0 o menos.');
+      return;
+    }
     setIsSubmitting(true);
     try {
       const body = {
@@ -139,8 +158,10 @@ export function ProductForm({ product }: ProductFormProps) {
         slug: form.slug,
         description: form.description || undefined,
         shortDescription: form.shortDescription || undefined,
-        priceCents: Number(form.priceCents),
-        compareAtPriceCents: form.compareAtPriceCents ? Number(form.compareAtPriceCents) : null,
+        // price es el precio base; el backend calcula el final y el "antes"
+        price: Number(form.price),
+        discountType: hasDiscount ? form.discountType : null,
+        discountValue: hasDiscount ? discValue : null,
         stock: Number(form.stock),
         categoryId: form.categoryId || null,
         isFeatured: form.isFeatured,
@@ -170,14 +191,14 @@ export function ProductForm({ product }: ProductFormProps) {
   };
 
   const handleAddVariant = () => {
-    if (!variantForm.sku || !variantForm.name || !variantForm.priceCents) {
+    if (!variantForm.sku || !variantForm.name || !variantForm.price) {
       setVariantError('SKU, nombre y precio son requeridos');
       return;
     }
     addVariantMutation.mutate({
       sku: variantForm.sku,
       name: variantForm.name,
-      priceCents: Number(variantForm.priceCents),
+      price: Number(variantForm.price),
       stock: Number(variantForm.stock),
       isDefault: variantForm.isDefault,
     });
@@ -240,23 +261,64 @@ export function ProductForm({ product }: ProductFormProps) {
           <h2 className="font-semibold text-primary text-sm uppercase tracking-widest">
             Precio y stock
           </h2>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={LABEL}>Precio (COP) *</label>
-              <input type="number" min={0} value={form.priceCents} onChange={f('priceCents')} required className={INPUT} placeholder="9000000" />
-              {form.priceCents && (
-                <p className="text-xs text-primary/40 mt-1">{formatCOP(Number(form.priceCents))}</p>
+              <label className={LABEL}>Precio base (COP) *</label>
+              <input type="number" min={1} value={form.price} onChange={f('price')} required className={INPUT} placeholder="90000" />
+              {form.price && (
+                <p className="text-xs text-primary/40 mt-1">{formatCOP(basePrice)}</p>
               )}
-            </div>
-            <div>
-              <label className={LABEL}>Precio anterior</label>
-              <input type="number" min={0} value={form.compareAtPriceCents} onChange={f('compareAtPriceCents')} className={INPUT} placeholder="0" />
             </div>
             <div>
               <label className={LABEL}>Stock</label>
               <input type="number" min={0} value={form.stock} onChange={f('stock')} required className={INPUT} />
             </div>
           </div>
+
+          {/* Descuento */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={LABEL}>Descuento</label>
+              <select
+                value={form.discountType}
+                onChange={(e) => setForm((p) => ({ ...p, discountType: e.target.value as '' | 'PERCENT' | 'FIXED' }))}
+                className={INPUT}
+              >
+                <option value="">Sin descuento</option>
+                <option value="PERCENT">Porcentaje (%)</option>
+                <option value="FIXED">Monto fijo (COP)</option>
+              </select>
+            </div>
+            <div>
+              <label className={LABEL}>
+                {form.discountType === 'PERCENT' ? 'Porcentaje a descontar' : form.discountType === 'FIXED' ? 'Pesos a descontar' : 'Valor del descuento'}
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={form.discountValue}
+                onChange={f('discountValue')}
+                disabled={form.discountType === ''}
+                className={`${INPUT} disabled:opacity-40`}
+                placeholder={form.discountType === 'PERCENT' ? '10' : '5000'}
+              />
+            </div>
+          </div>
+
+          {/* Preview del precio final */}
+          {hasDiscount && (
+            discountInvalid ? (
+              <p className={ERR}>⚠ El descuento no puede dejar el precio en 0 o menos{form.discountType === 'PERCENT' ? ' (usa menos de 100%)' : ''}.</p>
+            ) : (
+              <p className="text-sm text-primary/70">
+                Precio final: <span className="font-semibold text-emerald-700">{formatCOP(finalPrice)}</span>
+                <span className="text-primary/40 line-through ml-2">{formatCOP(basePrice)}</span>
+                <span className="text-accent ml-2 text-xs">
+                  ({form.discountType === 'PERCENT' ? `-${discValue}%` : `-${formatCOP(discValue)}`})
+                </span>
+              </p>
+            )
+          )}
           <div className="flex gap-6">
             <label className="flex items-center gap-2 cursor-pointer text-sm">
               <input
@@ -279,7 +341,7 @@ export function ProductForm({ product }: ProductFormProps) {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || discountInvalid}
           className="btn-primary w-full disabled:opacity-50"
         >
           {isSubmitting ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear producto'}
@@ -332,7 +394,7 @@ export function ProductForm({ product }: ProductFormProps) {
           {showMediaLibrary && (
             <MediaLibrary
               onSelect={(item) => {
-                addImageMutation.mutate({ url: item.url, alt: item.alt ?? item.filename });
+                addImageMutation.mutate({ mediaId: item.id, alt: item.alt ?? item.filename });
                 setShowMediaLibrary(false);
               }}
               onClose={() => setShowMediaLibrary(false)}
@@ -368,7 +430,7 @@ export function ProductForm({ product }: ProductFormProps) {
                         <span className="ml-1 text-xs text-accent">(por defecto)</span>
                       )}
                     </td>
-                    <td className="py-2 text-right">{formatCOP(v.priceCents)}</td>
+                    <td className="py-2 text-right">{formatCOP(v.price)}</td>
                     <td className="py-2 text-right">{v.stock}</td>
                     <td className="py-2 text-right">
                       <button
@@ -397,7 +459,7 @@ export function ProductForm({ product }: ProductFormProps) {
             </div>
             <div>
               <label className={LABEL}>Precio</label>
-              <input type="number" min={0} value={variantForm.priceCents} onChange={(e) => setVariantForm((p) => ({ ...p, priceCents: e.target.value }))} className={INPUT} />
+              <input type="number" min={0} value={variantForm.price} onChange={(e) => setVariantForm((p) => ({ ...p, price: e.target.value }))} className={INPUT} />
             </div>
             <div>
               <label className={LABEL}>Stock</label>

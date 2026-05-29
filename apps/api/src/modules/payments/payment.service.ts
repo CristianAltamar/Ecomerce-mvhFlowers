@@ -36,7 +36,7 @@ export const paymentService = {
           provider: 'cash',
           method: 'CASH_ON_DELIVERY',
           status: 'PENDING',
-          amountCents: order.totalCents,
+          amount: order.total,
           currency: order.currency,
         },
       });
@@ -60,7 +60,7 @@ export const paymentService = {
     const config = boldProvider.buildButtonConfig({
       orderId: order.id,
       reference,
-      amountCents: order.totalCents,
+      amount: order.total,
       currency: order.currency,
       description: `Pedido ${order.orderNumber} — MVH Flores`,
       redirectionUrl,
@@ -81,7 +81,7 @@ export const paymentService = {
           where: { id: existing.id },
           data: {
             method: input.method,
-            amountCents: order.totalCents,
+            amount: order.total,
             currency: order.currency,
             providerReference: reference,
             rawRequest: config as object,
@@ -93,7 +93,7 @@ export const paymentService = {
             provider: 'bold',
             method: input.method,
             status: 'PENDING',
-            amountCents: order.totalCents,
+            amount: order.total,
             currency: order.currency,
             providerReference: reference,
             rawRequest: config as object,

@@ -4,10 +4,11 @@ import { NotFoundError } from '../../lib/errors';
 import { buildPaginated, getSkipTake } from '../../lib/pagination';
 import { cache } from '../../lib/cache';
 import type { ListProductsQuery } from './product.schemas';
+import { productImagesInclude, mapProduct } from './product.mapper';
 
 const productInclude = {
   category: { select: { id: true, slug: true, name: true } },
-  images: { orderBy: { position: 'asc' as const } },
+  images: productImagesInclude,
   variants: { orderBy: { isDefault: 'desc' as const } },
 } satisfies Prisma.ProductInclude;
 
@@ -21,7 +22,7 @@ export const productService = {
 
     if (query.featured !== undefined) where.isFeatured = query.featured;
     if (query.onSale === true) {
-      where.compareAtPriceCents = { not: null };
+      where.compareAtPrice = { not: null };
       // Filtramos en JS porque Prisma no soporta comparar dos columnas directamente
       // El service devuelve todos con compareAt != null y los filtramos abajo
     }
@@ -45,7 +46,7 @@ export const productService = {
       }
     }
     if (query.minPrice !== undefined || query.maxPrice !== undefined) {
-      where.priceCents = {
+      where.price = {
         ...(query.minPrice !== undefined ? { gte: query.minPrice } : {}),
         ...(query.maxPrice !== undefined ? { lte: query.maxPrice } : {}),
       };
@@ -53,8 +54,8 @@ export const productService = {
 
     const orderBy: Prisma.ProductOrderByWithRelationInput = (() => {
       switch (query.sort) {
-        case 'price_asc': return { priceCents: 'asc' };
-        case 'price_desc': return { priceCents: 'desc' };
+        case 'price_asc': return { price: 'asc' };
+        case 'price_desc': return { price: 'desc' };
         case 'name_asc': return { name: 'asc' };
         case 'newest':
         default: return { createdAt: 'desc' };
@@ -69,12 +70,12 @@ export const productService = {
     // Filtra en memoria productos realmente en oferta (compareAt > price)
     if (query.onSale === true) {
       items = items.filter(
-        (p) => p.compareAtPriceCents !== null && p.compareAtPriceCents > p.priceCents,
+        (p) => p.compareAtPrice !== null && p.compareAtPrice > p.price,
       );
       total = items.length;
     }
 
-    const result = buildPaginated(items, total, query);
+    const result = buildPaginated(items.map(mapProduct), total, query);
     await cache.set(cacheKey, result, 300);
     return result;
   },
@@ -90,8 +91,9 @@ export const productService = {
     });
     if (!product) throw new NotFoundError(`Producto "${slug}" no encontrado`);
 
-    await cache.set(cacheKey, product, 600);
-    return product;
+    const mapped = mapProduct(product);
+    await cache.set(cacheKey, mapped, 600);
+    return mapped;
   },
 
   async getFeatured(limit = 8) {
@@ -106,7 +108,8 @@ export const productService = {
       take: limit,
     });
 
-    await cache.set(cacheKey, products, 600);
-    return products;
+    const mapped = products.map(mapProduct);
+    await cache.set(cacheKey, mapped, 600);
+    return mapped;
   },
 };

@@ -32,8 +32,8 @@ export function PriceFilter({ slug, sort, initialMin, initialMax }: PriceFilterP
   function handleFilter() {
     const params = new URLSearchParams();
     if (sort && sort !== 'newest') params.set('sort', sort);
-    if (minVal > SLIDER_MIN) params.set('minPrice', String(minVal * 100)); // → centavos
-    if (maxVal < SLIDER_MAX) params.set('maxPrice', String(maxVal * 100));
+    if (minVal > SLIDER_MIN) params.set('minPrice', String(minVal));
+    if (maxVal < SLIDER_MAX) params.set('maxPrice', String(maxVal));
     const qs = params.toString();
     router.push(`/categoria/${slug}${qs ? `?${qs}` : ''}`);
   }

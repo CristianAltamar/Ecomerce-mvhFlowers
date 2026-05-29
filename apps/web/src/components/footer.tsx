@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { Logo } from './logo';
+import { getTheme } from '@/lib/theme-server';
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '573224513906';
 const WHATSAPP_LINK =
   process.env.NEXT_PUBLIC_WHATSAPP_LINK ?? `https://wa.me/${WHATSAPP_NUMBER}`;
 
-export function Footer() {
+export async function Footer() {
+  const theme = await getTheme();
   return (
     <footer data-th-section="footer" className="bg-surface text-primary">
       {/* Borde dorado superior */}
@@ -15,7 +17,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Logo variant="light" size="lg" />
+            <Logo variant="light" size="lg" imageUrl={theme.logo.lightUrl} />
             <p className="mt-6 text-sm text-primary/70 leading-relaxed">
               Flores frescas seleccionadas cuidadosamente para cada momento. Entregas el mismo día
               en Barranquilla.

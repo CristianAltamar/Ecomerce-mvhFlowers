@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: PageProps) {
     brand: { '@type': 'Brand', name: 'MVH Flowers' },
     offers: {
       '@type': 'Offer',
-      price: (product.priceCents / 100).toFixed(0),
+      price: String(product.price),
       priceCurrency: 'COP',
       availability:
         product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: PageProps) {
   const mainImage = product.images[0];
   const galleryImages = product.images.slice(1);
   const hasDiscount =
-    product.compareAtPriceCents && product.compareAtPriceCents > product.priceCents;
+    product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
     <>
@@ -163,11 +163,11 @@ export default async function ProductPage({ params }: PageProps) {
           {/* Precio */}
           <div className="mt-8 flex items-baseline gap-3">
             <span className="font-display text-4xl text-primary font-semibold">
-              {formatCOP(product.priceCents)}
+              {formatCOP(product.price)}
             </span>
             {hasDiscount && (
               <span className="text-lg text-primary/40 line-through">
-                {formatCOP(product.compareAtPriceCents!)}
+                {formatCOP(product.compareAtPrice!)}
               </span>
             )}
           </div>

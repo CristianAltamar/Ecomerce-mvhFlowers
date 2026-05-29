@@ -11,8 +11,8 @@ interface Coupon {
   description: string | null;
   type: 'PERCENT' | 'FIXED';
   value: number;
-  minPurchaseCents: number;
-  maxDiscountCents: number | null;
+  minPurchase: number;
+  maxDiscount: number | null;
   usageLimit: number | null;
   usageCount: number;
   perUserLimit: number | null;
@@ -33,15 +33,15 @@ const LABEL = 'block text-xs uppercase tracking-widest text-primary/50 mb-1.5';
 
 const EMPTY: {
   code: string; description: string; type: 'PERCENT' | 'FIXED';
-  value: string; minPurchaseCents: string; maxDiscountCents: string;
+  value: string; minPurchase: string; maxDiscount: string;
   usageLimit: string; perUserLimit: string; startsAt: string; expiresAt: string; isActive: boolean;
 } = {
   code: '',
   description: '',
   type: 'PERCENT',
   value: '',
-  minPurchaseCents: '0',
-  maxDiscountCents: '',
+  minPurchase: '0',
+  maxDiscount: '',
   usageLimit: '',
   perUserLimit: '',
   startsAt: '',
@@ -49,8 +49,8 @@ const EMPTY: {
   isActive: true,
 };
 
-function formatCOP(cents: number) {
-  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(cents / 100);
+function formatCOP(pesos: number) {
+  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(pesos);
 }
 
 export default function CuponesPage() {
@@ -114,8 +114,8 @@ export default function CuponesPage() {
       description: c.description ?? '',
       type: c.type,
       value: String(c.type === 'PERCENT' ? c.value : c.value),
-      minPurchaseCents: String(c.minPurchaseCents),
-      maxDiscountCents: c.maxDiscountCents != null ? String(c.maxDiscountCents) : '',
+      minPurchase: String(c.minPurchase),
+      maxDiscount: c.maxDiscount != null ? String(c.maxDiscount) : '',
       usageLimit: c.usageLimit != null ? String(c.usageLimit) : '',
       perUserLimit: c.perUserLimit != null ? String(c.perUserLimit) : '',
       startsAt: c.startsAt ? c.startsAt.slice(0, 16) : '',
@@ -140,8 +140,8 @@ export default function CuponesPage() {
       description: form.description || undefined,
       type: form.type,
       value: Number(form.value),
-      minPurchaseCents: Number(form.minPurchaseCents) || 0,
-      maxDiscountCents: form.maxDiscountCents ? Number(form.maxDiscountCents) : null,
+      minPurchase: Number(form.minPurchase) || 0,
+      maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : null,
       usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
       perUserLimit: form.perUserLimit ? Number(form.perUserLimit) : null,
       startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : null,
@@ -198,11 +198,11 @@ export default function CuponesPage() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className={LABEL}>Compra mínima (centavos)</label>
-              <input type="number" min={0} value={form.minPurchaseCents} onChange={f('minPurchaseCents')} className={INPUT} />
+              <input type="number" min={0} value={form.minPurchase} onChange={f('minPurchase')} className={INPUT} />
             </div>
             <div>
               <label className={LABEL}>Descuento máximo (centavos)</label>
-              <input type="number" min={1} value={form.maxDiscountCents} onChange={f('maxDiscountCents')} className={INPUT} placeholder="Opcional" />
+              <input type="number" min={1} value={form.maxDiscount} onChange={f('maxDiscount')} className={INPUT} placeholder="Opcional" />
             </div>
             <div>
               <label className={LABEL}>Usos totales máx.</label>
@@ -269,10 +269,10 @@ export default function CuponesPage() {
                   </td>
                   <td className="px-4 py-3 text-primary/70">
                     {c.type === 'PERCENT'
-                      ? `${c.value}%${c.maxDiscountCents ? ` (máx ${formatCOP(c.maxDiscountCents)})` : ''}`
+                      ? `${c.value}%${c.maxDiscount ? ` (máx ${formatCOP(c.maxDiscount)})` : ''}`
                       : formatCOP(c.value)}
-                    {c.minPurchaseCents > 0 && (
-                      <p className="text-xs text-primary/40">Mín. {formatCOP(c.minPurchaseCents)}</p>
+                    {c.minPurchase > 0 && (
+                      <p className="text-xs text-primary/40">Mín. {formatCOP(c.minPurchase)}</p>
                     )}
                   </td>
                   <td className="px-4 py-3 text-xs text-primary/60">

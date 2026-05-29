@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { useCartStore, selectCartSubtotalCents } from '@/store/cart-store';
+import { useCartStore, selectCartSubtotal } from '@/store/cart-store';
 import { useAuthStore } from '@/store/auth-store';
 import { apiFetch, ApiClientError } from '@/lib/api-client';
 import { authFetch } from '@/lib/auth-fetch';
@@ -351,7 +351,7 @@ function Step1({
                   {z.description && <p className="text-xs text-primary/50">{z.description}</p>}
                 </div>
               </div>
-              <span className="text-sm font-semibold text-primary flex-shrink-0">{formatCOP(z.feeCents)}</span>
+              <span className="text-sm font-semibold text-primary flex-shrink-0">{formatCOP(z.fee)}</span>
             </label>
           ))}
         </div>
@@ -366,7 +366,7 @@ function Step1({
 export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
-  const subtotalCents = useCartStore(selectCartSubtotalCents);
+  const subtotal = useCartStore(selectCartSubtotal);
   const user = useAuthStore((s) => s.user);
 
   const [isPreparing, setIsPreparing] = useState(false);
@@ -424,9 +424,9 @@ export default function CheckoutPage() {
 
   // Computed totals
   const selectedZone = zones.find((z) => z.id === deliveryZoneId);
-  const deliveryFeeCents = selectedZone?.feeCents ?? 0;
-  const discountCents = appliedCoupon?.discountCents ?? 0;
-  const totalCents = subtotalCents - discountCents + deliveryFeeCents;
+  const deliveryFee = selectedZone?.fee ?? 0;
+  const discount = appliedCoupon?.discount ?? 0;
+  const total = subtotal - discount + deliveryFee;
 
   // Si cambia cualquier dato que afecte el pedido, invalida el botón ya generado
   // para no pagar un monto/datos desactualizados.
@@ -484,7 +484,7 @@ export default function CheckoutPage() {
     try {
       const result = await apiFetch<ValidateCouponResult>('/coupons/validate', {
         method: 'POST',
-        body: { code: couponCode.trim().toUpperCase(), subtotalCents },
+        body: { code: couponCode.trim().toUpperCase(), subtotal },
       });
       setAppliedCoupon(result);
     } catch (err) {
@@ -633,18 +633,18 @@ export default function CheckoutPage() {
                     <span className="text-primary/50"> × {i.quantity}</span>
                   </span>
                   <span className="text-primary font-semibold flex-shrink-0">
-                    {formatCOP(i.unitPriceCents * i.quantity)}
+                    {formatCOP(i.unitPrice * i.quantity)}
                   </span>
                 </li>
               ))}
             </ul>
 
             <div className="border-t border-primary/10 pt-3 space-y-2">
-              <Row label="Subtotal" value={formatCOP(subtotalCents)} />
-              {discountCents > 0 && (
+              <Row label="Subtotal" value={formatCOP(subtotal)} />
+              {discount > 0 && (
                 <Row
                   label={`Cupón (${appliedCoupon?.coupon.code})`}
-                  value={`− ${formatCOP(discountCents)}`}
+                  value={`− ${formatCOP(discount)}`}
                   green
                 />
               )}
@@ -652,14 +652,14 @@ export default function CheckoutPage() {
                 label="Envío"
                 value={
                   deliveryZoneId
-                    ? deliveryFeeCents > 0
-                      ? formatCOP(deliveryFeeCents)
+                    ? deliveryFee > 0
+                      ? formatCOP(deliveryFee)
                       : 'Gratis'
                     : '—'
                 }
               />
               <div className="border-t border-primary/10 pt-2">
-                <Row label="Total" value={formatCOP(totalCents)} bold />
+                <Row label="Total" value={formatCOP(total)} bold />
               </div>
             </div>
 
@@ -726,7 +726,7 @@ export default function CheckoutPage() {
                 disabled={isPreparing}
                 className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPreparing ? 'Preparando pago…' : `Pagar ${formatCOP(totalCents)}`}
+                {isPreparing ? 'Preparando pago…' : `Pagar ${formatCOP(total)}`}
               </button>
             )}
 

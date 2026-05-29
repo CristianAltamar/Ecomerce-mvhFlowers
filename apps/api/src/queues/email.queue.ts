@@ -7,9 +7,9 @@ export type OrderConfirmationPayload = {
   orderNumber: string;
   customerEmail: string;
   customerName: string;
-  totalCents: number;
+  total: number;
   deliveryDate: string;
-  items: Array<{ productName: string; quantity: number; unitPriceCents: number }>;
+  items: Array<{ productName: string; quantity: number; unitPrice: number }>;
 };
 
 export type OrderStatusChangedPayload = {

@@ -83,14 +83,21 @@ model Category {
   @@map("categories")
 }
 
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
 model Product {
   id                  String   @id @default(cuid())
   slug                String   @unique
   name                String
   description         String?
   shortDescription    String?
-  priceCents          Int      // precio en centavos (COP)
-  compareAtPriceCents Int?     // precio "antes" para mostrar descuento
+  price               Int      // precio final de venta en pesos (COP)
+  compareAtPrice      Int?     // precio base "antes" (se deriva del descuento)
+  discountType        DiscountType? // tipo de descuento aplicado
+  discountValue       Int?     // valor del descuento: porcentaje (1-99) o pesos fijos
   currency            String   @default("COP")
   isFeatured          Boolean  @default(false)
   isActive            Boolean  @default(true)
@@ -120,12 +127,14 @@ model ProductImage {
   id        String  @id @default(cuid())
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  url       String
-  alt       String?
+  mediaId   String?
+  media     Media?  @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  alt       String? // override opcional del alt de Media
   position  Int     @default(0)
   createdAt DateTime @default(now())
 
   @@index([productId])
+  @@index([mediaId])
   @@map("product_images")
 }
 
@@ -141,6 +150,8 @@ model Media {
   height    Int?
   createdAt DateTime @default(now())
 
+  productImages ProductImage[]
+
   @@map("media")
 }
 
@@ -150,7 +161,7 @@ model ProductVariant {
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku        String   @unique
   name       String   // ej: "Mediano", "Grande con jarrón"
-  priceCents Int
+  price      Int      // precio en pesos (COP)
   stock      Int      @default(0)
   isDefault  Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -193,7 +204,7 @@ model Address {
 model DeliveryZone {
   id          String   @id @default(cuid())
   name        String   // "Norte", "Centro", "Sur"
-  feeCents    Int      // tarifa de envío en centavos
+  fee         Int      // tarifa de envío en pesos (COP)
   description String?
   isActive    Boolean  @default(true)
   // Barrios o sectores que pertenecen a esta zona (uno por línea)
@@ -268,13 +279,13 @@ model Order {
   deliverySlotLabel String?
   deliveryZoneId  String?
   deliveryZoneName String?
-  shippingFeeCents Int      @default(0)
+  shippingFee     Int      @default(0)
 
-  // Totales
-  subtotalCents   Int
-  discountCents   Int       @default(0)
-  taxCents        Int       @default(0)
-  totalCents      Int
+  // Totales (pesos COP)
+  subtotal        Int
+  discount        Int       @default(0)
+  tax             Int       @default(0)
+  total           Int
   currency        String    @default("COP")
 
   // Cupón aplicado
@@ -314,9 +325,9 @@ model OrderItem {
   productName String
   variantName String?
   imageUrl    String?
-  unitPriceCents Int
+  unitPrice   Int
   quantity    Int
-  subtotalCents Int
+  subtotal    Int
 
   @@index([orderId])
   @@map("order_items")
@@ -363,7 +374,7 @@ model Payment {
   provider        String        // "bold", "cash"
   method          PaymentMethod
   status          PaymentStatus @default(PENDING)
-  amountCents     Int
+  amount          Int
   currency        String        @default("COP")
   // IDs externos del proveedor
   providerPaymentId String?
@@ -398,9 +409,9 @@ model Coupon {
   code            String     @unique
   description     String?
   type            CouponType
-  value           Int        // porcentaje (1-100) o centavos
-  minPurchaseCents Int       @default(0)
-  maxDiscountCents Int?      // tope para tipo PERCENT
+  value           Int        // porcentaje (1-100) o pesos (COP)
+  minPurchase     Int        @default(0)
+  maxDiscount     Int?       // tope en pesos para tipo PERCENT
   usageLimit      Int?       // null = ilimitado
   usageCount      Int        @default(0)
   perUserLimit    Int?

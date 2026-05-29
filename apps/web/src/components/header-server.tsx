@@ -9,6 +9,7 @@
  */
 import { apiFetch } from '@/lib/api-client';
 import type { Category } from '@mvh/types';
+import { getTheme } from '@/lib/theme-server';
 import { Header } from './header';
 import type { NavItem } from './header';
 
@@ -57,5 +58,8 @@ export async function HeaderServer() {
     console.warn('No se pudieron cargar las categorías para el header');
   }
 
-  return <Header navItems={mapCategories(categories)} />;
+  // El header tiene fondo claro → usamos el logo oscuro
+  const theme = await getTheme();
+
+  return <Header navItems={mapCategories(categories)} logoUrl={theme.logo.darkUrl} />;
 }

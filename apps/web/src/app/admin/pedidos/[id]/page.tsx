@@ -12,11 +12,11 @@ interface OrderDetail {
   id: string;
   orderNumber: string;
   status: string;
-  subtotalCents: number;
-  discountCents: number;
-  shippingFeeCents: number;
-  taxCents: number;
-  totalCents: number;
+  subtotal: number;
+  discount: number;
+  shippingFee: number;
+  tax: number;
+  total: number;
   couponCode: string | null;
   deliveryDate: string | null;
   deliverySlotLabel: string | null;
@@ -34,8 +34,8 @@ interface OrderDetail {
     productName: string;
     variantName: string | null;
     quantity: number;
-    unitPriceCents: number;
-    subtotalCents: number;
+    unitPrice: number;
+    subtotal: number;
   }>;
   statusHistory: Array<{
     id: string;
@@ -143,7 +143,7 @@ export default function AdminOrderDetailPage() {
                     </td>
                     <td className="py-2 text-right text-primary/50">× {item.quantity}</td>
                     <td className="py-2 text-right text-primary">
-                      {formatCOP(item.subtotalCents)}
+                      {formatCOP(item.subtotal)}
                     </td>
                   </tr>
                 ))}
@@ -153,21 +153,21 @@ export default function AdminOrderDetailPage() {
             <div className="border-t border-primary/10 mt-4 pt-4 space-y-1.5 text-sm">
               <div className="flex justify-between text-primary/60">
                 <span>Subtotal</span>
-                <span>{formatCOP(order.subtotalCents)}</span>
+                <span>{formatCOP(order.subtotal)}</span>
               </div>
-              {order.discountCents > 0 && (
+              {order.discount > 0 && (
                 <div className="flex justify-between text-green-700">
                   <span>Descuento{order.couponCode ? ` (${order.couponCode})` : ''}</span>
-                  <span>− {formatCOP(order.discountCents)}</span>
+                  <span>− {formatCOP(order.discount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-primary/60">
                 <span>Envío</span>
-                <span>{formatCOP(order.shippingFeeCents)}</span>
+                <span>{formatCOP(order.shippingFee)}</span>
               </div>
               <div className="flex justify-between font-semibold text-primary pt-1">
                 <span>Total</span>
-                <span className="font-display text-base">{formatCOP(order.totalCents)}</span>
+                <span className="font-display text-base">{formatCOP(order.total)}</span>
               </div>
             </div>
           </section>

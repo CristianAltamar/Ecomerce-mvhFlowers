@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCartStore, selectCartCount, selectCartSubtotalCents } from '@/store/cart-store';
+import { useCartStore, selectCartCount, selectCartSubtotal } from '@/store/cart-store';
 import { formatCOP } from '@mvh/utils';
 import { cn } from '@/lib/cn';
 export function CartDrawer() {
@@ -11,7 +11,7 @@ export function CartDrawer() {
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const count = useCartStore(selectCartCount);
-  const subtotal = useCartStore(selectCartSubtotalCents);
+  const subtotal = useCartStore(selectCartSubtotal);
 
   return (
     <>
@@ -115,7 +115,7 @@ export function CartDrawer() {
                         </button>
                       </div>
                       <span className="text-sm font-semibold text-primary">
-                        {formatCOP(item.unitPriceCents * item.quantity)}
+                        {formatCOP(item.unitPrice * item.quantity)}
                       </span>
                     </div>
                     <button

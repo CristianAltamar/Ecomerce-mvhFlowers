@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authFetch } from '@/lib/auth-fetch';
+import { MediaLibrary } from '@/components/media-library';
 import {
   DEFAULT_THEME,
   BUTTON_RADIUS_OPTIONS,
@@ -203,14 +204,51 @@ function Preview({
   );
 }
 
+function ImageSlot({
+  label,
+  url,
+  previewDark,
+  onPick,
+  onClear,
+}: {
+  label: string;
+  url: string | null;
+  previewDark?: boolean;
+  onPick: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-widest text-primary/50 mb-2">{label}</p>
+      <div className={`border border-primary/15 p-4 flex items-center justify-center h-32 ${previewDark ? 'bg-ink' : 'bg-white'}`}>
+        {url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={label} className="max-h-full max-w-full object-contain" />
+        ) : (
+          <span className={`text-xs ${previewDark ? 'text-surface/40' : 'text-primary/30'}`}>Sin imagen</span>
+        )}
+      </div>
+      <div className="flex items-center gap-3 mt-2">
+        <button onClick={onPick} className="text-xs border border-primary/20 px-3 py-1.5 text-primary/70 hover:border-primary/50 transition-colors">
+          {url ? 'Cambiar' : 'Elegir de la biblioteca'}
+        </button>
+        {url && (
+          <button onClick={onClear} className="text-xs text-red-500 hover:underline">Quitar</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Página principal ────────────────────────────────────────────────────────
 
-type TabKey = 'general' | 'botones' | SectionKey;
+type TabKey = 'general' | 'marca' | 'botones' | SectionKey;
 
 export default function TemasPage() {
   const qc = useQueryClient();
   const [, startTransition] = useTransition();
   const [tab, setTab] = useState<TabKey>('general');
+  const [picker, setPicker] = useState<null | 'logoDark' | 'logoLight' | 'hero'>(null);
 
   const { data: saved, isLoading } = useQuery<ThemeConfig>({
     queryKey: ['site-content', 'theme'],
@@ -241,6 +279,15 @@ export default function TemasPage() {
   const setButton  = (key: keyof ThemeConfig['buttons'], v: number | boolean) => update((t) => ({ ...t, buttons: { ...t.buttons, [key]: v } }));
   const setSection = (sk: SectionKey, key: keyof SectionStyle, v: string | FontKey) =>
     update((t) => ({ ...t, sections: { ...t.sections, [sk]: { ...t.sections[sk], [key]: v } } }));
+  const setLogo = (key: keyof ThemeConfig['logo'], v: string | null) => update((t) => ({ ...t, logo: { ...t.logo, [key]: v } }));
+  const setHero = (v: string | null) => update((t) => ({ ...t, hero: { ...t.hero, imageUrl: v } }));
+
+  function applyPicked(url: string) {
+    if (picker === 'logoDark') setLogo('darkUrl', url);
+    else if (picker === 'logoLight') setLogo('lightUrl', url);
+    else if (picker === 'hero') setHero(url);
+    setPicker(null);
+  }
 
   if (isLoading) {
     return (
@@ -251,7 +298,7 @@ export default function TemasPage() {
   }
 
   const colorKeys = Object.keys(COLOR_LABELS) as (keyof ThemeConfig['colors'])[];
-  const isSectionTab = tab !== 'general' && tab !== 'botones';
+  const isSectionTab = tab !== 'general' && tab !== 'botones' && tab !== 'marca';
   const section = isSectionTab ? theme.sections[tab as SectionKey] : null;
 
   function TabButton({ id, label }: { id: TabKey; label: string }) {
@@ -309,6 +356,7 @@ export default function TemasPage() {
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b border-primary/10 mb-8 overflow-x-auto">
         <TabButton id="general" label="General" />
+        <TabButton id="marca" label="Marca" />
         <TabButton id="botones" label="Botones" />
         {SECTION_ORDER.map((sk) => (
           <TabButton key={sk} id={sk} label={SECTION_LABELS[sk]} />
@@ -400,6 +448,47 @@ export default function TemasPage() {
             </section>
           )}
 
+          {/* ── Marca (logo + hero) ───────────────────── */}
+          {tab === 'marca' && (
+            <>
+              <section>
+                <SectionTitle>Logo</SectionTitle>
+                <p className="text-xs text-primary/40 mb-4">
+                  El <strong>logo oscuro</strong> se usa sobre fondos claros (header); el <strong>logo claro</strong> sobre fondos oscuros (footer).
+                  Si no subes ninguno, se usa el logo de texto por defecto.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <ImageSlot
+                    label="Logo oscuro · header"
+                    url={theme.logo.darkUrl}
+                    onPick={() => setPicker('logoDark')}
+                    onClear={() => setLogo('darkUrl', null)}
+                  />
+                  <ImageSlot
+                    label="Logo claro · footer"
+                    url={theme.logo.lightUrl}
+                    previewDark
+                    onPick={() => setPicker('logoLight')}
+                    onClear={() => setLogo('lightUrl', null)}
+                  />
+                </div>
+              </section>
+
+              <section>
+                <SectionTitle>Imagen del Hero</SectionTitle>
+                <p className="text-xs text-primary/40 mb-4">
+                  Imagen destacada de la portada (como la del sitio original). Si no eliges ninguna, se usa la imagen por defecto.
+                </p>
+                <ImageSlot
+                  label="Imagen del Hero"
+                  url={theme.hero.imageUrl}
+                  onPick={() => setPicker('hero')}
+                  onClear={() => setHero(null)}
+                />
+              </section>
+            </>
+          )}
+
           {/* ── Sección ───────────────────────────────── */}
           {isSectionTab && section && (
             <>
@@ -451,6 +540,13 @@ export default function TemasPage() {
           />
         )}
       </div>
+
+      {picker && (
+        <MediaLibrary
+          onSelect={(item) => applyPicked(item.url)}
+          onClose={() => setPicker(null)}
+        />
+      )}
     </div>
   );
 }

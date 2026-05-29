@@ -54,7 +54,7 @@ export interface ProductVariant {
   id: string;
   sku: string;
   name: string;
-  priceCents: number;
+  price: number;
   stock: number;
   isDefault: boolean;
 }
@@ -65,8 +65,8 @@ export interface Product {
   name: string;
   description: string | null;
   shortDescription: string | null;
-  priceCents: number;
-  compareAtPriceCents: number | null;
+  price: number;
+  compareAtPrice: number | null;
   currency: string;
   isFeatured: boolean;
   isActive: boolean;
@@ -122,7 +122,7 @@ export interface Address {
 export interface DeliveryZone {
   id: string;
   name: string;
-  feeCents: number;
+  fee: number;
   description: string | null;
   neighborhoods: string[];
   isActive: boolean;
@@ -149,13 +149,13 @@ export interface Coupon {
   description: string | null;
   type: CouponType;
   value: number;
-  minPurchaseCents: number;
-  maxDiscountCents: number | null;
+  minPurchase: number;
+  maxDiscount: number | null;
 }
 
 export interface ValidateCouponResult {
   coupon: Coupon;
-  discountCents: number;
+  discount: number;
 }
 
 export interface OrderItem {
@@ -165,9 +165,9 @@ export interface OrderItem {
   productName: string;
   variantName: string | null;
   imageUrl: string | null;
-  unitPriceCents: number;
+  unitPrice: number;
   quantity: number;
-  subtotalCents: number;
+  subtotal: number;
 }
 
 export interface Order {
@@ -175,11 +175,11 @@ export interface Order {
   orderNumber: string;
   userId: string | null;
   status: OrderStatus;
-  subtotalCents: number;
-  discountCents: number;
-  shippingFeeCents: number;
-  taxCents: number;
-  totalCents: number;
+  subtotal: number;
+  discount: number;
+  shippingFee: number;
+  tax: number;
+  total: number;
   currency: string;
   couponCode: string | null;
   deliveryDate: string | null;
