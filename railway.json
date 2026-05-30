@@ -5,7 +5,7 @@
     "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter @mvh/api exec prisma generate && npx turbo run build --filter=@mvh/api"
   },
   "deploy": {
-    "startCommand": "pnpm --filter @mvh/api exec prisma migrate deploy && node apps/api/dist/server.js",
+    "startCommand": "pnpm --filter @mvh/api db:migrate:deploy && node apps/api/dist/server.js",
     "healthcheckPath": "/api/v1/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
