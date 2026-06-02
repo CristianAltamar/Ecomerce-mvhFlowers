@@ -5,8 +5,6 @@ import { asyncHandler } from '../../lib/async-handler';
 import type { AuthenticatedRequest } from '../../middlewares/auth';
 import type { CreateOrderInput, ListOrdersQuery } from './order.schemas';
 
-type ReqWithId = Request<{ id: string }>;
-
 export const orderController = {
   create: asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as AuthenticatedRequest).user?.sub;
@@ -15,13 +13,15 @@ export const orderController = {
   }),
 
   list: asyncHandler<AuthenticatedRequest>(async (req, res: Response) => {
-    const result = await orderService.list(req.user.sub, req.query as unknown as ListOrdersQuery);
+    const query = res.locals.validatedQuery as ListOrdersQuery;
+    const result = await orderService.list(req.user.sub, query);
     sendSuccess(res, result);
   }),
 
-  getById: asyncHandler(async (req: ReqWithId, res: Response) => {
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
     const userId = (req as unknown as AuthenticatedRequest).user?.sub;
-    const order = await orderService.getById(req.params.id, userId);
+    const order = await orderService.getById(id, userId);
     sendSuccess(res, order);
   }),
 };

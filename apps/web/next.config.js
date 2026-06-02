@@ -23,9 +23,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'mvhflores.co' },
     ],
   },
-  experimental: {
-    typedRoutes: false,
-  },
+  typedRoutes: false,
+  
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },

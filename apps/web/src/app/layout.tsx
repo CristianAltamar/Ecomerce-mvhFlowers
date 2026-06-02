@@ -104,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="es-CO"
       className={`${playfair.variable} ${cormorant.variable} ${inter.variable}`}
+      data-scroll-behavior="smooth"
     >
       <body className="font-serif min-h-screen flex flex-col bg-surface">
         <ThemeCssVars />

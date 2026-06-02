@@ -21,8 +21,9 @@ export const adminMediaController = {
     sendSuccess(res, media, 201);
   }),
 
-  update: asyncHandler(async (req: Request<{ id: string }>, res: Response) => {
-    const media = await adminMediaService.update(req.params.id, req.body as { filename?: string; alt?: string | null });
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const media = await adminMediaService.update(id, req.body as { filename?: string; alt?: string | null });
     sendSuccess(res, media);
   }),
 
@@ -31,8 +32,9 @@ export const adminMediaController = {
     sendSuccess(res, result);
   }),
 
-  remove: asyncHandler(async (req: Request, res: Response) => {
-    await adminMediaService.remove(req.params.id!);
+  remove: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    await adminMediaService.remove(id);
     res.status(204).send();
   }),
 };

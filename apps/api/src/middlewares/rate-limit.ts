@@ -7,7 +7,7 @@ import { env } from '../config/env';
  */
 export const generalLimiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.RATE_LIMIT_MAX,
+  limit: env.RATE_LIMIT_MAX,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: {
@@ -22,7 +22,7 @@ export const generalLimiter = rateLimit({
  */
 export const authLimiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.AUTH_RATE_LIMIT_MAX,
+  limit: env.AUTH_RATE_LIMIT_MAX,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   skipSuccessfulRequests: true, // sólo cuenta intentos fallidos

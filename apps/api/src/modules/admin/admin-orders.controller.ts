@@ -4,24 +4,22 @@ import { sendSuccess } from '../../lib/http';
 import { asyncHandler } from '../../lib/async-handler';
 import type { UpdateOrderStatusInput, AdminOrdersQuery } from './admin.schemas';
 
-type ReqWithId = Request<{ id: string }>;
-
 export const adminOrdersController = {
-  list: asyncHandler(async (req: Request, res: Response) => {
-    const result = await adminOrdersService.list(req.query as unknown as AdminOrdersQuery);
+  list: asyncHandler(async (_req: Request, res: Response) => {
+    const query = res.locals.validatedQuery as AdminOrdersQuery;
+    const result = await adminOrdersService.list(query);
     sendSuccess(res, result);
   }),
 
-  getById: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const order = await adminOrdersService.getById(req.params.id);
+  getById: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const order = await adminOrdersService.getById(id);
     sendSuccess(res, order);
   }),
 
-  updateStatus: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const order = await adminOrdersService.updateStatus(
-      req.params.id,
-      req.body as UpdateOrderStatusInput,
-    );
+  updateStatus: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const order = await adminOrdersService.updateStatus(id, req.body as UpdateOrderStatusInput);
     sendSuccess(res, order);
   }),
 };

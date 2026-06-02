@@ -234,7 +234,7 @@ function OrderDetail() {
 function InfoRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="flex justify-between text-sm gap-4">
-      <span className="text-primary/60 flex-shrink-0">{label}</span>
+      <span className="text-primary/60 shrink-0">{label}</span>
       <span className={`text-right ${bold ? 'font-display text-base text-primary' : 'text-primary'}`}>{value}</span>
     </div>
   );

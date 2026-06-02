@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { prisma } from '../../config/prisma';
 import { NotFoundError } from '../../lib/errors';
 import { buildPaginated, getSkipTake } from '../../lib/pagination';

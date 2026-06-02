@@ -5,8 +5,6 @@ import { asyncHandler } from '../../lib/async-handler';
 import type { AuthenticatedRequest } from '../../middlewares/auth';
 import type { CreateAddressInput, UpdateAddressInput } from './address.schemas';
 
-type AuthReqWithId = AuthenticatedRequest & { params: { id: string } };
-
 export const addressController = {
   list: asyncHandler<AuthenticatedRequest>(async (req, res: Response) => {
     const addresses = await addressService.list(req.user.sub);
@@ -18,17 +16,15 @@ export const addressController = {
     sendCreated(res, address);
   }),
 
-  update: asyncHandler<AuthReqWithId>(async (req, res: Response) => {
-    const address = await addressService.update(
-      req.user.sub,
-      req.params.id,
-      req.body as UpdateAddressInput,
-    );
+  update: asyncHandler<AuthenticatedRequest>(async (req, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const address = await addressService.update(req.user.sub, id, req.body as UpdateAddressInput);
     sendSuccess(res, address);
   }),
 
-  remove: asyncHandler<AuthReqWithId>(async (req, res: Response) => {
-    await addressService.delete(req.user.sub, req.params.id);
+  remove: asyncHandler<AuthenticatedRequest>(async (req, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    await addressService.delete(req.user.sub, id);
     sendNoContent(res);
   }),
 };

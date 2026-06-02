@@ -8,13 +8,13 @@ import { SortSelect } from './sort-select';
 import { CategorySidebar } from './category-sidebar';
 
 interface PageProps {
-  params: { slug: string };
-  searchParams: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{
     page?: string;
     sort?: string;
     minPrice?: string; // en pesos
     maxPrice?: string; // en pesos
-  };
+  }>;
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mvhflores.co';
@@ -22,15 +22,16 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mvhflores.co';
 // ── Metadata ───────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
   try {
-    const cat = await api.getCategoryBySlug(params.slug);
+    const cat = await api.getCategoryBySlug(slug);
     const description =
       cat.description ??
       `Arreglos florales de ${cat.name} con entrega el mismo día en Barranquilla.`;
     return {
       title: cat.name,
       description,
-      alternates: { canonical: `/categoria/${params.slug}` },
+      alternates: { canonical: `/categoria/${slug}` },
       openGraph: {
         title: `${cat.name} | MVH Flowers`,
         description,
@@ -51,28 +52,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default async function CategoryPage({ params, searchParams }: PageProps) {
+  const { slug } = await params;
+  const sp = await searchParams;
+
   // ── Datos de la categoría ────────────────────────────────────────────────
   let category;
   try {
-    category = await api.getCategoryBySlug(params.slug);
+    category = await api.getCategoryBySlug(slug);
   } catch (err) {
     if (err instanceof ApiClientError && err.status === 404) notFound();
     throw err;
   }
 
   // ── Search params ────────────────────────────────────────────────────────
-  const page = Math.max(1, Number(searchParams.page) || 1);
+  const page = Math.max(1, Number(sp.page) || 1);
   const sort =
-    (searchParams.sort as 'newest' | 'price_asc' | 'price_desc' | 'name_asc') ?? 'newest';
-  const minPrice = searchParams.minPrice ? Number(searchParams.minPrice) : undefined;
-  const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
+    (sp.sort as 'newest' | 'price_asc' | 'price_desc' | 'name_asc') ?? 'newest';
+  const minPrice = sp.minPrice ? Number(sp.minPrice) : undefined;
+  const maxPrice = sp.maxPrice ? Number(sp.maxPrice) : undefined;
 
   // ── Fetch paralelo: todas las categorías + productos filtrados ────────────
   const [allCategories, products] = await Promise.all([
     api.getCategories().catch(() => []),
     api
       .getProducts({
-        category: params.slug,
+        category: slug,
         page,
         perPage: 12,
         sort,
@@ -161,7 +165,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           {/* Sidebar */}
           <CategorySidebar
             categories={allCategories}
-            currentSlug={params.slug}
+            currentSlug={slug}
             parentSlug={category.parent?.slug}
             sort={sort}
             initialMin={sliderInitMin}
@@ -186,7 +190,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                 >
                   Ordenar
                 </label>
-                <SortSelect slug={params.slug} value={sort} />
+                <SortSelect slug={slug} value={sort} />
               </div>
             </div>
 
@@ -198,7 +202,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   No hay productos en esta categoría
                   {(minPrice || maxPrice) && ' con ese rango de precio'}
                 </p>
-                <Link href={`/categoria/${params.slug}`} className="btn-outline mt-6 inline-flex">
+                <Link href={`/categoria/${slug}`} className="btn-outline mt-6 inline-flex">
                   Ver todos los productos
                 </Link>
               </div>
@@ -225,7 +229,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   return (
                     <Link
                       key={p}
-                      href={`/categoria/${params.slug}?${qp.toString()}`}
+                      href={`/categoria/${slug}?${qp.toString()}`}
                       className={`w-10 h-10 flex items-center justify-center text-sm border transition-colors ${
                         p === products.meta.page
                           ? 'border-primary bg-primary text-surface'

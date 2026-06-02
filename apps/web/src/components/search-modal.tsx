@@ -98,7 +98,7 @@ export function SearchModal() {
           <div className="flex items-center gap-4 border-b border-primary/15 pb-5 mb-10">
             <svg
               width="22" height="22"
-              className="text-primary/40 flex-shrink-0"
+              className="text-primary/40 shrink-0"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
             >
               <circle cx="11" cy="11" r="7" />

@@ -4,16 +4,16 @@ import { sendSuccess, sendCreated } from '../../lib/http';
 import { asyncHandler } from '../../lib/async-handler';
 import type { CreateCouponInput, UpdateCouponInput, AdminCouponsQuery } from './admin.schemas';
 
-type ReqWithId = Request<{ id: string }>;
-
 export const adminCouponsController = {
-  list: asyncHandler(async (req: Request, res: Response) => {
-    const result = await adminCouponsService.list(req.query as unknown as AdminCouponsQuery);
+  list: asyncHandler(async (_req: Request, res: Response) => {
+    const query = res.locals.validatedQuery as AdminCouponsQuery;
+    const result = await adminCouponsService.list(query);
     sendSuccess(res, result);
   }),
 
-  getById: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const coupon = await adminCouponsService.getById(req.params.id);
+  getById: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const coupon = await adminCouponsService.getById(id);
     sendSuccess(res, coupon);
   }),
 
@@ -22,18 +22,21 @@ export const adminCouponsController = {
     sendCreated(res, coupon);
   }),
 
-  update: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const coupon = await adminCouponsService.update(req.params.id, req.body as UpdateCouponInput);
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const coupon = await adminCouponsService.update(id, req.body as UpdateCouponInput);
     sendSuccess(res, coupon);
   }),
 
-  toggleActive: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const coupon = await adminCouponsService.toggleActive(req.params.id);
+  toggleActive: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const coupon = await adminCouponsService.toggleActive(id);
     sendSuccess(res, coupon);
   }),
 
-  remove: asyncHandler(async (req: ReqWithId, res: Response) => {
-    await adminCouponsService.remove(req.params.id);
+  remove: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    await adminCouponsService.remove(id);
     sendSuccess(res, { message: 'Cupón eliminado' });
   }),
 };

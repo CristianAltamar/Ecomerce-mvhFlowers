@@ -4,16 +4,15 @@ import { sendSuccess, sendCreated } from '../../lib/http';
 import { asyncHandler } from '../../lib/async-handler';
 import type { CreateCategoryInput, UpdateCategoryInput } from './admin.schemas';
 
-type ReqWithId = Request<{ id: string }>;
-
 export const adminCategoriesController = {
   list: asyncHandler(async (_req: Request, res: Response) => {
     const categories = await adminCategoriesService.list();
     sendSuccess(res, categories);
   }),
 
-  getById: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const category = await adminCategoriesService.getById(req.params.id);
+  getById: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const category = await adminCategoriesService.getById(id);
     sendSuccess(res, category);
   }),
 
@@ -22,16 +21,15 @@ export const adminCategoriesController = {
     sendCreated(res, category);
   }),
 
-  update: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const category = await adminCategoriesService.update(
-      req.params.id,
-      req.body as UpdateCategoryInput,
-    );
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const category = await adminCategoriesService.update(id, req.body as UpdateCategoryInput);
     sendSuccess(res, category);
   }),
 
-  toggleActive: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const category = await adminCategoriesService.toggleActive(req.params.id);
+  toggleActive: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const category = await adminCategoriesService.toggleActive(id);
     sendSuccess(res, category);
   }),
 };

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { prisma } from '../../config/prisma';
 import { NotFoundError, BadRequestError } from '../../lib/errors';
 import type { UpdateOrderStatusInput, AdminOrdersQuery } from './admin.schemas';

@@ -15,7 +15,7 @@ import {
   BadRequestError,
 } from '../../lib/errors';
 import type { RegisterInput, LoginInput } from './auth.schemas';
-import type { User } from '@prisma/client';
+import type { User } from '../../generated/prisma/client';
 
 interface AuthContext {
   userAgent?: string;

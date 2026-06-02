@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express';
-import { ZodError, type ZodSchema } from 'zod';
+import { ZodError, type ZodType} from 'zod';
 
 type Source = 'body' | 'query' | 'params';
 
@@ -10,14 +10,20 @@ type Source = 'body' | 'query' | 'params';
  * @example
  *   router.post('/login', validate(loginSchema, 'body'), loginHandler)
  */
-export function validate(schema: ZodSchema, source: Source = 'body'): RequestHandler {
-  return (req, _res, next) => {
+export function validate(schema: ZodType, source: Source = 'body'): RequestHandler {
+  return (req, res, next) => {
     try {
       const parsed = schema.parse(req[source]);
       // Reescribimos el source con los valores parseados/transformados.
       // Para query y params, Express los tipa como ParsedQs/ParamsDictionary;
       // hacemos cast porque sabemos que el schema valida.
-      (req as unknown as Record<Source, unknown>)[source] = parsed;
+      if (source === 'query') {
+        res.locals.validatedQuery = parsed;
+      } else if (source === 'params') {
+        res.locals.validatedParams = parsed;
+      } else {
+        req.body = parsed;
+      }
       next();
     } catch (err) {
       if (err instanceof ZodError) {

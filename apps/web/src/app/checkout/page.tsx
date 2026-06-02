@@ -66,7 +66,7 @@ function BoldWidget() {
         {methods.map((m) => (
           <span
             key={m}
-            className="text-[10px] uppercase tracking-wider text-primary/50 border border-primary/15 rounded px-2 py-1"
+            className="text-[10px] uppercase tracking-wider text-primary/50 border border-primary/15 rounded-sm px-2 py-1"
           >
             {m}
           </span>
@@ -351,7 +351,7 @@ function Step1({
                   {z.description && <p className="text-xs text-primary/50">{z.description}</p>}
                 </div>
               </div>
-              <span className="text-sm font-semibold text-primary flex-shrink-0">{formatCOP(z.fee)}</span>
+              <span className="text-sm font-semibold text-primary shrink-0">{formatCOP(z.fee)}</span>
             </label>
           ))}
         </div>
@@ -632,7 +632,7 @@ export default function CheckoutPage() {
                     {i.variantName && <span className="text-primary/50"> · {i.variantName}</span>}
                     <span className="text-primary/50"> × {i.quantity}</span>
                   </span>
-                  <span className="text-primary font-semibold flex-shrink-0">
+                  <span className="text-primary font-semibold shrink-0">
                     {formatCOP(i.unitPrice * i.quantity)}
                   </span>
                 </li>

@@ -11,18 +11,16 @@ import type {
   AdminProductsQuery,
 } from './admin.schemas';
 
-type ReqWithId = Request<{ id: string }>;
-type ReqWithProductImage = Request<{ id: string; imageId: string }>;
-type ReqWithVariant = Request<{ id: string; variantId: string }>;
-
 export const adminProductsController = {
-  list: asyncHandler(async (req: Request, res: Response) => {
-    const result = await adminProductsService.list(req.query as unknown as AdminProductsQuery);
+  list: asyncHandler(async (_req: Request, res: Response) => {
+    const query = res.locals.validatedQuery as AdminProductsQuery;
+    const result = await adminProductsService.list(query);
     sendSuccess(res, result);
   }),
 
-  getById: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const product = await adminProductsService.getById(req.params.id);
+  getById: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const product = await adminProductsService.getById(id);
     sendSuccess(res, product);
   }),
 
@@ -31,47 +29,51 @@ export const adminProductsController = {
     sendCreated(res, product);
   }),
 
-  update: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const product = await adminProductsService.update(req.params.id, req.body as UpdateProductInput);
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const product = await adminProductsService.update(id, req.body as UpdateProductInput);
     sendSuccess(res, product);
   }),
 
-  toggleActive: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const product = await adminProductsService.toggleActive(req.params.id);
+  toggleActive: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const product = await adminProductsService.toggleActive(id);
     sendSuccess(res, product);
   }),
 
-  remove: asyncHandler(async (req: ReqWithId, res: Response) => {
-    await adminProductsService.remove(req.params.id);
+  remove: asyncHandler(async (_req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    await adminProductsService.remove(id);
     sendNoContent(res);
   }),
 
-  addImage: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const image = await adminProductsService.addImage(req.params.id, req.body as ProductImageInput);
+  addImage: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const image = await adminProductsService.addImage(id, req.body as ProductImageInput);
     sendCreated(res, image);
   }),
 
-  deleteImage: asyncHandler(async (req: ReqWithProductImage, res: Response) => {
-    await adminProductsService.deleteImage(req.params.id, req.params.imageId);
+  deleteImage: asyncHandler(async (_req: Request, res: Response) => {
+    const { id, imageId } = res.locals.validatedParams as { id: string; imageId: string };
+    await adminProductsService.deleteImage(id, imageId);
     sendNoContent(res);
   }),
 
-  addVariant: asyncHandler(async (req: ReqWithId, res: Response) => {
-    const variant = await adminProductsService.addVariant(req.params.id, req.body as ProductVariantInput);
+  addVariant: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
+    const variant = await adminProductsService.addVariant(id, req.body as ProductVariantInput);
     sendCreated(res, variant);
   }),
 
-  updateVariant: asyncHandler(async (req: ReqWithVariant, res: Response) => {
-    const variant = await adminProductsService.updateVariant(
-      req.params.id,
-      req.params.variantId,
-      req.body as UpdateVariantInput,
-    );
+  updateVariant: asyncHandler(async (req: Request, res: Response) => {
+    const { id, variantId } = res.locals.validatedParams as { id: string; variantId: string };
+    const variant = await adminProductsService.updateVariant(id, variantId, req.body as UpdateVariantInput);
     sendSuccess(res, variant);
   }),
 
-  deleteVariant: asyncHandler(async (req: ReqWithVariant, res: Response) => {
-    await adminProductsService.deleteVariant(req.params.id, req.params.variantId);
+  deleteVariant: asyncHandler(async (_req: Request, res: Response) => {
+    const { id, variantId } = res.locals.validatedParams as { id: string; variantId: string };
+    await adminProductsService.deleteVariant(id, variantId);
     sendNoContent(res);
   }),
 };

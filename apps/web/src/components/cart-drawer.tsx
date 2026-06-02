@@ -19,7 +19,7 @@ export function CartDrawer() {
       <div
         onClick={closeCart}
         className={cn(
-          'fixed inset-0 z-50 bg-ink/60 backdrop-blur-sm transition-opacity duration-300',
+          'fixed inset-0 z-50 bg-ink/60 backdrop-blur-xs transition-opacity duration-300',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
         )}
         aria-hidden="true"
@@ -72,7 +72,7 @@ export function CartDrawer() {
                   className="flex gap-4 pb-6 border-b border-primary/10 last:border-0"
                 >
                   {item.imageUrl && (
-                    <div className="w-20 h-24 bg-muted overflow-hidden flex-shrink-0">
+                    <div className="w-20 h-24 bg-muted overflow-hidden shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.imageUrl}

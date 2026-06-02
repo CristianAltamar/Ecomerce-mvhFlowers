@@ -1,4 +1,4 @@
-import type { DiscountType } from '@prisma/client';
+import type { DiscountType } from '../../generated/prisma/client';
 import { prisma } from '../../config/prisma';
 import { NotFoundError, ConflictError, BadRequestError } from '../../lib/errors';
 import { cache } from '../../lib/cache';

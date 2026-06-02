@@ -34,7 +34,7 @@ router.get(
  */
 router.get(
   '/:slug',
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request<{ slug: string }>, res: Response) => {
     const cat = await prisma.category.findFirst({
       where: { slug: req.params.slug, isActive: true },
       include: {

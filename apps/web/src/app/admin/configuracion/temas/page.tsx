@@ -77,7 +77,7 @@ function ColorRow({
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-9 h-9 rounded border border-primary/20 cursor-pointer p-0.5 bg-white"
+          className="w-9 h-9 rounded-sm border border-primary/20 cursor-pointer p-0.5 bg-white"
         />
         <input
           type="text"
@@ -327,7 +327,7 @@ export default function TemasPage() {
             Personaliza el tema general, los botones y cada sección de la tienda.
           </p>
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           {isDirty && (
             <button onClick={() => setDraft(null)} className="text-xs text-primary/40 hover:text-primary transition-colors">
               Descartar
@@ -434,7 +434,7 @@ export default function TemasPage() {
                     role="switch"
                     aria-checked={theme.buttons.uppercase}
                     onClick={() => setButton('uppercase', !theme.buttons.uppercase)}
-                    className={`relative w-10 h-5 rounded-full transition-colors flex-shrink-0 ${
+                    className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${
                       theme.buttons.uppercase ? 'bg-primary' : 'bg-primary/20'
                     }`}
                   >

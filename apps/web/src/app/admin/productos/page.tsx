@@ -174,7 +174,7 @@ function ProductsContent() {
                           <img
                             src={product.images[0].url}
                             alt={product.name}
-                            className="w-10 h-10 object-cover flex-shrink-0 border border-primary/10"
+                            className="w-10 h-10 object-cover shrink-0 border border-primary/10"
                           />
                         )}
                         <div>

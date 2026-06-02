@@ -5,13 +5,14 @@ import { asyncHandler } from '../../lib/async-handler';
 import type { ListProductsQuery } from './product.schemas';
 
 export const productController = {
-  list: asyncHandler(async (req: Request, res: Response) => {
-    const result = await productService.list(req.query as unknown as ListProductsQuery);
+  list: asyncHandler(async (_req: Request, res: Response) => {
+    const query = res.locals.validatedQuery as ListProductsQuery;
+    const result = await productService.list(query);
     sendSuccess(res, result);
   }),
 
-  getBySlug: asyncHandler(async (req: Request, res: Response) => {
-    const slug = req.params.slug;
+  getBySlug: asyncHandler(async (_req: Request<{ slug: string }>, res: Response) => {
+    const slug = res.locals.validatedParams?.slug;
     if (!slug) {
       sendSuccess(res, null, 400);
       return;

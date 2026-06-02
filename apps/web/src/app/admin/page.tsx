@@ -158,7 +158,7 @@ export default function AdminDashboard() {
               >
                 <span className="text-sm text-primary truncate mr-4">{p.name}</span>
                 <span
-                  className={`text-xs font-semibold px-2 py-0.5 flex-shrink-0 ${
+                  className={`text-xs font-semibold px-2 py-0.5 shrink-0 ${
                     p.stock === 0 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
                   }`}
                 >

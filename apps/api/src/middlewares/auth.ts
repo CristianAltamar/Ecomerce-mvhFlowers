@@ -1,5 +1,5 @@
 import type { Request, RequestHandler } from 'express';
-import type { Role } from '@prisma/client';
+import type { Role } from '../generated/prisma/client';
 import { verifyAccessToken, type JwtAccessPayload } from '../lib/jwt';
 import { UnauthorizedError, ForbiddenError } from '../lib/errors';
 

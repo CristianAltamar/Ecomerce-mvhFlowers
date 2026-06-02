@@ -191,7 +191,7 @@ export default function MediaPage() {
 
         {/* Panel de edición */}
         {selected && (
-          <aside className="w-72 flex-shrink-0 bg-white border border-primary/10 p-4 space-y-4 self-start sticky top-4">
+          <aside className="w-72 shrink-0 bg-white border border-primary/10 p-4 space-y-4 self-start sticky top-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={selected.url} alt={selected.alt ?? selected.filename} className="w-full aspect-square object-cover border border-primary/10" />
             <div className="text-xs text-primary/50 space-y-0.5">

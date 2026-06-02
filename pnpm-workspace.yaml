@@ -1,6 +1,12 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+overrides:
+  # Una sola versión de los tipos de Express 5 (los @types/compression y @types/multer
+  # arrastran @types/express@4, incompatible con Express 5).
+  '@types/express': 5.0.6
+  # Una sola versión de ioredis (BullMQ trae la suya; debe coincidir con la del API).
+  ioredis: 5.11.0
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true

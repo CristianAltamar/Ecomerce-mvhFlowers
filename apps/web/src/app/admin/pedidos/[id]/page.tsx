@@ -210,7 +210,7 @@ export default function AdminOrderDetailPage() {
               <ol className="space-y-2">
                 {order.statusHistory.map((h) => (
                   <li key={h.id} className="flex gap-3 text-sm">
-                    <span className="text-primary/40 flex-shrink-0 w-28 text-xs">
+                    <span className="text-primary/40 shrink-0 w-28 text-xs">
                       {new Date(h.createdAt).toLocaleString('es-CO', {
                         day: 'numeric',
                         month: 'short',
@@ -306,7 +306,7 @@ export default function AdminOrderDetailPage() {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4 text-sm">
-      <span className="text-primary/50 flex-shrink-0">{label}</span>
+      <span className="text-primary/50 shrink-0">{label}</span>
       <span className="text-primary text-right">{value}</span>
     </div>
   );

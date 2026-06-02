@@ -34,6 +34,8 @@ coverage/
 
 # Prisma
 apps/api/prisma/migrations/dev.db*
+# Cliente Prisma generado (Prisma 7 emite el cliente a una ruta propia)
+apps/api/src/generated/
 
 # Sistema operativo
 Thumbs.db

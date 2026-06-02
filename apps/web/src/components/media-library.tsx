@@ -225,7 +225,7 @@ export function MediaLibrary({ onSelect, onClose }: MediaLibraryProps) {
 
           {/* Sidebar with details */}
           {selected && tab === 'library' && (
-            <div className="w-56 border-l border-primary/10 p-4 flex flex-col gap-3 flex-shrink-0">
+            <div className="w-56 border-l border-primary/10 p-4 flex flex-col gap-3 shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={selected.url} alt={selected.alt ?? selected.filename} className="w-full aspect-square object-cover border border-primary/10" />
               <div className="space-y-1 text-xs text-primary/60">

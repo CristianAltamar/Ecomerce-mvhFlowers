@@ -5,16 +5,11 @@ import { asyncHandler } from '../../lib/async-handler';
 import type { AuthenticatedRequest } from '../../middlewares/auth';
 import type { InitiatePaymentInput } from './payment.schemas';
 
-type ReqWithId = Request<{ id: string }>;
-
 export const paymentController = {
-  initiate: asyncHandler(async (req: ReqWithId, res: Response) => {
+  initiate: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = res.locals.validatedParams as { id: string };
     const userId = (req as unknown as AuthenticatedRequest).user?.sub;
-    const result = await paymentService.initiatePayment(
-      req.params.id,
-      req.body as InitiatePaymentInput,
-      userId,
-    );
+    const result = await paymentService.initiatePayment(id, req.body as InitiatePaymentInput, userId);
     sendSuccess(res, result);
   }),
 

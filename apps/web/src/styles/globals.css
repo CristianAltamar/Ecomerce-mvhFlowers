@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+/* Tailwind v4: seguimos usando el config JS (tema --th-*, colores, animaciones)
+   cargándolo explícitamente; v4 ya no lo autodetecta. Ver §15. */
+@config '../../tailwind.config.ts';
 
 /* =========================================================
    Keyframes extraídos de @midudev/tailwind-animations

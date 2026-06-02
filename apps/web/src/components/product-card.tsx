@@ -34,7 +34,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
 
         {/* Badge premium */}
         {product.isFeatured && (
-          <div className="absolute top-3 left-3 bg-ink/90 text-accent-light text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-sm">
+          <div className="absolute top-3 left-3 bg-ink/90 text-accent-light text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-xs">
             Destacado
           </div>
         )}

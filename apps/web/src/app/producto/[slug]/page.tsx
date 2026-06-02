@@ -8,17 +8,18 @@ import { ApiClientError } from '@/lib/api-client';
 import { AddToCartButton } from './add-to-cart-button';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
   try {
-    const product = await api.getProductBySlug(params.slug);
+    const product = await api.getProductBySlug(slug);
     const description = product.shortDescription ?? product.description ?? undefined;
     return {
       title: product.name,
       description,
-      alternates: { canonical: `/producto/${params.slug}` },
+      alternates: { canonical: `/producto/${slug}` },
       openGraph: {
         title: product.name,
         description: description ?? undefined,
@@ -39,9 +40,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mvhflores.co';
 
 export default async function ProductPage({ params }: PageProps) {
+  const { slug } = await params;
   let product;
   try {
-    product = await api.getProductBySlug(params.slug);
+    product = await api.getProductBySlug(slug);
   } catch (err) {
     if (err instanceof ApiClientError && err.status === 404) notFound();
     throw err;
@@ -117,7 +119,7 @@ export default async function ProductPage({ params }: PageProps) {
                 className="object-cover"
               />
               {product.isFeatured && (
-                <div className="absolute top-4 left-4 bg-ink/90 text-accent-light text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-sm">
+                <div className="absolute top-4 left-4 bg-ink/90 text-accent-light text-[10px] uppercase tracking-widest px-3 py-1 backdrop-blur-xs">
                   Destacado
                 </div>
               )}

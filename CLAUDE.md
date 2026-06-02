@@ -30,9 +30,9 @@ Reemplaza la tienda anterior en WordPress + WooCommerce (mvhflores.com).
 
 | Capa | Tecnología | Puerto dev |
 |------|-----------|-----------|
-| Frontend | Next.js 14 App Router, React 18, TypeScript, TailwindCSS 3.4 | 3000 |
-| Estado cliente | Zustand (carrito + auth + búsqueda), TanStack Query v5 (server state) | — |
-| Backend | Node.js 22 + Express 4, Prisma ORM 5.19 | 4000 |
+| Frontend | Next.js 16 App Router (Turbopack por defecto), React 19, TypeScript 6, TailwindCSS 4 | 3000 |
+| Estado cliente | Zustand 5 (carrito + auth + búsqueda), TanStack Query v5 (server state) | — |
+| Backend | Node.js 22 + Express 5, Prisma ORM 7 (driver adapter `@prisma/adapter-pg`) | 4000 |
 | Base de datos | PostgreSQL 16 (Neon en prod) | 5432 |
 | Cache / colas | Redis + BullMQ (Upstash en prod) | 6379 |
 | Storage de imágenes | Cloudinary (uploads restringidos + URLs firmadas) | — |
@@ -74,7 +74,7 @@ apps/api/src/
 ├── routes.ts                 Router central: monta cada módulo bajo /api/v1
 ├── config/
 │   ├── env.ts                Validación Zod de TODAS las env vars (falla al arrancar si faltan)
-│   ├── prisma.ts             Singleton PrismaClient
+│   ├── prisma.ts             Singleton PrismaClient (Prisma 7: driver adapter @prisma/adapter-pg)
 │   ├── redis.ts              getRedis() (cache) + createBullMQConnection()
 │   └── logger.ts             Pino (pretty en dev, JSON en prod, redacta secretos)
 ├── lib/
@@ -119,8 +119,13 @@ apps/api/src/
 ├── queues/
 │   ├── email.queue.ts        Cola BullMQ "emails" + enqueueOrderConfirmation/enqueueStatusChanged
 │   └── email.worker.ts       Worker que renderiza y envía con nodemailer
-└── __tests__/                Tests Vitest (utils.test.ts, …)
+└── __tests__/                Tests Vitest (utils.test.ts, lib.test.ts)
 ```
+
+> **Prisma 7 (ver §14):** además existen `apps/api/prisma.config.ts` (config requerida por Prisma 7,
+> reemplaza el bloque `"prisma"` de package.json y carga `.env`) y `apps/api/src/generated/prisma/`
+> (cliente generado por el generator `prisma-client` — **gitignored**; se regenera con `prisma generate`).
+> Los imports de `@prisma/client` se hicieron relativos a esa carpeta (`../generated/prisma/client`).
 
 ### Árbol detallado `apps/web/src/`
 
@@ -162,8 +167,13 @@ apps/web/src/
 ├── providers/
 │   ├── auth-provider.tsx     Restaura sesión al montar (refresh)
 │   └── query-provider.tsx    QueryClient (staleTime global: 60s) ← OJO al cachear (§6/§13)
-└── styles/globals.css        Tokens --th-* por defecto, clases .btn-*, .container-mvh, animaciones
+└── styles/globals.css        Tailwind 4: `@import "tailwindcss"` + `@config "../../tailwind.config.ts"`,
+                              tokens --th-*, clases .btn-*, .container-mvh, animaciones
 ```
+
+> **Config del frontend (raíz de `apps/web/`):** `tailwind.config.ts` (JS, se sigue usando vía `@config`),
+> `postcss.config.js` (Tailwind 4 → plugin `@tailwindcss/postcss`; ya **no** lleva `autoprefixer`/`postcss-import`,
+> van integrados) y `eslint.config.mjs` (ESLint flat config — reemplaza `.eslintrc.json`). Ver §24.
 
 ---
 
@@ -197,12 +207,17 @@ $env:Path = "$dir;$env:Path"
 - `prisma generate` falla con **EPERM** (unlink del query engine .dll) mientras `pnpm dev` corre:
   hay que **detener el dev server** antes de generar/migrar.
 - Cambios en el backend requieren **reiniciar la API** (o que `tsx watch` recargue) para tomar efecto.
+- **Prisma 7:** `migrate dev`/`db push` **ya NO** ejecutan `prisma generate` automáticamente — correrlo
+  aparte tras cambiar el schema. La config vive en `apps/api/prisma.config.ts` (carga `.env`, ahí va la
+  `DATABASE_URL` para el CLI). El `postinstall` (`prisma generate`) regenera el cliente en `src/generated/prisma`.
 
 ### Flujo de migración (importante)
-1. Editar `apps/api/prisma/schema.prisma`.
+1. Editar `apps/api/prisma/schema.prisma`. (En Prisma 7 el `datasource` **no** lleva `url`; la URL del CLI
+   está en `prisma.config.ts`. El runtime se conecta vía driver adapter en `config/prisma.ts`.)
 2. Si hay que **preservar/transformar datos** (renombrar columnas, etc.), escribir la migración SQL a
    mano en `apps/api/prisma/migrations/<timestamp>_<nombre>/migration.sql` (rename + UPDATE).
-3. El usuario corre `pnpm --filter @mvh/api db:migrate` (regenera el cliente y aplica).
+3. El usuario corre `pnpm --filter @mvh/api db:migrate` (aplica) y luego `… exec prisma generate`
+   (Prisma 7 ya no lo encadena solo).
 4. Reiniciar `pnpm dev`.
 
 ---
@@ -456,7 +471,10 @@ Invalidación en mutaciones: `cache.delPattern('products:*')` (admin de producto
 
 ## 14. Modelos Prisma (estado actual)
 
-Esquema en `apps/api/prisma/schema.prisma` (PostgreSQL). Relaciones resumidas:
+Esquema en `apps/api/prisma/schema.prisma` (PostgreSQL). **Prisma 7:** generator `prisma-client` con
+`output = "../src/generated/prisma"`; el `datasource` solo declara `provider` (la `url` se quitó del
+schema y vive en `prisma.config.ts`); el cliente se instancia con driver adapter `@prisma/adapter-pg`
+(`config/prisma.ts`). Relaciones resumidas:
 ```
 User ──< Address, Order, RefreshToken, AuditLog
 Category (self-ref parent/children) ──< Product
@@ -649,3 +667,133 @@ El seed (`apps/api/prisma/seed.ts`) crea: 2 usuarios, ~13 categorías (jerarquí
 Mediano/Grande para premium, 4 zonas de entrega, 4 franjas horarias, 1 cupón (`BIENVENIDA10`),
 1 dirección demo.
 ```
+
+---
+
+## 24. Actualización mayor de dependencias (2026-06)
+
+Se actualizaron **todas** las dependencias a su última versión. Saltos mayores e implicaciones:
+
+| Paquete | De → A | Notas de migración |
+|---------|--------|--------------------|
+| next | 14 → 16.2.6 | Turbopack por defecto (sin `--turbopack`); `next lint` eliminado → ESLint CLI; `params`/`searchParams` ahora **async** (Promises) en páginas server (`categoria/[slug]`, `producto/[slug]`). |
+| react / react-dom | 18 → 19.2.6 | + `@types/react`/`@types/react-dom` 19. |
+| tailwindcss | 3.4 → 4.3 | `postcss.config.js` usa `@tailwindcss/postcss` (sin `autoprefixer`/`postcss-import`); `globals.css` usa `@import "tailwindcss"` + `@config`; clases renombradas en el código: `flex-shrink-0→shrink-0`, `backdrop-blur-sm→backdrop-blur-xs`, `rounded→rounded-sm`. Se conserva el config JS y el sistema `--th-*` (§15). |
+| prisma / @prisma/client | 5.19 → 7.8 | Ver §14: generator `prisma-client` + `output`, driver adapter `@prisma/adapter-pg` (+`pg`), `prisma.config.ts`, imports relativos al cliente generado, `url` fuera del schema. |
+| express | 4.21 → 5.2 | `req.params.X` pasa a `string \| string[]`: los handlers con params se tipan `Request<{ id: string }>` (§20). |
+| zod | 3.23 → 4.4 | Retrocompatible aquí (`.email()`/`.url()`/`.flatten()` siguen funcionando, deprecados). |
+| express-rate-limit | 7 → 8 | Opción `max` → `limit`. |
+| eslint | 8 → **9.39** (flat config) | `eslint.config.mjs` con la config flat nativa de `eslint-config-next`. **No 10**: ESLint 10 aún rompe con el plugin de Next 16 (`scopeManager.addGlobals`). 2 reglas nuevas de react-hooks (`set-state-in-effect`, `static-components`) quedan **off** (marcaban código que funciona; revisar aparte). |
+| typescript | 5.5 → 6.0 | `ignoreDeprecations: "6.0"` en `tsconfig.base.json` (`node10`/`baseUrl` deprecados en TS 6). |
+| vitest | 2 → 4.1 | Requiere `vite` (peer ≥6) — añadido `vite` 8 como devDep; web usa `--passWithNoTests`. |
+| @types/node | 20 → **22** | Fijado a la línea 22 (coincide con el runtime Node 22; **no** 25). |
+| otras | zustand 5, helmet 8, pino 10 / pino-http 11 / pino-pretty 13, dotenv 17, bcryptjs 3 (sin `@types/bcryptjs`), framer-motion 12, tailwind-merge 3, ioredis 5.11, bullmq, prettier, turbo | Sin cambios de código. |
+
+- **pnpm overrides** (`pnpm-workspace.yaml`): `@types/express`→5 (los `@types/compression`/`@types/multer` arrastraban v4) e `ioredis`→5.11 (BullMQ traía 5.10).
+- **Verificado:** `type-check`, `build` y `test` (api: 16 tests) en verde para todo el monorepo; lint del web limpio; el cliente Prisma 7 + adapter se instancian en runtime.
+- **Pendiente de probar con BD:** una consulta real vía el driver adapter de Prisma 7. En deploy, Railway
+  corre `db:migrate:deploy` + `prisma generate` — conviene validar contra una BD de staging antes de prod.
+
+
+  ## Fix Express 5: validación de query/params via `res.locals` ✅ COMPLETADO
+
+Después de actualizar a **Express 5.2 / router 2.2**, `req.query` ya no debe reasignarse directamente porque puede comportarse como propiedad de solo lectura/getter. Esto causaba el error:
+
+```txt
+Cannot set property query of #<IncomingMessage> which has only a getter
+```
+
+El problema estaba en `apps/api/src/middlewares/validate.ts`, donde se hacía algo equivalente a:
+
+```ts
+req[source] = parsed;
+```
+
+Cuando `source === 'query'`, Express 5 no permite esa reasignación.
+
+### Nueva regla del middleware `validate`
+
+El middleware `validate()` debe guardar los datos validados en `res.locals` para `query` y `params`, y solo puede reasignar `req.body` cuando `source === 'body'`.
+
+Implementación base:
+
+```ts
+import type { RequestHandler } from 'express';
+import { ZodError, type ZodType } from 'zod';
+
+type Source = 'body' | 'query' | 'params';
+
+export function validate(schema: ZodType, source: Source = 'body'): RequestHandler {
+  return (req, res, next) => {
+    try {
+      const parsed = schema.parse(req[source]);
+
+      if (source === 'query') {
+        res.locals.validatedQuery = parsed;
+      } else if (source === 'params') {
+        res.locals.validatedParams = parsed;
+      } else {
+        req.body = parsed;
+      }
+
+      next();
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return next(err);
+      }
+
+      next(err);
+    }
+  };
+}
+```
+
+### Regla para controladores
+
+Cuando una ruta use:
+
+```ts
+validate(schema, 'query')
+```
+
+el controlador **no debe leer `req.query`** para pasarlo al service.
+
+Debe leer:
+
+```ts
+res.locals.validatedQuery
+```
+
+Ejemplo correcto:
+
+```ts
+list: asyncHandler(async (_req: Request, res: Response) => {
+  const query = res.locals.validatedQuery as ListProductsQuery;
+  const result = await productService.list(query);
+  sendSuccess(res, result);
+});
+```
+
+No usar:
+
+```ts
+const result = await productService.list(req.query as unknown as ListProductsQuery);
+```
+
+porque `req.query` conserva strings originales como:
+
+```ts
+page: '1'
+perPage: '12'
+```
+
+y Prisma falla con:
+
+```txt
+Argument take: Invalid value provided. Expected Int, provided String.
+```
+
+Todos los módulos migrados: `products`, `orders`, `addresses`, `payments`, `admin/products`,
+`admin/orders`, `admin/categories`, `admin/coupons`, `admin/delivery`, `admin/media`.
+Type-check en verde tras la migración.
+
