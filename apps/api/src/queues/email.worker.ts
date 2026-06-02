@@ -108,7 +108,17 @@ export function startEmailWorker(): Worker | null {
         logger.info({ orderNumber: payload.orderNumber, status: payload.newStatus }, 'Email de estado enviado');
       }
     },
-    { connection: conn, concurrency: 3 },
+    {
+      connection: conn,
+      concurrency: 3,
+      // ── Optimización de consumo de Redis (Upstash cobra por comando) ──────
+      // BullMQ hace polling en reposo. Subimos los intervalos para reducir ~12x
+      // los comandos cuando nadie usa la app. NO afecta la latencia de envío:
+      // al encolar un job, el push despierta el bloqueo al instante (el
+      // drainDelay solo aplica cuando la cola está vacía).
+      drainDelay: 60, // s — espera del bloqueo cuando la cola está vacía (default 5)
+      stalledInterval: 300_000, // ms — chequeo de jobs atascados (default 30_000)
+    },
   );
 
   worker.on('completed', (job) => logger.debug({ jobId: job.id }, 'Email job completado'));

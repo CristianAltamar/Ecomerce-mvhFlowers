@@ -602,6 +602,13 @@ Las acciones que generan correos (confirmación de pedido, cambio de estado) enc
 (`queues/email.queue.ts`) y el `email.worker.ts` los renderiza y envía con nodemailer (SMTP de Brevo en
 prod). Sin `REDIS_URL` no hay cola; sin SMTP no se envían (degradación silenciosa, no rompe el flujo).
 
+- **Consumo de Redis en reposo (Upstash cobra por comando):** BullMQ hace *polling* aunque nadie use
+  la app. El worker se configura con `drainDelay: 60` (s) y `stalledInterval: 300_000` (ms) para bajar
+  ~12x los comandos en reposo (de ~840/h a ~70/h). **No afecta la latencia de envío:** al encolar un
+  job, el push despierta el bloqueo al instante; el `drainDelay` solo aplica con la cola vacía. Si vuelve
+  a notarse consumo alto en Upstash, revisar primero estos intervalos (no el cache: `cache.ts` solo
+  ejecuta comandos bajo demanda).
+
 ---
 
 ## 19. Cómo crear una página de admin
