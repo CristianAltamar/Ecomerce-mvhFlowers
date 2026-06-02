@@ -691,8 +691,10 @@ Se actualizaron **todas** las dependencias a su última versión. Saltos mayores
 
 - **pnpm overrides** (`pnpm-workspace.yaml`): `@types/express`→5 (los `@types/compression`/`@types/multer` arrastraban v4) e `ioredis`→5.11 (BullMQ traía 5.10).
 - **Verificado:** `type-check`, `build` y `test` (api: 16 tests) en verde para todo el monorepo; lint del web limpio; el cliente Prisma 7 + adapter se instancian en runtime.
-- **Pendiente de probar con BD:** una consulta real vía el driver adapter de Prisma 7. En deploy, Railway
-  corre `db:migrate:deploy` + `prisma generate` — conviene validar contra una BD de staging antes de prod.
+- **Fix Railway build (`PrismaConfigEnvError`):** en build, `DATABASE_URL` no está disponible (solo en
+  runtime). `prisma.config.ts` usa `process.env.DATABASE_URL ?? 'postgresql://localhost:5432/placeholder'`
+  en lugar del helper `env()` de Prisma (que lanza excepción si la var no existe). `prisma generate` no
+  necesita conexión real; `db:migrate:deploy` corre en el start command donde sí hay `DATABASE_URL`.
 
 
   ## Fix Express 5: validación de query/params via `res.locals` ✅ COMPLETADO
