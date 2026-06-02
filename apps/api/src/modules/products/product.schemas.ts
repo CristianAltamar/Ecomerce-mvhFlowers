@@ -12,7 +12,7 @@ export const listProductsQuerySchema = paginationSchema.extend({
     .optional()
     .transform((v) => (v === 'true' ? true : v === 'false' ? false : undefined)),
   search: z.string().min(1).max(100).optional(),
-  minPrice: z.coerce.number().int().nonnegative().optional(), // en centavos
+  minPrice: z.coerce.number().int().nonnegative().optional(), // en pesos
   maxPrice: z.coerce.number().int().nonnegative().optional(),
   sort: z
     .enum(['newest', 'price_asc', 'price_desc', 'name_asc'])
@@ -20,3 +20,10 @@ export const listProductsQuerySchema = paginationSchema.extend({
 });
 
 export type ListProductsQuery = z.infer<typeof listProductsQuerySchema>;
+
+// Params de GET /products/:slug
+export const productSlugParamsSchema = z.object({
+  slug: z.string().min(1).max(200),
+});
+
+export type ProductSlugParams = z.infer<typeof productSlugParamsSchema>;

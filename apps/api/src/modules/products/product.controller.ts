@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { productService } from './product.service';
 import { sendSuccess } from '../../lib/http';
 import { asyncHandler } from '../../lib/async-handler';
-import type { ListProductsQuery } from './product.schemas';
+import type { ListProductsQuery, ProductSlugParams } from './product.schemas';
 
 export const productController = {
   list: asyncHandler(async (_req: Request, res: Response) => {
@@ -12,11 +12,7 @@ export const productController = {
   }),
 
   getBySlug: asyncHandler(async (_req: Request<{ slug: string }>, res: Response) => {
-    const slug = res.locals.validatedParams?.slug;
-    if (!slug) {
-      sendSuccess(res, null, 400);
-      return;
-    }
+    const { slug } = res.locals.validatedParams as ProductSlugParams;
     const product = await productService.getBySlug(slug);
     sendSuccess(res, product);
   }),
