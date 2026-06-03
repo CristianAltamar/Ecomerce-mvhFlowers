@@ -141,6 +141,7 @@ apps/web/src/
 │   ├── api/revalidate/route.ts  POST — invalida Next.js fetch cache (revalidatePath layout)
 │   ├── contacto/, politicas/, preguntas-frecuentes/, privacidad/
 │   ├── auth/login/, auth/registro/
+│   ├── cuenta/               Mi cuenta (protegida): info, pedidos, direcciones — tabs client-side
 │   └── admin/                Panel (protegido por layout.tsx → rol ADMIN/STAFF)
 │       ├── layout.tsx        Guard de auth + sidebar (NAV)
 │       ├── page.tsx          Dashboard métricas

@@ -54,8 +54,8 @@ export const paymentService = {
 
     // Referencia estable por pedido (idempotente ante reintentos del mismo pedido)
     const reference = order.orderNumber;
-    const redirectionUrl = "https://mvhflores.vercel.app/pedido/" + orderId + "?status=success";
-      //input.returnUrl ?? `${env.WEB_BASE_URL}/pedido/${orderId}?status=success`;
+    const redirectionUrl = 
+      input.returnUrl ?? `${env.WEB_BASE_URL}/pedido/${orderId}?status=success`;
 
     const config = boldProvider.buildButtonConfig({
       orderId: order.id,
