@@ -157,7 +157,7 @@ body {
            bg-primary text-surface font-medium tracking-wide
            border border-primary hover:bg-ink
            transition-all duration-300 hover:gap-3
-           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface cursor-pointer;
     border-radius: var(--th-btn-radius, 0px);
     text-transform: var(--th-btn-transform, none);
   }
@@ -167,7 +167,7 @@ body {
     @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
            bg-transparent text-primary font-medium tracking-wide
            border border-primary/30 hover:border-primary hover:bg-primary/5
-           transition-all duration-300 hover:gap-3;
+           transition-all duration-300 hover:gap-3 cursor-pointer;
     border-radius: var(--th-btn-radius, 0px);
     text-transform: var(--th-btn-transform, none);
   }
@@ -177,7 +177,7 @@ body {
     @apply inline-flex items-center justify-center gap-2 px-7 py-3.5
            bg-accent text-ink font-medium tracking-wide
            hover:bg-accent-light transition-all duration-300 hover:gap-3
-           shadow-lg shadow-ink/40;
+           shadow-lg shadow-ink/40 cursor-pointer;
     border-radius: var(--th-btn-radius, 0px);
     text-transform: var(--th-btn-transform, none);
   }
@@ -185,7 +185,7 @@ body {
   /* Card de producto con micro-interacción */
   .product-card {
     @apply block relative overflow-hidden bg-surface border border-primary/10
-           transition-all duration-500 hover:border-accent/60 hover:-translate-y-0.5;
+           transition-all duration-500 hover:border-accent/60 hover:-translate-y-0.5 cursor-pointer;
   }
 
   /* Marquee text en footer / banners */

@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { prisma } from '../../config/prisma';
 import { sendSuccess } from '../../lib/http';
 import { asyncHandler } from '../../lib/async-handler';
+import { cache } from '../../lib/cache';
+import { getRedis } from '../../config/redis';
 import { adminProductsController } from './admin-products.controller';
 import { adminCategoriesController } from './admin-categories.controller';
 import { adminOrdersController } from './admin-orders.controller';
@@ -136,5 +138,23 @@ adminRouter.put(
       create: { key, content },
     });
     sendSuccess(res, row);
+  }),
+);
+
+// ─── Cache management ────────────────────────────────────────────────────────
+adminRouter.post(
+  '/cache/clear',
+  asyncHandler(async (_req: Request, res: Response) => {
+    const redis = getRedis();
+    let cleared = 0;
+    if (redis) {
+      // Borra todas las claves del namespace versionado del cache
+      const keys = await redis.keys('v*:*');
+      if (keys.length > 0) {
+        await redis.del(...keys);
+        cleared = keys.length;
+      }
+    }
+    sendSuccess(res, { cleared, message: `${cleared} entradas eliminadas del caché` });
   }),
 );

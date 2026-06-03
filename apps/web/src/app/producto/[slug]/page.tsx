@@ -100,7 +100,7 @@ export default async function ProductPage({ params }: PageProps) {
           </>
         )}
         <span className="mx-2">/</span>
-        <span className="text-primary truncate inline-block max-w-[200px] align-bottom">
+        <span className="text-primary truncate inline-block max-w-50 align-bottom">
           {product.name}
         </span>
       </nav>
@@ -109,7 +109,7 @@ export default async function ProductPage({ params }: PageProps) {
         {/* === Galería === */}
         <div>
           {mainImage ? (
-            <div className="relative aspect-[4/5] bg-muted overflow-hidden shadow-premium">
+            <div className="relative aspect-4/5 bg-muted overflow-hidden shadow-premium">
               <Image
                 src={mainImage.url}
                 alt={mainImage.alt ?? product.name}
@@ -125,7 +125,7 @@ export default async function ProductPage({ params }: PageProps) {
               )}
             </div>
           ) : (
-            <div className="aspect-[4/5] bg-muted flex items-center justify-center text-primary/30 font-display italic">
+            <div className="aspect-4/5 bg-muted flex items-center justify-center text-primary/30 font-display italic">
               sin imagen
             </div>
           )}
@@ -175,7 +175,7 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
 
           {/* Línea dorada */}
-          <div className="my-8 h-px bg-gradient-to-r from-accent/40 via-accent to-transparent" />
+          <div className="my-8 h-px bg-linear-to-r from-accent/40 via-accent to-transparent" />
 
           {/* Add to cart (Client Component) */}
           <AddToCartButton product={product} />

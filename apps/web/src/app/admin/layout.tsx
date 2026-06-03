@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
+import { authFetch } from '@/lib/auth-fetch';
 import { cn } from '@/lib/cn';
 
 const NAV = [
@@ -23,10 +24,27 @@ function AdminSidebar() {
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
+  const [clearing, setClearing] = useState(false);
+  const [clearMsg, setClearMsg] = useState('');
 
   const handleLogout = async () => {
     await logout();
     router.push('/auth/login');
+  };
+
+  const handleClearCache = async () => {
+    setClearing(true);
+    setClearMsg('');
+    try {
+      const result = await authFetch<{ cleared: number }>('/admin/cache/clear', { method: 'POST' });
+      await fetch('/api/revalidate', { method: 'POST' });
+      setClearMsg(`✓ ${result.cleared} entradas`);
+    } catch {
+      setClearMsg('Error');
+    } finally {
+      setClearing(false);
+      setTimeout(() => setClearMsg(''), 3000);
+    }
   };
 
   return (
@@ -58,6 +76,18 @@ function AdminSidebar() {
           );
         })}
       </nav>
+
+      {/* Limpiar caché */}
+      <div className="px-4 py-3 border-t border-white/10">
+        <button
+          onClick={handleClearCache}
+          disabled={clearing}
+          className="flex items-center gap-2 text-xs text-surface/40 hover:text-surface/80 transition-colors disabled:opacity-40 w-full"
+        >
+          <span className={clearing ? 'animate-spin' : ''}>↺</span>
+          <span>{clearing ? 'Limpiando…' : clearMsg || 'Limpiar caché'}</span>
+        </button>
+      </div>
 
       {/* User + logout */}
       <div className="px-4 py-4 border-t border-white/10">

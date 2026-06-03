@@ -135,7 +135,7 @@ export function Header({ navItems, logoUrl }: { navItems: NavItem[]; logoUrl?: s
                   {/* ── Dropdown nivel 1 ── */}
                   {item.children && (
                     <div className="absolute top-full left-0 z-50 invisible opacity-0 group-hover/nav:visible group-hover/nav:opacity-100 transition-all duration-150">
-                      <div className="mt-0 bg-surface border border-primary/10 shadow-premium-lg min-w-[210px]">
+                      <div className="mt-0 bg-surface border border-primary/10 shadow-premium-lg min-w-52.5">
                         {item.children.map((child) => (
                           <div key={child.href} className="group/sub relative">
 
@@ -150,7 +150,7 @@ export function Header({ navItems, logoUrl }: { navItems: NavItem[]; logoUrl?: s
                             {/* ── Dropdown nivel 2 (flyout) ── */}
                             {child.children && (
                               <div className="absolute left-full top-0 invisible opacity-0 group-hover/sub:visible group-hover/sub:opacity-100 transition-all duration-150 ml-px">
-                                <div className="bg-surface border border-primary/10 shadow-premium-lg min-w-[190px]">
+                                <div className="bg-surface border border-primary/10 shadow-premium-lg min-w-47.5">
                                   {child.children.map((grand) => (
                                     <Link
                                       key={grand.href}
@@ -178,7 +178,7 @@ export function Header({ navItems, logoUrl }: { navItems: NavItem[]; logoUrl?: s
               {/* Buscar */}
               <button
                 onClick={isSearchOpen ? closeSearch : openSearch}
-                className="p-2 text-primary hover:text-accent transition-colors"
+                className="p-2 text-primary hover:text-accent transition-colors cursor-pointer"
                 aria-label={isSearchOpen ? 'Cerrar búsqueda' : 'Buscar'}
               >
                 {isSearchOpen ? (
@@ -209,7 +209,7 @@ export function Header({ navItems, logoUrl }: { navItems: NavItem[]; logoUrl?: s
               {/* Carrito */}
               <button
                 onClick={openCart}
-                className="relative p-2 text-primary hover:text-accent transition-colors"
+                className="relative p-2 text-primary hover:text-accent transition-colors cursor-pointer"
                 aria-label="Carrito"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -231,7 +231,7 @@ export function Header({ navItems, logoUrl }: { navItems: NavItem[]; logoUrl?: s
         <div
           className={cn(
             'lg:hidden border-t border-primary/10 bg-surface overflow-hidden transition-all duration-300',
-            mobileOpen ? 'max-h-[600px]' : 'max-h-0',
+            mobileOpen ? 'max-h-150' : 'max-h-0',
           )}
         >
           <nav className="container-mvh py-4 flex flex-col">

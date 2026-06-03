@@ -55,6 +55,8 @@ export default function CategoriasPage() {
     queryFn: () => authFetch('/admin/categories'),
   });
 
+  const revalidateNextCache = () => fetch('/api/revalidate', { method: 'POST' });
+
   const saveMutation = useMutation({
     mutationFn: (body: object) =>
       editingId
@@ -63,6 +65,7 @@ export default function CategoriasPage() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       void queryClient.invalidateQueries({ queryKey: ['categories'] });
+      void revalidateNextCache();
       setShowForm(false);
       setEditingId(null);
       setForm(EMPTY_FORM);
@@ -78,6 +81,7 @@ export default function CategoriasPage() {
       authFetch(`/admin/categories/${id}/toggle-active`, { method: 'PATCH' }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      void revalidateNextCache();
     },
   });
 

@@ -1,5 +1,6 @@
 import { prisma } from '../../config/prisma';
 import { NotFoundError, ConflictError } from '../../lib/errors';
+import { cache } from '../../lib/cache';
 import type { CreateCategoryInput, UpdateCategoryInput } from './admin.schemas';
 
 const CATEGORY_INCLUDE = {
@@ -25,7 +26,7 @@ export const adminCategoriesService = {
     const existing = await prisma.category.findUnique({ where: { slug: data.slug } });
     if (existing) throw new ConflictError(`El slug "${data.slug}" ya existe`);
 
-    return prisma.category.create({
+    const category = await prisma.category.create({
       data: {
         name: data.name,
         slug: data.slug,
@@ -37,6 +38,8 @@ export const adminCategoriesService = {
       },
       include: CATEGORY_INCLUDE,
     });
+    await cache.delPattern('products:*');
+    return category;
   },
 
   async update(id: string, data: UpdateCategoryInput) {
@@ -49,19 +52,23 @@ export const adminCategoriesService = {
       if (conflict) throw new ConflictError(`El slug "${data.slug}" ya está en uso`);
     }
 
-    return prisma.category.update({
+    const category = await prisma.category.update({
       where: { id },
       data,
       include: CATEGORY_INCLUDE,
     });
+    await cache.delPattern('products:*');
+    return category;
   },
 
   async toggleActive(id: string) {
     const cat = await this.getById(id);
-    return prisma.category.update({
+    const category = await prisma.category.update({
       where: { id },
       data: { isActive: !cat.isActive },
       include: CATEGORY_INCLUDE,
     });
+    await cache.delPattern('products:*');
+    return category;
   },
 };

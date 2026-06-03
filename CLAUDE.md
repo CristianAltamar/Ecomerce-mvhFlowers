@@ -138,6 +138,7 @@ apps/web/src/
 │   ├── producto/[slug]/      Detalle producto + add-to-cart-button.tsx (variantes, cantidad)
 │   ├── checkout/             Wizard de compra (dirección → entrega → cupón → pago)
 │   ├── pedido/[id]/          Estado del pedido + BoldPaymentButton (polling PENDING→PAID)
+│   ├── api/revalidate/route.ts  POST — invalida Next.js fetch cache (revalidatePath layout)
 │   ├── contacto/, politicas/, preguntas-frecuentes/, privacidad/
 │   ├── auth/login/, auth/registro/
 │   └── admin/                Panel (protegido por layout.tsx → rol ADMIN/STAFF)
@@ -390,6 +391,7 @@ Base: `http://localhost:4000/api/v1`
 | POST | `/admin/media/sync` | Importar de Cloudinary lo que falte + re-firmar URLs existentes |
 | PATCH | `/admin/media/:id` | Editar `{ filename?, alt? }` |
 | DELETE | `/admin/media/:id` | Borra de Cloudinary y de BD (FK SetNull en imágenes de producto) |
+| POST | `/admin/cache/clear` | Vacía Redis (todas las claves `v*:*`). Devuelve `{ cleared: N }` |
 
 ---
 
@@ -454,7 +456,18 @@ Todo el sistema usa **enteros de pesos COP** (no centavos). Campos: `Product.pri
 (renombrar/quitar campos), **subir `CACHE_VERSION`** (`v2`→`v3`): las entradas viejas dejan de leerse
 y se regeneran frescas, sin tener que vaciar Redis (esto evitó el bug de `$ NaN` tras pasar a pesos).
 Claves de productos: `products:slug:<slug>`, `products:featured:<n>`, `products:list:<base64>`.
-Invalidación en mutaciones: `cache.delPattern('products:*')` (admin de productos y de media).
+Invalidación en mutaciones: `cache.delPattern('products:*')` (admin de productos, media **y categorías**).
+
+**Sistema de caché en dos capas:**
+- **Redis** (`cache.ts`): almacena respuestas de productos. `admin-categories.service.ts` llama
+  `cache.delPattern('products:*')` tras crear/editar/toggle de categoría, porque los listados filtrados
+  por categoría quedan obsoletos.
+- **Next.js fetch cache** (`revalidate: 3600` en `apiFetch`): almacena la respuesta de `/categories`
+  usada por el nav. Se invalida vía `POST /api/revalidate` (Route Handler en
+  `apps/web/src/app/api/revalidate/route.ts`) que llama `revalidatePath('/', 'layout')`.
+  `admin/categorias/page.tsx` lo llama automáticamente tras cada mutación.
+- **Botón manual "Limpiar caché"** en el sidebar del admin: llama a `POST /admin/cache/clear` (vacía
+  Redis) + `POST /api/revalidate` (invalida Next.js fetch cache). Útil para forzar refresco inmediato.
 
 ---
 
