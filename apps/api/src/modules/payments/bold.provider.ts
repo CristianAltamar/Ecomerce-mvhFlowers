@@ -70,6 +70,7 @@ export class BoldPaymentProvider implements PaymentProvider {
     try {
       payload = JSON.parse(input.rawBody) as Record<string, unknown>;
     } catch {
+      logger.warn({ rawBodyLen: input.rawBody.length }, 'Bold webhook: no se pudo parsear el body');
       return { isValid: false, raw: null };
     }
 
@@ -126,7 +127,19 @@ export class BoldPaymentProvider implements PaymentProvider {
     });
 
     if (!isValid) {
-      logger.warn({ provided }, 'Bold webhook: firma inválida');
+      // DIAGNÓSTICO TEMPORAL — quitar tras resolver la firma del webhook.
+      // No expone la llave (solo longitudes); los hashes no son reversibles.
+      logger.warn(
+        {
+          provided,
+          providedLen: provided.length,
+          rawBodyLen: input.rawBody.length,
+          secretLen: secret.length,
+          usingWebhookOverride: Boolean(env.BOLD_WEBHOOK_SECRET),
+          canonicalHex: crypto.createHmac('sha256', secret).update(b64Body, 'utf8').digest('hex'),
+        },
+        'Bold webhook: firma inválida (diagnóstico)',
+      );
       return { isValid: false, raw: payload };
     }
 
