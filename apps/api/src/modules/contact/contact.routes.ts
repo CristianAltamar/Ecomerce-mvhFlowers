@@ -41,7 +41,9 @@ router.post(
 
     const transporter = buildTransporter();
 
-    await transporter.sendMail({
+    // Fire-and-forget: no bloquear la respuesta HTTP esperando el SMTP.
+    // Si el envío falla, queda logueado pero el cliente recibe 200 de todas formas.
+    transporter.sendMail({
       from: env.SMTP_FROM,
       to: env.SMTP_FROM,          // llega al email de la tienda
       replyTo: `${nombre} <${correo}>`,
@@ -83,6 +85,8 @@ router.post(
   </div>
 </body>
 </html>`,
+    }).catch((err: unknown) => {
+      logger.error({ correo, asunto, err }, '❌ Error enviando email de contacto');
     });
 
     logger.info({ correo, asunto }, '📩 Formulario de contacto recibido');

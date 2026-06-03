@@ -152,14 +152,14 @@ function ProductsContent() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleDownloadTemplate}
-            className="text-xs px-3 py-2 border border-primary/20 text-primary/60 hover:text-primary hover:border-primary/40 transition-colors"
+            className="text-xs px-3 py-2 border border-primary/20 text-primary/60 hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
           >
             ↓ Plantilla CSV
           </button>
           <button
             onClick={() => csvInputRef.current?.click()}
             disabled={importing}
-            className="text-xs px-3 py-2 border border-primary/20 text-primary/60 hover:text-primary hover:border-primary/40 transition-colors disabled:opacity-40"
+            className="text-xs px-3 py-2 border border-primary/20 text-primary/60 hover:text-primary hover:border-primary/40 transition-colors disabled:opacity-40 cursor-pointer"
           >
             {importing ? 'Importando…' : '↑ Importar CSV'}
           </button>
@@ -200,7 +200,7 @@ function ProductsContent() {
                 )}
                 <button
                   onClick={() => setImportResult(null)}
-                  className="ml-3 text-xs text-primary/40 hover:text-primary/70"
+                  className="ml-3 text-xs text-primary/40 hover:text-primary/70 cursor-pointer"
                 >
                   ✕
                 </button>
