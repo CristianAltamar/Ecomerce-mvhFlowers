@@ -244,7 +244,7 @@ RATE_LIMIT_WINDOW_MS=900000  RATE_LIMIT_MAX=100  AUTH_RATE_LIMIT_MAX=10
 CLOUDINARY_CLOUD_NAME=  CLOUDINARY_API_KEY=  CLOUDINARY_API_SECRET=
 BOLD_API_KEY=            # llave de IDENTIDAD (pública, va en data-api-key)
 BOLD_SECRET_KEY=         # llave SECRETA (firma de integridad + verificación webhook)
-BOLD_WEBHOOK_SECRET=     # opcional: override de llave para verificar webhook
+BOLD_WEBHOOK_SECRET=     # ⚠️ DEJAR VACÍO. Bold NO da secreto de webhook aparte; firma con BOLD_SECRET_KEY. Un valor distinto aquí rompe la verificación (ver §17)
 BOLD_ENVIRONMENT=sandbox # sandbox | production
 BOLD_WEBHOOK_SKIP_VERIFY=false  # solo dev/sandbox: omite verificación de firma
 SMTP_HOST=  SMTP_PORT=587  SMTP_SECURE=false  SMTP_USER=  SMTP_PASS=
@@ -376,7 +376,7 @@ Base: `http://localhost:4000/api/v1`
 | GET | `/admin/metrics` | Dashboard |
 | GET/POST | `/admin/products` | Listar (filtros: `search, categoryId, isActive, page`) / crear |
 | GET | `/admin/products/csv-template` | Descarga plantilla CSV con cabeceras y 2 filas de ejemplo (BOM UTF-8) |
-| POST | `/admin/products/import-csv` | Importa productos desde CSV (`multipart/form-data`, campo `file`). Devuelve `{ total, created, errors, results[] }`. Invalida caché Redis. |
+| POST | `/admin/products/import-csv` | Importa productos desde CSV (`multipart/form-data`, campo `file`). **Autodetecta el separador `,` o `;`** (Excel en español guarda con `;`) y quita el BOM UTF-8. Devuelve `{ total, created, errors, results[] }`. Invalida caché Redis. |
 | GET/PUT | `/admin/products/:id` | Obtener / actualizar (precio+descuento, ver §11) |
 | PATCH | `/admin/products/:id/toggle-active` | Activar/desactivar (devuelve el producto) |
 | DELETE | `/admin/products/:id` | **Eliminar producto** (cascada imágenes/variantes; pedidos conservan histórico) |
@@ -482,6 +482,14 @@ Invalidación en mutaciones: `cache.delPattern('products:*')` (admin de producto
   se rota en cada `/refresh`; si se detecta reuso → revoca todos los tokens del usuario).
 - **Frontend:** `useAuthStore` (Zustand) expone `user`, `accessToken`, `login/logout/refreshSession`.
   Fuera de componentes: `useAuthStore.getState()`.
+- **⚠️ Zustand 5 — selectores atómicos:** leer **un valor por llamada**
+  (`const user = useAuthStore((s) => s.user)`). **Nunca** devolver un objeto nuevo
+  (`useAuthStore((s) => ({ user, logout }))`): en Zustand 5 cada render crea un objeto distinto y se
+  dispara un bucle infinito de renders (errores *"getServerSnapshot should be cached"* / *"Maximum update
+  depth exceeded"*). Para varios valores en una sola llamada usar `useShallow` de `zustand/react/shallow`.
+- **Mi cuenta (`/cuenta`)**: página Client protegida con tabs **Mi información / Mis pedidos / Mis
+  direcciones**. Pedidos vía `GET /orders` (es **paginado**: tipar `Paginated<Order>` y leer `.data`);
+  direcciones con CRUD sobre `/addresses`. Guard: redirige a `/auth/login?callbackUrl=/cuenta` sin sesión.
 
 ---
 
@@ -610,6 +618,19 @@ El body crudo del webhook se captura en el `verify` de `express.json` (`app.ts`)
 (la firma se valida sobre los bytes exactos, **nunca** re-serializar el JSON). Capa abstracta:
 `PaymentProvider` (interface) → `BoldPaymentProvider`; el resto del sistema no habla con Bold directo.
 
+### Verificación de firma del webhook (algoritmo exacto)
+Confirmado 1:1 contra `developers.bold.co/webhook`: `HMAC-SHA256(secret, base64(rawBody))` en **hex**,
+comparado con el header `x-bold-signature`. `bold.provider.ts` prueba variantes hex/base64 por robustez.
+- ⚠️ **NO setear `BOLD_WEBHOOK_SECRET`** (dejarlo vacío). Bold firma el webhook con la **misma
+  `BOLD_SECRET_KEY`** del botón; **no** entrega un secreto de webhook aparte. El código usa
+  `BOLD_WEBHOOK_SECRET ?? BOLD_SECRET_KEY`, así que un valor distinto/incorrecto ahí hace fallar la firma
+  y el pedido **nunca pasa a PAID** (fue el bug real del 2026-06-03: había un `BOLD_WEBHOOK_SECRET`
+  equivocado en Railway; al eliminarlo, funcionó).
+- En **sandbox** la firma usa **clave vacía** → por eso `BOLD_WEBHOOK_SKIP_VERIFY=true` solo en no-producción.
+- **Estado: EN PRODUCCIÓN y funcionando** (API en Railway `mvhapi-production.up.railway.app`).
+- **Diagnóstico:** los `logger.warn` de la app salen en **Deploy Logs** de Railway (no en HTTP Logs).
+  En HTTP Logs, `txBytes:18` = `{"received":false}` = firma inválida.
+
 ---
 
 ## 18. Emails (cola)
@@ -624,6 +645,12 @@ prod). Sin `REDIS_URL` no hay cola; sin SMTP no se envían (degradación silenci
   job, el push despierta el bloqueo al instante; el `drainDelay` solo aplica con la cola vacía. Si vuelve
   a notarse consumo alto en Upstash, revisar primero estos intervalos (no el cache: `cache.ts` solo
   ejecuta comandos bajo demanda).
+
+- **Contacto (`POST /contact`) NO usa la cola:** envía directo con nodemailer en modo **fire-and-forget**
+  (`transporter.sendMail(...).catch(log)`) y responde 200 al instante. Así un timeout/fallo de SMTP **no
+  bloquea** la respuesta HTTP (antes causaba 502 en prod). `replyTo` = el correo del visitante; `to`/`from`
+  = `SMTP_FROM`. En prod requiere `SMTP_HOST=smtp-relay.brevo.com` y `SMTP_PASS` = la **SMTP Key** de Brevo
+  (no la contraseña de la cuenta).
 
 ---
 
