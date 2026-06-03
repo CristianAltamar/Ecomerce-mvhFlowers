@@ -248,7 +248,7 @@ export default function CategoriasPage() {
                     <button
                       onClick={() => toggleMutation.mutate(cat.id)}
                       disabled={toggleMutation.isPending}
-                      className={`text-xs px-2 py-0.5 transition-colors ${
+                      className={`text-xs px-2 py-0.5 transition-colors cursor-pointer ${
                         cat.isActive
                           ? 'bg-green-100 text-green-700 hover:bg-green-200'
                           : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
@@ -258,7 +258,7 @@ export default function CategoriasPage() {
                     </button>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button onClick={() => openEdit(cat)} className="text-xs text-accent hover:underline">
+                    <button onClick={() => openEdit(cat)} className="text-xs text-accent hover:underline cursor-pointer">
                       Editar
                     </button>
                   </td>

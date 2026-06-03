@@ -48,14 +48,16 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
     });
   }
 
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
   const fetchInit: RequestInit & { next?: { tags?: string[]; revalidate?: number | false } } = {
     ...rest,
     headers: {
-      'Content-Type': 'application/json',
+      // FormData: el browser pone Content-Type con el boundary automáticamente
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       Accept: 'application/json',
       ...headers,
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: isFormData ? (body as FormData) : body !== undefined ? JSON.stringify(body) : undefined,
   };
 
   // Hooks de cache de Next.js (sólo aplican en server-side fetch)

@@ -158,7 +158,7 @@ apps/web/src/
 │   ├── bold-payment-button.tsx   Inyecta el script del botón de Bold con la config firmada
 │   └── media-library.tsx     Modal selector de imágenes (reutilizado por producto, temas)
 ├── lib/
-│   ├── api-client.ts         apiFetch() + ApiClientError + API_URL (maneja 204/sin cuerpo)
+│   ├── api-client.ts         apiFetch() + ApiClientError + API_URL (maneja 204/sin cuerpo; si `body` es `FormData` omite Content-Type para multipart)
 │   ├── auth-fetch.ts         authFetch() — agrega Bearer, auto-refresh en 401
 │   ├── api.ts                Objeto api.* para Server Components (getCategories, getProductBySlug, …)
 │   ├── theme.ts              ThemeConfig, DEFAULT_THEME, buildThemeCss(), mergeTheme(), hexToRgbChannels()
@@ -374,6 +374,8 @@ Base: `http://localhost:4000/api/v1`
 |--------|------|-------|
 | GET | `/admin/metrics` | Dashboard |
 | GET/POST | `/admin/products` | Listar (filtros: `search, categoryId, isActive, page`) / crear |
+| GET | `/admin/products/csv-template` | Descarga plantilla CSV con cabeceras y 2 filas de ejemplo (BOM UTF-8) |
+| POST | `/admin/products/import-csv` | Importa productos desde CSV (`multipart/form-data`, campo `file`). Devuelve `{ total, created, errors, results[] }`. Invalida caché Redis. |
 | GET/PUT | `/admin/products/:id` | Obtener / actualizar (precio+descuento, ver §11) |
 | PATCH | `/admin/products/:id/toggle-active` | Activar/desactivar (devuelve el producto) |
 | DELETE | `/admin/products/:id` | **Eliminar producto** (cascada imágenes/variantes; pedidos conservan histórico) |

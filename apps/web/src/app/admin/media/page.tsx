@@ -182,7 +182,7 @@ export default function MediaPage() {
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.url} alt={item.alt ?? item.filename} className="w-full h-full object-cover" />
+                  <img src={item.url} alt={item.alt ?? item.filename} className="w-full h-full object-cover cursor-pointer" />
                 </button>
               ))}
             </div>

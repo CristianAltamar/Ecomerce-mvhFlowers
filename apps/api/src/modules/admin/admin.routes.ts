@@ -15,6 +15,7 @@ import { adminMetricsController } from './admin-metrics.controller';
 import { adminCouponsController } from './admin-coupons.controller';
 import { adminDeliveryController } from './admin-delivery.controller';
 import { adminMediaController } from './admin-media.controller';
+import { adminProductsCsvController } from './admin-products-csv';
 
 const imageUpload = multer({
   storage: multer.memoryStorage(),
@@ -22,6 +23,19 @@ const imageUpload = multer({
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Solo se permiten imágenes'));
+  },
+});
+
+const csvUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed =
+      file.mimetype === 'text/csv' ||
+      file.mimetype === 'application/vnd.ms-excel' ||
+      file.originalname.toLowerCase().endsWith('.csv');
+    if (allowed) cb(null, true);
+    else cb(new Error('Solo se permiten archivos CSV'));
   },
 });
 import {
@@ -67,6 +81,9 @@ adminRouter.get('/metrics', adminMetricsController.getDashboard);
 // ─── Products ─────────────────────────────────────────────────────────────────
 adminRouter.get('/products', validate(adminProductsQuerySchema, 'query'), adminProductsController.list);
 adminRouter.post('/products', validate(createProductSchema), adminProductsController.create);
+// CSV — deben ir ANTES de /:id para no ser capturadas por ese parámetro
+adminRouter.get('/products/csv-template', adminProductsCsvController.downloadTemplate);
+adminRouter.post('/products/import-csv', csvUpload.single('file'), adminProductsCsvController.importCsv);
 adminRouter.get('/products/:id', validate(idParamsSchema, 'params'), adminProductsController.getById);
 adminRouter.put('/products/:id', validate(idParamsSchema, 'params'), validate(updateProductSchema), adminProductsController.update);
 adminRouter.patch('/products/:id/toggle-active', validate(idParamsSchema, 'params'), adminProductsController.toggleActive);

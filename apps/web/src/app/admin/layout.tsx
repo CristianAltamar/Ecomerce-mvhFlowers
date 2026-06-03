@@ -82,7 +82,7 @@ function AdminSidebar() {
         <button
           onClick={handleClearCache}
           disabled={clearing}
-          className="flex items-center gap-2 text-xs text-surface/40 hover:text-surface/80 transition-colors disabled:opacity-40 w-full"
+          className="flex items-center gap-2 text-xs text-surface/40 hover:text-surface/80 transition-colors disabled:opacity-40 w-full cursor-pointer"
         >
           <span className={clearing ? 'animate-spin' : ''}>↺</span>
           <span>{clearing ? 'Limpiando…' : clearMsg || 'Limpiar caché'}</span>
@@ -98,7 +98,7 @@ function AdminSidebar() {
         )}
         <button
           onClick={handleLogout}
-          className="text-xs text-surface/50 hover:text-surface transition-colors"
+          className="text-xs text-surface/50 hover:text-surface transition-color cursor-pointer"
         >
           Cerrar sesión →
         </button>
